@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn khắc Laser - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="../../index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                
+                <a href="../schedule.html" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Đăng ký lịch làm</span>
+                </a>
+                
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../cs/library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="../cs/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">📢</span>
+                        <span>Marketing</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../marketing/library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="../marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">⚡</span>
+                        <span>Laser</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="guide.html" class="nav-subitem active">Hướng dẫn khắc Laser</a>
+                        <a href="lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../index.html">Trang chủ</a>
+                <span>/</span>
+                <span>Laser</span>
+                <span>/</span>
+                <span>Hướng dẫn khắc Laser</span>
+            </div>
+            
+            <header class="page-header">
+                <h1>⚡ Hướng dẫn khắc Laser</h1>
+                <p class="header-subtitle">Quy trình và kỹ thuật khắc laser cho sản phẩm Crush Room</p>
+            </header>
+
+            <section class="content-section">
+                <h2>🛡️ An toàn lao động</h2>
+                <p><strong>⚠️ BẮT BUỘC tuân thủ trước khi vận hành:</strong></p>
+                <ul>
+                    <li>Đeo <strong>kính bảo hộ laser</strong> trong suốt quá trình khắc</li>
+                    <li>Bật hệ thống <strong>hút khói</strong> trước khi khắc</li>
+                    <li>Không để tay hoặc vật liệu dễ cháy gần khu vực khắc</li>
+                    <li>Kiểm tra bình chữa cháy còn hoạt động</li>
+                    <li>Không rời khỏi máy khi đang khắc</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>📋 Quy trình chuẩn bị</h2>
+                
+                <h3>Bước 1: Kiểm tra đơn hàng</h3>
+                <ul>
+                    <li>Xác nhận thông tin khắc: tên, ngày tháng, ảnh mắt</li>
+                    <li>Kiểm tra size và loại sản phẩm</li>
+                    <li>Đánh dấu đơn đã nhận vào hệ thống</li>
+                </ul>
+
+                <h3>Bước 2: Chuẩn bị file khắc</h3>
+                <ul>
+                    <li>Mở file template tương ứng trong Lightburn</li>
+                    <li>Import ảnh/text cần khắc</li>
+                    <li>Căn chỉnh vị trí chính xác</li>
+                    <li>Kiểm tra preview trước khi khắc</li>
+                </ul>
+
+                <h3>Bước 3: Chuẩn bị vật liệu</h3>
+                <ul>
+                    <li>Lau sạch bề mặt sản phẩm</li>
+                    <li>Đặt sản phẩm vào jig cố định</li>
+                    <li>Điều chỉnh focus lens</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>🔧 Các loại sản phẩm khắc</h2>
+                
+                <h3>1. Vòng khắc mắt (Engraved Eye)</h3>
+                <ul>
+                    <li>Sử dụng ảnh mắt đã được xử lý</li>
+                    <li>Kích thước khắc: 8mm x 6mm</li>
+                    <li>Mode: Image (Grayscale)</li>
+                    <li>Xem thông số chi tiết → <a href="lightburn.html">Lightburn Settings</a></li>
+                </ul>
+
+                <h3>2. Vòng khắc text</h3>
+                <ul>
+                    <li>Font: Be Vietnam Pro hoặc Dancing Script</li>
+                    <li>Max ký tự: 20 (tùy size vòng)</li>
+                    <li>Mode: Line/Fill</li>
+                </ul>
+
+                <h3>3. Mặt dây chuyền</h3>
+                <ul>
+                    <li>Diện tích khắc lớn hơn, có thể thêm hình</li>
+                    <li>Cần test trước trên mẫu thử</li>
+                </ul>
+            </section>
+
+            <section class="content-section">
+                <h2>✅ Kiểm tra chất lượng</h2>
+                <p>Sau khi khắc xong, kiểm tra:</p>
+                <ul>
+                    <li>Độ rõ nét của hình/chữ</li>
+                    <li>Không có vết cháy, ố</li>
+                    <li>Độ sâu khắc đồng đều</li>
+                    <li>Vị trí khắc chính xác</li>
+                </ul>
+                <p><strong>Nếu lỗi:</strong> Báo cáo ngay cho quản lý, không tự ý sửa chữa hoặc giao hàng.</p>
+            </section>
+
+            <section class="content-section">
+                <h2>🚨 Xử lý sự cố</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sự cố</th>
+                            <th>Nguyên nhân</th>
+                            <th>Cách xử lý</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Khắc mờ</td>
+                            <td>Focus sai, công suất thấp</td>
+                            <td>Điều chỉnh focus, tăng power</td>
+                        </tr>
+                        <tr>
+                            <td>Cháy vật liệu</td>
+                            <td>Công suất cao, tốc độ chậm</td>
+                            <td>Giảm power, tăng speed</td>
+                        </tr>
+                        <tr>
+                            <td>Lệch vị trí</td>
+                            <td>Jig lỏng, home sai</td>
+                            <td>Kiểm tra jig, home lại máy</td>
+                        </tr>
+                        <tr>
+                            <td>Máy không nhận lệnh</td>
+                            <td>Kết nối USB</td>
+                            <td>Rút cắm lại, restart máy</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="content-section" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);">
+                <h2>⚙️ Thông số Lightburn</h2>
+                <p>Xem chi tiết các thông số cài đặt cho từng loại vật liệu.</p>
+                <a href="lightburn.html" class="btn btn-primary" style="margin-top: 12px;">
+                    Xem thông số Lightburn →
+                </a>
+            </section>
+        </main>
+    </div>
+
+    <script src="../../js/main.js"></script>
+</body>
+</html>

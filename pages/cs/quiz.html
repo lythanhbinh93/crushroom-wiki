@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài kiểm tra CS - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .quiz-result {
+            display: none;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 24px;
+        }
+        .quiz-score {
+            font-size: 48px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin: 16px 0;
+        }
+        .quiz-percentage {
+            font-size: 24px;
+            color: #388e3c;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="../../index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                
+                <a href="../schedule.html" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Đăng ký lịch làm</span>
+                </a>
+                
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="quiz.html" class="nav-subitem active">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">📢</span>
+                        <span>Marketing</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../marketing/library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="../marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">⚡</span>
+                        <span>Laser</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../laser/guide.html" class="nav-subitem">Hướng dẫn khắc Laser</a>
+                        <a href="../laser/lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../index.html">Trang chủ</a>
+                <span>/</span>
+                <span>Customer Service</span>
+                <span>/</span>
+                <span>Bài kiểm tra</span>
+            </div>
+            
+            <header class="page-header">
+                <h1>✏️ Bài kiểm tra CS</h1>
+                <p class="header-subtitle">Kiểm tra kiến thức sản phẩm và kỹ năng tư vấn</p>
+            </header>
+
+            <div class="content-section" style="background: #fff3e0; margin-bottom: 24px;">
+                <p><strong>📌 Hướng dẫn:</strong> Chọn câu trả lời đúng nhất cho mỗi câu hỏi. Cần đạt tối thiểu 80% để pass bài test.</p>
+            </div>
+
+            <div class="quiz-container">
+                <!-- Question 1 -->
+                <div class="quiz-question" id="question-1">
+                    <div class="quiz-question-number">Câu 1/5</div>
+                    <div class="quiz-question-text">Công nghệ chiếu ảnh của PIX Collection sử dụng loại thấu kính gì?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(1, 0)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Thấu kính phẳng</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(1, 1)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Thấu kính lõm</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(1, 2)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Thấu kính lồi nano</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(1, 3)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Không sử dụng thấu kính</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="quiz-question" id="question-2">
+                    <div class="quiz-question-number">Câu 2/5</div>
+                    <div class="quiz-question-text">Khi khách hàng hỏi "Giá cao vậy?", phản hồi nào là PHÙ HỢP nhất?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(2, 0)">
+                            <div class="quiz-option-marker"></div>
+                            <span>"Dạ bên em giá cố định rồi ạ"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(2, 1)">
+                            <div class="quiz-option-marker"></div>
+                            <span>"Dạ so với sản phẩm handmade cá nhân hóa, giá này rất hợp lý ạ. Anh/chị muốn tặng người yêu dịp nào ạ?"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(2, 2)">
+                            <div class="quiz-option-marker"></div>
+                            <span>"Để em xin giảm giá cho anh/chị nhé"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(2, 3)">
+                            <div class="quiz-option-marker"></div>
+                            <span>"Dạ chỗ khác rẻ hơn thì anh/chị mua chỗ đó ạ"</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="quiz-question" id="question-3">
+                    <div class="quiz-question-number">Câu 3/5</div>
+                    <div class="quiz-question-text">Trang sức Warm Love đổi màu dựa trên yếu tố nào?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(3, 0)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Ánh sáng môi trường</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(3, 1)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Nhiệt độ cơ thể</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(3, 2)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Độ ẩm không khí</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(3, 3)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Màu sắc quần áo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="quiz-question" id="question-4">
+                    <div class="quiz-question-number">Câu 4/5</div>
+                    <div class="quiz-question-text">Khi khách muốn đổi sản phẩm, bước đầu tiên cần làm là gì?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(4, 0)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Từ chối vì sản phẩm cá nhân hóa không đổi được</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(4, 1)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Xin lỗi và hỏi lý do khách muốn đổi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(4, 2)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Yêu cầu khách gửi ảnh/video sản phẩm</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(4, 3)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Chuyển ngay cho quản lý xử lý</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="quiz-question" id="question-5">
+                    <div class="quiz-question-number">Câu 5/5</div>
+                    <div class="quiz-question-text">Để upsell Memory Book cho khách đã mua vòng PIX, cách nào hiệu quả nhất?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(5, 0)">
+                            <div class="quiz-option-marker"></div>
+                            <span>"Anh/chị mua thêm Memory Book đi ạ, đang sale"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(5, 1)">
+                            <div class="quiz-option-marker"></div>
+                            <span>"Anh/chị ơi, nhiều khách tặng vòng kèm Memory Book để lưu giữ kỷ niệm 2 người, combo còn tiết kiệm hơn nữa ạ"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(5, 2)">
+                            <div class="quiz-option-marker"></div>
+                            <span>"Anh/chị phải mua thêm Memory Book mới đủ bộ ạ"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(5, 3)">
+                            <div class="quiz-option-marker"></div>
+                            <span>Không upsell vì khách đã mua rồi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="submitQuiz({1: 2, 2: 1, 3: 1, 4: 1, 5: 1})" style="width: 100%; justify-content: center; margin-top: 16px;">
+                    Nộp bài kiểm tra
+                </button>
+
+                <div id="quiz-result" class="quiz-result"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/main.js"></script>
+</body>
+</html>
