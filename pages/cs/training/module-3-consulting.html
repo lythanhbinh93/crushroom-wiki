@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Kỹ năng tư vấn - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .module-banner {
+            background: linear-gradient(135deg, #4caf50, #8bc34a);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+        .module-banner h1 { margin: 0 0 8px 0; }
+        .module-banner p { margin: 0; opacity: 0.9; }
+        
+        .learning-objectives {
+            background: #e8f5e9;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+        .learning-objectives h3 { margin-top: 0; color: #2e7d32; }
+        
+        .conversation-flow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .flow-step {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .flow-step.active {
+            background: #4caf50;
+            color: white;
+        }
+        .flow-arrow {
+            color: #4caf50;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .script-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        .script-box .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #757575;
+            margin-bottom: 8px;
+        }
+        .script-box .customer {
+            background: #e3f2fd;
+            padding: 14px 18px;
+            border-radius: 18px 18px 18px 4px;
+            margin-bottom: 12px;
+            max-width: 85%;
+        }
+        .script-box .cs {
+            background: #e8f5e9;
+            padding: 14px 18px;
+            border-radius: 18px 18px 4px 18px;
+            margin-left: auto;
+            max-width: 85%;
+        }
+        .script-box .note {
+            background: #fff3e0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 14px;
+            color: #e65100;
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .key-point h4 { margin-top: 0; color: #f57c00; }
+        
+        .insight-box {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .insight-box h4 { margin-top: 0; color: #7b1fa2; }
+        
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .warning-box h4 { margin-top: 0; color: #c62828; }
+        
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success-box h4 { margin-top: 0; color: #2e7d32; }
+        
+        .objection-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .objection-card h4 {
+            margin-top: 0;
+            color: #c62828;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .objection-card .response {
+            background: #e8f5e9;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        
+        .technique-card {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .technique-card h4 {
+            margin-top: 0;
+            color: #1565c0;
+        }
+        
+        .checklist {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+        .checklist-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item .icon {
+            width: 24px;
+            height: 24px;
+            background: #4caf50;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .comparison-table th { background: #f5f5f5; }
+        .comparison-table tr:hover { background: #e8f5e9; }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-btn.prev { background: #f5f5f5; color: #333; }
+        .nav-btn.next { background: #4caf50; color: white; }
+        .nav-btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="../../../index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="../../schedule.html" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Đăng ký lịch làm</span>
+                </a>
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../library.html" class="nav-subitem active">Thư viện học tập</a>
+                        <a href="../quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">📢</span>
+                        <span>Marketing</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../../marketing/library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="../../marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">⚡</span>
+                        <span>Laser</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../../laser/guide.html" class="nav-subitem">Hướng dẫn khắc Laser</a>
+                        <a href="../../laser/lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../../index.html">Trang chủ</a>
+                <span>/</span>
+                <a href="../library.html">CS Training</a>
+                <span>/</span>
+                <span>Module 3: Kỹ năng tư vấn</span>
+            </div>
+
+            <div class="module-banner">
+                <h1>💬 Module 3: Kỹ năng tư vấn</h1>
+                <p>Từ mở đầu đến chốt đơn thành công • ⏱️ ~40 phút đọc</p>
+            </div>
+
+            <div class="learning-objectives">
+                <h3>🎯 Sau khi hoàn thành module này, bạn sẽ:</h3>
+                <ul>
+                    <li>Biết cách mở đầu cuộc trò chuyện tạo ấn tượng tốt</li>
+                    <li>Thành thạo kỹ thuật khai thác nhu cầu khách hàng</li>
+                    <li>Biết cách recommend sản phẩm phù hợp với từng khách</li>
+                    <li>Xử lý được các tình huống từ chối phổ biến</li>
+                    <li>Áp dụng được các kỹ thuật chốt đơn hiệu quả</li>
+                </ul>
+            </div>
+
+            <!-- Flow -->
+            <section class="content-section">
+                <h2>🗺️ Quy trình tư vấn chuẩn</h2>
+                <div class="conversation-flow">
+                    <span class="flow-step">1. Chào hỏi</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">2. Khai thác nhu cầu</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">3. Recommend</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step">4. Xử lý từ chối</span>
+                    <span class="flow-arrow">→</span>
+                    <span class="flow-step active">5. Chốt đơn</span>
+                </div>
+            </section>
+
+            <!-- Section 1: Mở đầu -->
+            <section class="content-section" id="opening">
+                <h2>1. Mở đầu cuộc trò chuyện</h2>
+                
+                <div class="key-point">
+                    <h4>⚡ Nguyên tắc vàng: 1-2 phút</h4>
+                    <p>Khách nhắn tin = khách đang NÓNG. Phản hồi trong 1-2 phút để không mất đơn. Sau 5 phút, 50% khách đã nhắn shop khác.</p>
+                </div>
+
+                <h3>1.1. Các tình huống mở đầu</h3>
+                
+                <div class="script-box">
+                    <div class="label">Tình huống 1: Khách hỏi chung chung</div>
+                    <div class="customer"><strong>Khách:</strong> Shop ơi cho hỏi</div>
+                    <div class="cs"><strong>CS:</strong> Crush Room xin chào bạn ạ! 💝 Bạn đang quan tâm sản phẩm nào ạ? Cho shop xin ảnh sản phẩm để tiện tư vấn chi tiết hơn nha!</div>
+                    <div class="note">💡 Chào + Hỏi ngay sản phẩm quan tâm để không mất thời gian</div>
+                </div>
+
+                <div class="script-box">
+                    <div class="label">Tình huống 2: Khách hỏi giá</div>
+                    <div class="customer"><strong>Khách:</strong> Giá vòng tay bao nhiêu shop?</div>
+                    <div class="cs"><strong>CS:</strong> Dạ vòng tay chiếu ảnh giá 349k/chiếc, mua đôi còn 599k (giảm 99k) và freeship toàn quốc ạ 😊 
+
+Bạn đang muốn mua 1 chiếc để tặng hay 1 đôi để đeo chung ạ?</div>
+                    <div class="note">💡 Trả lời giá + giá combo + hỏi số lượng để mở rộng đơn</div>
+                </div>
+
+                <div class="script-box">
+                    <div class="label">Tình huống 3: Khách comment bài viết</div>
+                    <div class="customer"><strong>Khách:</strong> (Comment: "Giá bao nhiêu shop?")</div>
+                    <div class="cs"><strong>CS:</strong> Dạ thông tin ưu đãi đã được shop gửi trong tin nhắn riêng. Bạn phản hồi trong tin nhắn riêng để admin hỗ trợ nhanh cho bạn nha ❤️</div>
+                    <div class="note">💡 Kéo khách vào inbox để tư vấn riêng</div>
+                </div>
+
+                <h3>1.2. Những điều cần tránh khi mở đầu</h3>
+                <div class="warning-box">
+                    <h4>🚫 KHÔNG làm</h4>
+                    <ul>
+                        <li><strong>Trả lời cộc lốc:</strong> "349k" → Khách không biết hỏi gì tiếp</li>
+                        <li><strong>Gửi bảng giá dài:</strong> Khách overwhelmed, không biết chọn gì</li>
+                        <li><strong>Không hỏi lại:</strong> Trả lời xong rồi im → Khách quên luôn</li>
+                        <li><strong>Copy paste máy móc:</strong> Không đọc câu hỏi khách</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 2: Khai thác nhu cầu -->
+            <section class="content-section" id="discovery">
+                <h2>2. Khai thác nhu cầu khách hàng</h2>
+                
+                <div class="insight-box">
+                    <h4>🎯 Mục tiêu: Thu thập 4 thông tin</h4>
+                    <ol>
+                        <li><strong>Tặng ai?</strong> Người yêu, vợ/chồng, bạn thân, mẹ...</li>
+                        <li><strong>Dịp gì?</strong> Sinh nhật, kỷ niệm, Valentine, không dịp gì...</li>
+                        <li><strong>Khi nào cần?</strong> Gấp hay có thời gian?</li>
+                        <li><strong>Budget?</strong> (Không hỏi trực tiếp, đoán qua phản ứng)</li>
+                    </ol>
+                </div>
+
+                <h3>2.1. Câu hỏi khai thác</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Mục đích</th>
+                        <th>Câu hỏi</th>
+                    </tr>
+                    <tr>
+                        <td>Biết tặng ai</td>
+                        <td>"Bạn đang muốn mua tặng ai ạ?"</td>
+                    </tr>
+                    <tr>
+                        <td>Biết dịp</td>
+                        <td>"Bạn tặng dịp gì ạ? Sinh nhật hay kỷ niệm ạ?"</td>
+                    </tr>
+                    <tr>
+                        <td>Biết deadline</td>
+                        <td>"Bạn cần nhận hàng khi nào ạ?" / "Sinh nhật người ấy ngày nào ạ?"</td>
+                    </tr>
+                    <tr>
+                        <td>Biết số lượng</td>
+                        <td>"Bạn cần 1 chiếc tặng hay 1 đôi để đeo chung ạ?"</td>
+                    </tr>
+                    <tr>
+                        <td>Biết sở thích</td>
+                        <td>"Người ấy thích vòng tay hay dây chuyền hơn ạ?"</td>
+                    </tr>
+                </table>
+
+                <div class="script-box">
+                    <div class="label">Ví dụ flow khai thác nhu cầu</div>
+                    <div class="customer"><strong>Khách:</strong> Shop ơi tư vấn giúp em</div>
+                    <div class="cs"><strong>CS:</strong> Dạ Crush Room xin chào! Bạn đang muốn mua tặng ai ạ? 💝</div>
+                    <div class="customer"><strong>Khách:</strong> Tặng người yêu</div>
+                    <div class="cs"><strong>CS:</strong> Dạ tặng dịp gì ạ bạn? Sinh nhật hay kỷ niệm ạ?</div>
+                    <div class="customer"><strong>Khách:</strong> Sinh nhật bạn gái</div>
+                    <div class="cs"><strong>CS:</strong> Ui sinh nhật thì phải có quà đặc biệt rồi 🎂 Sinh nhật ngày nào ạ bạn? Để shop tính xem kịp ship không nha</div>
+                    <div class="customer"><strong>Khách:</strong> Còn 2 tuần nữa</div>
+                    <div class="cs"><strong>CS:</strong> 2 tuần là thoải mái luôn ạ! Bạn gái thích vòng tay hay dây chuyền hơn ạ? Shop có cả 2 loại đều chiếu được ảnh 2 người vào đó luôn í 😍</div>
+                    <div class="note">💡 Hỏi tự nhiên như trò chuyện, không hỏi dồn dập</div>
+                </div>
+            </section>
+
+            <!-- Section 3: Recommend -->
+            <section class="content-section" id="recommend">
+                <h2>3. Recommend sản phẩm phù hợp</h2>
+                
+                <div class="key-point">
+                    <h4>💡 Nguyên tắc: Recommend có lý do</h4>
+                    <p>Không chỉ nói "sản phẩm này đẹp" mà phải giải thích TẠI SAO phù hợp với khách. Kết nối sản phẩm với nhu cầu đã khai thác được.</p>
+                </div>
+
+                <h3>3.1. Framework recommend</h3>
+                <div class="technique-card">
+                    <h4>🎯 Công thức: Sản phẩm + Lý do + Benefit</h4>
+                    <p><strong>Ví dụ:</strong></p>
+                    <p>"Với sinh nhật bạn gái, em recommend <strong>set Cỏ Bốn Lá</strong> nha anh. Set này có vòng bạc cho nữ rất sang, vòng thép cho nam bền bỉ. Hai người đeo chung thì ý nghĩa lắm, mỗi lần nhìn là nhớ đến nhau 💕 Giá đang giảm 100k còn 1.048k thôi ạ!"</p>
+                </div>
+
+                <h3>3.2. Recommend theo tình huống</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Tình huống</th>
+                        <th>Recommend</th>
+                        <th>Lý do</th>
+                    </tr>
+                    <tr>
+                        <td>Budget thấp, cần gấp</td>
+                        <td>Vòng khắc mắt 299k</td>
+                        <td>Giá rẻ nhất, SX nhanh 5-7 ngày</td>
+                    </tr>
+                    <tr>
+                        <td>Tặng bạn gái, có thời gian</td>
+                        <td>Vòng tay thép 349k hoặc Set 599k</td>
+                        <td>Chiếu ảnh wow, giá vừa phải</td>
+                    </tr>
+                    <tr>
+                        <td>Muốn sang trọng</td>
+                        <td>Vòng bạc 799k hoặc Set Cỏ Bốn Lá 1.048k</td>
+                        <td>Chất liệu cao cấp, có giám định</td>
+                    </tr>
+                    <tr>
+                        <td>Thích độc đáo</td>
+                        <td>WarmLove 449k</td>
+                        <td>Hiệu ứng magic, đang sale</td>
+                    </tr>
+                    <tr>
+                        <td>Muốn nhiều kỷ niệm</td>
+                        <td>Sổ ký ức 399k</td>
+                        <td>Lưu được nhiều ảnh, chữ, QR</td>
+                    </tr>
+                </table>
+
+                <div class="script-box">
+                    <div class="label">Ví dụ recommend tự nhiên</div>
+                    <div class="customer"><strong>Khách:</strong> Sinh nhật bạn gái còn 2 tuần, budget tầm 500k</div>
+                    <div class="cs"><strong>CS:</strong> Ô 500k thì đủ lấy set đôi luôn đó anh! 🎉
+
+Em recommend <strong>set vòng tay thép chiếu ảnh</strong> nha:
+💝 Giá 599k/đôi (1 chiếc 349k)
+💝 Chiếu được ảnh 2 người vào viên ngọc
+💝 2 người đeo chung siêu ý nghĩa
+💝 Freeship + hộp túi đẹp sẵn sàng tặng luôn
+
+2 tuần là đủ thời gian làm, shop gửi trước sinh nhật 2-3 ngày để anh chuẩn bị bất ngờ nha 😊
+
+Anh thấy oke không ạ?</div>
+                </div>
+            </section>
+
+            <!-- Section 4: Xử lý từ chối -->
+            <section class="content-section" id="objection">
+                <h2>4. Xử lý từ chối (Objection Handling)</h2>
+                
+                <div class="insight-box">
+                    <h4>🧠 Mindset quan trọng</h4>
+                    <p><strong>80% khách từ chối lần đầu không phải vì không muốn mua</strong>, mà vì:</p>
+                    <ul>
+                        <li>Chưa đủ thông tin để quyết định</li>
+                        <li>Chưa đủ tin tưởng</li>
+                        <li>Cần thời gian suy nghĩ</li>
+                        <li>Đang so sánh với option khác</li>
+                    </ul>
+                    <p>Nhiệm vụ của CS là <strong>tìm ra lý do thật</strong> và giải quyết nó.</p>
+                </div>
+
+                <h3>4.1. Xử lý "Đắt quá"</h3>
+                <div class="objection-card">
+                    <h4>💰 "Giá cao vậy shop? Chỗ khác rẻ hơn mà"</h4>
+                    <div class="response">
+                        <strong>Cách 1 - So sánh giá trị:</strong><br>
+                        "Dạ em hiểu anh/chị! Nhưng thử nghĩ xem, tặng hoa 300k thì héo sau 3 ngày. Còn vòng này người ấy đeo được cả năm, mỗi lần nhìn là nhớ đến mình 💕 Tính ra mỗi ngày chưa tới 2.000đ thôi á!"<br><br>
+                        
+                        <strong>Cách 2 - Gợi ý thay thế:</strong><br>
+                        "Dạ nếu anh/chị muốn tiết kiệm hơn, bên em có vòng khắc mắt 299k cũng đẹp và ý nghĩa lắm nè! Để em gửi ảnh xem nha?"<br><br>
+                        
+                        <strong>Cách 3 - Giải thích chất lượng:</strong><br>
+                        "Dạ bên em dùng chất liệu thép không gỉ/bạc 925 chuẩn, công nghệ chiếu ảnh Nano cao cấp nên giá có cao hơn 1 chút. Nhưng đổi lại bền đẹp lâu dài, có bảo hành luôn ạ 😊"
+                    </div>
+                </div>
+
+                <h3>4.2. Xử lý "Để suy nghĩ đã"</h3>
+                <div class="objection-card">
+                    <h4>🤔 "Ok để mình suy nghĩ thêm nhé"</h4>
+                    <div class="response">
+                        <strong>Cách 1 - Hỏi lý do:</strong><br>
+                        "Dạ được ạ! Nhưng cho em hỏi anh/chị đang phân vân điểm nào ạ? Để em giải đáp thêm, may ra giúp anh/chị quyết định dễ hơn 😊"<br><br>
+                        
+                        <strong>Cách 2 - Tạo urgency:</strong><br>
+                        "Dạ được ạ! Nhưng anh/chị tặng dịp nào ạ? Em sợ để lâu quá rồi không kịp ship 🙈 Bên em cần 10-14 ngày làm + 2-3 ngày ship nữa á!"<br><br>
+                        
+                        <strong>Cách 3 - Giữ liên lạc:</strong><br>
+                        "Dạ được ạ! À mà sinh nhật người yêu ngày nào để em nhắc anh/chị trước vài ngày cho khỏi quên nè 😄"
+                    </div>
+                </div>
+
+                <h3>4.3. Xử lý "Hỏi người yêu đã"</h3>
+                <div class="objection-card">
+                    <h4>💑 "Để mình hỏi người yêu xem thích không đã"</h4>
+                    <div class="response">
+                        "Ơ khoan anh/chị ơi! Nếu hỏi trước thì mất bất ngờ rồi 🙈 Thường mấy bạn khác toàn giấu cho đến lúc tặng luôn đó. Tin em đi, người ấy thấy ảnh mình trong vòng là cảm động lắm! 
+
+Anh/chị muốn bất ngờ hay muốn hỏi ý kiến ạ?"
+                    </div>
+                </div>
+
+                <h3>4.4. Xử lý "Ship lâu quá"</h3>
+                <div class="objection-card">
+                    <h4>⏰ "10-14 ngày lâu quá, không kịp"</h4>
+                    <div class="response">
+                        <strong>Nếu còn kịp hỏa tốc:</strong><br>
+                        "Dạ nếu anh/chị cần gấp, bên em có đơn hỏa tốc 10 ngày nhận hàng luôn ạ (phụ phí 100k). Hoặc chọn vòng khắc mắt thì chỉ 5-7 ngày thôi, kịp luôn á!"<br><br>
+                        
+                        <strong>Nếu không kịp:</strong><br>
+                        "Ôi tiếc quá, đợt này không kịp rồi anh/chị ơi 😢 Nhưng mà tặng quà ý nghĩa thì không nhất thiết phải đúng ngày đâu ạ. Tặng sau vài ngày mà có món quà đặc biệt thì người ấy vẫn cảm động như thường í!"
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Chốt đơn -->
+            <section class="content-section" id="closing">
+                <h2>5. Kỹ thuật chốt đơn</h2>
+                
+                <h3>5.1. Các kỹ thuật chốt</h3>
+                
+                <div class="technique-card">
+                    <h4>1️⃣ Chốt giả định (Assumptive Close)</h4>
+                    <p>Nói như thể khách đã đồng ý mua:</p>
+                    <p><em>"Vậy anh/chị lấy vòng bạc hay mạ vàng ạ? Em chuẩn bị đơn luôn nha!"</em></p>
+                </div>
+
+                <div class="technique-card">
+                    <h4>2️⃣ Chốt lựa chọn (Alternative Close)</h4>
+                    <p>Cho khách chọn giữa 2 option, cả 2 đều là mua:</p>
+                    <p><em>"Anh/chị muốn ship thường 2-3 ngày hay ship nhanh ngày mai có hàng ạ?"</em></p>
+                </div>
+
+                <div class="technique-card">
+                    <h4>3️⃣ Chốt deadline (Urgency Close)</h4>
+                    <p>Tạo lý do phải quyết định ngay:</p>
+                    <p><em>"Dạ sinh nhật người yêu còn 12 ngày, nếu đặt hôm nay thì vừa kịp giao trước 1-2 ngày để anh/chị chuẩn bị bất ngờ nha!"</em></p>
+                </div>
+
+                <div class="technique-card">
+                    <h4>4️⃣ Chốt tóm tắt (Summary Close)</h4>
+                    <p>Tóm tắt lại tất cả rồi chốt:</p>
+                    <p><em>"Ok vậy là anh/chị lấy set vòng Cỏ Bốn Lá, chiếu ảnh 2 người, tặng sinh nhật đúng hong? Giá 1.048k freeship, em gửi thứ 5 là thứ 7 có hàng luôn. Anh/chị gửi em địa chỉ nha! 📦"</em></p>
+                </div>
+
+                <h3>5.2. Flow chốt đơn chuẩn</h3>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <span class="icon">1</span>
+                        <span><strong>Xác nhận sản phẩm:</strong> Loại, size, màu, có khắc gì không</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">2</span>
+                        <span><strong>Xin ảnh:</strong> Hướng dẫn upload lên crushroom.vn/pages/couplepix</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">3</span>
+                        <span><strong>Xin thông tin ship:</strong> Tên, SĐT, địa chỉ cụ thể</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">4</span>
+                        <span><strong>Xác nhận đơn:</strong> Tổng tiền, timeline giao hàng</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">5</span>
+                        <span><strong>Hướng dẫn thanh toán:</strong> STK hoặc COD</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">6</span>
+                        <span><strong>Cảm ơn + hẹn:</strong> Cảm ơn, hẹn update khi gửi hàng</span>
+                    </div>
+                </div>
+
+                <div class="script-box">
+                    <div class="label">Script xin thông tin ship</div>
+                    <div class="cs"><strong>CS:</strong> Dạ bạn cho shop thông tin ship nha:
+⟡ Tên người nhận 
+⟡ SĐT 
+⟡ Địa chỉ cụ thể: số nhà, phường/xã, quận/huyện, tỉnh/TP</div>
+                </div>
+
+                <div class="script-box">
+                    <div class="label">Script xác nhận đơn COD</div>
+                    <div class="cs"><strong>CS:</strong> ✅ Mình check lại đơn nha ạ
+
+- Sản phẩm: Set vòng tay Cỏ Bốn Lá
+- Thanh toán khi nhận hàng: 1.048.000đ & freeship
+- 10-14 ngày shop làm xong và bắt đầu gửi
+
+🎁 Tặng kèm: 1 hộp & 1 túi đen
+- Được kiểm tra hàng trước khi nhận với shipper
+- Đi đơn shop sẽ gửi mã đơn cho mình ạ 
+
+❌ Lưu ý: ảnh đã chốt sẽ không đổi được nữa ạ
+
+Bạn check xem đơn đúng chưa ạ?</div>
+                </div>
+
+                <h3>5.3. Sau khi chốt đơn</h3>
+                <div class="success-box">
+                    <h4>✅ Cảm ơn + Xin feedback</h4>
+                    <p>"💓 Thank you bạn đã đặt hàng. Gửi tặng bạn voucher 30k lần mua sau nếu gửi ảnh feedback về FB/IG Crush Room hoặc tại website crushroom.vn ạ 😊 Mong nhận được feedback từ bạn nhé!"</p>
+                </div>
+            </section>
+
+            <!-- Section 6: Follow-up -->
+            <section class="content-section" id="followup">
+                <h2>6. Follow-up sau từ chối</h2>
+                
+                <p>Nếu khách nói "để suy nghĩ" và không reply, follow up theo timeline:</p>
+                
+                <table class="comparison-table">
+                    <tr>
+                        <th>Thời điểm</th>
+                        <th>Tin nhắn</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Sau 24h</strong></td>
+                        <td>"Anh/chị ơi, hôm qua mình chat về vòng chiếu ảnh đó! Anh/chị suy nghĩ thế nào rồi ạ? 😊"</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sau 3 ngày</strong></td>
+                        <td>"Hi anh/chị! Sinh nhật người yêu gần tới chưa ạ? Nếu đặt trong tuần này thì kịp giao trước đó 2 ngày luôn nha 🎁"</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Trước dịp lễ</strong></td>
+                        <td>"Anh/chị ơi! Valentine sắp tới rồi nè, mấy ngày nữa là đơn sẽ đông lắm. Anh/chị đặt sớm để em ưu tiên làm trước nha! 💝"</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Summary -->
+            <section class="content-section" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+                <h2>📝 Tóm tắt Module 3</h2>
+                <ul>
+                    <li><strong>Phản hồi trong 1-2 phút</strong> - Sau 5 phút = mất 50% khách</li>
+                    <li><strong>Khai thác 4 thông tin:</strong> Tặng ai, dịp gì, khi nào, budget</li>
+                    <li><strong>Recommend có lý do:</strong> Kết nối sản phẩm với nhu cầu khách</li>
+                    <li><strong>Từ chối ≠ Kết thúc:</strong> Tìm lý do thật và giải quyết</li>
+                    <li><strong>4 kỹ thuật chốt:</strong> Giả định, Lựa chọn, Deadline, Tóm tắt</li>
+                    <li><strong>Follow up:</strong> 24h → 3 ngày → trước lễ</li>
+                </ul>
+            </section>
+
+            <!-- Navigation -->
+            <div class="nav-buttons">
+                <a href="module-2-products.html" class="nav-btn prev">← Module 2: Sản phẩm</a>
+                <a href="module-4-advanced.html" class="nav-btn next">Module 4: Nghiệp vụ nâng cao →</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../../js/main.js"></script>
+</body>
+</html>

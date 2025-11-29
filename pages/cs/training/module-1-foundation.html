@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: Nền tảng - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .module-banner {
+            background: linear-gradient(135deg, #2196f3, #03a9f4);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+        .module-banner h1 { margin: 0 0 8px 0; }
+        .module-banner p { margin: 0; opacity: 0.9; }
+        
+        .learning-objectives {
+            background: #e3f2fd;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+        .learning-objectives h3 { margin-top: 0; color: #1565c0; }
+        .learning-objectives ul { margin-bottom: 0; }
+        
+        .key-point {
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .key-point h4 { margin-top: 0; color: #f57c00; }
+        
+        .insight-box {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .insight-box h4 { margin-top: 0; color: #7b1fa2; }
+        
+        .example-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .example-box h4 { margin-top: 0; color: #2e7d32; }
+        
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .warning-box h4 { margin-top: 0; color: #c62828; }
+        
+        .persona-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #e91e63;
+        }
+        .persona-card h4 { margin-top: 0; }
+        .persona-traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .trait-tag {
+            background: #fce4ec;
+            color: #c2185b;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+        }
+        
+        .quote-block {
+            font-style: italic;
+            font-size: 18px;
+            color: #555;
+            padding: 20px 30px;
+            border-left: 4px solid #e91e63;
+            background: #fafafa;
+            margin: 24px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .comparison-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+        .comparison-table tr:hover { background: #fce4ec; }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-btn.prev {
+            background: #f5f5f5;
+            color: #333;
+        }
+        .nav-btn.next {
+            background: #e91e63;
+            color: white;
+        }
+        .nav-btn:hover { transform: translateY(-2px); }
+        
+        .chapter-nav {
+            position: sticky;
+            top: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .chapter-nav h4 { margin: 0 0 12px 0; font-size: 14px; color: #757575; }
+        .chapter-nav a {
+            display: block;
+            padding: 8px 0;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .chapter-nav a:hover { color: #e91e63; }
+        .chapter-nav a:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="../../../index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                
+                <a href="../../schedule.html" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Đăng ký lịch làm</span>
+                </a>
+                
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../library.html" class="nav-subitem active">Thư viện học tập</a>
+                        <a href="../quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">📢</span>
+                        <span>Marketing</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../../marketing/library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="../../marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">⚡</span>
+                        <span>Laser</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../../laser/guide.html" class="nav-subitem">Hướng dẫn khắc Laser</a>
+                        <a href="../../laser/lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../../index.html">Trang chủ</a>
+                <span>/</span>
+                <a href="../library.html">CS Training</a>
+                <span>/</span>
+                <span>Module 1: Nền tảng</span>
+            </div>
+
+            <!-- Module Banner -->
+            <div class="module-banner">
+                <h1>🏗️ Module 1: Nền tảng</h1>
+                <p>Hiểu về Crush Room, khách hàng và văn hóa làm việc • ⏱️ ~30 phút đọc</p>
+            </div>
+
+            <!-- Learning Objectives -->
+            <div class="learning-objectives">
+                <h3>🎯 Sau khi hoàn thành module này, bạn sẽ:</h3>
+                <ul>
+                    <li>Hiểu được câu chuyện và sứ mệnh của Crush Room</li>
+                    <li>Nắm rõ chân dung khách hàng mục tiêu và tâm lý mua hàng của họ</li>
+                    <li>Biết được USP (điểm bán hàng độc nhất) của Crush Room so với đối thủ</li>
+                    <li>Hiểu văn hóa làm việc và kỳ vọng đối với một CS chuyên nghiệp</li>
+                </ul>
+            </div>
+
+            <!-- Chapter 1 -->
+            <section class="content-section" id="chapter-1">
+                <h2>1. Crush Room là ai?</h2>
+                
+                <h3>1.1. Câu chuyện thương hiệu</h3>
+                <p>Crush Room là thương hiệu trang sức cá nhân hóa hàng đầu Việt Nam, chuyên tạo ra những món quà ý nghĩa cho các cặp đôi. Chúng tôi tin rằng <strong>mỗi mối quan hệ đều xứng đáng được lưu giữ</strong> - không phải bằng những món quà đắt tiền, mà bằng những kỷ vật mang đậm dấu ấn cá nhân.</p>
+                
+                <div class="quote-block">
+                    "Crush Room không chỉ bán trang sức. Chúng tôi bán những khoảnh khắc, những kỷ niệm, và những lời yêu thương được hiện thực hóa thành vật phẩm có thể chạm vào."
+                </div>
+
+                <h3>1.2. Sứ mệnh & Tầm nhìn</h3>
+                <p><strong>Sứ mệnh:</strong> Giúp các cặp đôi Việt Nam thể hiện tình yêu một cách độc đáo và ý nghĩa thông qua những món trang sức cá nhân hóa.</p>
+                <p><strong>Tầm nhìn:</strong> Trở thành thương hiệu đầu tiên được nghĩ đến khi người Việt muốn tặng quà ý nghĩa cho người yêu thương.</p>
+
+                <h3>1.3. Giá trị cốt lõi</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th style="width: 30%;">Giá trị</th>
+                        <th>Ý nghĩa với CS</th>
+                    </tr>
+                    <tr>
+                        <td><strong>💝 Tận tâm</strong></td>
+                        <td>Mỗi đơn hàng là một câu chuyện tình yêu. Hãy đối xử với nó bằng sự trân trọng.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>✨ Chất lượng</strong></td>
+                        <td>Không bao giờ thỏa hiệp với chất lượng sản phẩm và dịch vụ.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🎯 Cá nhân hóa</strong></td>
+                        <td>Mỗi khách hàng có nhu cầu riêng. Lắng nghe và đề xuất giải pháp phù hợp.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🚀 Sáng tạo</strong></td>
+                        <td>Luôn tìm cách mới để mang lại trải nghiệm tốt hơn cho khách hàng.</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Chapter 2 -->
+            <section class="content-section" id="chapter-2">
+                <h2>2. Khách hàng của Crush Room</h2>
+                
+                <h3>2.1. Chân dung khách hàng chính</h3>
+                <p>Hiểu rõ khách hàng là chìa khóa để tư vấn thành công. Dưới đây là 3 nhóm khách hàng chính của Crush Room:</p>
+                
+                <div class="persona-card">
+                    <h4>👨 Persona 1: "Anh người yêu chu đáo"</h4>
+                    <p><strong>Độ tuổi:</strong> 18-28 • <strong>Thu nhập:</strong> 8-20 triệu/tháng</p>
+                    <p><strong>Mô tả:</strong> Nam giới trẻ, đang yêu hoặc mới kết hôn. Muốn tặng quà ý nghĩa cho người yêu/vợ nhưng không biết chọn gì. Thường mua vào các dịp đặc biệt: sinh nhật, kỷ niệm, Valentine, 20/10, 8/3...</p>
+                    <p><strong>Nỗi đau:</strong> Sợ chọn quà không vừa ý bạn gái. Không muốn tặng thứ tầm thường như hoa, gấu bông.</p>
+                    <p><strong>Động lực:</strong> Muốn người yêu cảm động, bất ngờ. Muốn thể hiện sự quan tâm, dành thời gian suy nghĩ.</p>
+                    <div class="persona-traits">
+                        <span class="trait-tag">Hay hỏi giá</span>
+                        <span class="trait-tag">Cần tư vấn nhiều</span>
+                        <span class="trait-tag">Quyết định nhanh khi thấy phù hợp</span>
+                        <span class="trait-tag">Hay quên deadline</span>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <h4>👩 Persona 2: "Cô nàng romantic"</h4>
+                    <p><strong>Độ tuổi:</strong> 18-25 • <strong>Thu nhập:</strong> 5-15 triệu/tháng</p>
+                    <p><strong>Mô tả:</strong> Nữ giới trẻ, thích những thứ lãng mạn và có ý nghĩa. Mua để tặng người yêu hoặc tự mua cho bản thân như kỷ vật couple.</p>
+                    <p><strong>Nỗi đau:</strong> Muốn món quà thật đặc biệt, không đại trà. Quan tâm đến chất lượng và độ bền.</p>
+                    <p><strong>Động lực:</strong> Thích sự lãng mạn, ý nghĩa. Muốn có vật kỷ niệm đeo được hàng ngày.</p>
+                    <div class="persona-traits">
+                        <span class="trait-tag">Xem nhiều mẫu</span>
+                        <span class="trait-tag">Hỏi chi tiết chất liệu</span>
+                        <span class="trait-tag">Quan tâm feedback</span>
+                        <span class="trait-tag">Thích được tư vấn tận tình</span>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <h4>🎁 Persona 3: "Khách mua quà tặng"</h4>
+                    <p><strong>Độ tuổi:</strong> 25-40 • <strong>Thu nhập:</strong> 15-40 triệu/tháng</p>
+                    <p><strong>Mô tả:</strong> Mua tặng em gái, bạn thân, hoặc người thân trong các dịp đặc biệt. Có ngân sách thoải mái hơn nhưng ít thời gian.</p>
+                    <p><strong>Nỗi đau:</strong> Không có thời gian tìm hiểu nhiều. Cần món quà ý nghĩa mà không phải suy nghĩ quá lâu.</p>
+                    <p><strong>Động lực:</strong> Muốn người nhận cảm động. Sẵn sàng chi nhiều hơn cho chất lượng.</p>
+                    <div class="persona-traits">
+                        <span class="trait-tag">Quyết định nhanh</span>
+                        <span class="trait-tag">Ít mặc cả</span>
+                        <span class="trait-tag">Cần ship nhanh</span>
+                        <span class="trait-tag">Hay mua set cao cấp</span>
+                    </div>
+                </div>
+
+                <h3>2.2. Tâm lý mua hàng</h3>
+                
+                <div class="key-point">
+                    <h4>💡 Insight quan trọng</h4>
+                    <p>Khách hàng Crush Room <strong>KHÔNG mua trang sức</strong>. Họ mua:</p>
+                    <ul>
+                        <li><strong>Cảm xúc:</strong> Sự bất ngờ, cảm động của người nhận</li>
+                        <li><strong>Kỷ niệm:</strong> Vật phẩm lưu giữ khoảnh khắc đẹp</li>
+                        <li><strong>Sự khác biệt:</strong> Không ai có món quà giống họ</li>
+                        <li><strong>An tâm:</strong> Biết mình đã chọn đúng quà</li>
+                    </ul>
+                </div>
+
+                <h3>2.3. Hành trình mua hàng điển hình</h3>
+                <ol>
+                    <li><strong>Nhận biết nhu cầu:</strong> "Sắp sinh nhật người yêu rồi, tặng gì đây?"</li>
+                    <li><strong>Tìm kiếm:</strong> Lướt Facebook/TikTok thấy quảng cáo Crush Room</li>
+                    <li><strong>Quan tâm:</strong> "Ồ, vòng chiếu ảnh hay đấy!" → Nhắn tin hỏi</li>
+                    <li><strong>Cân nhắc:</strong> So sánh giá, xem feedback, hỏi chi tiết</li>
+                    <li><strong>Quyết định:</strong> Chốt đơn (hoặc bỏ giỏ nếu CS không tư vấn tốt)</li>
+                    <li><strong>Sau mua:</strong> Nhận hàng, tặng quà, feedback (hoặc khiếu nại)</li>
+                </ol>
+
+                <div class="insight-box">
+                    <h4>🎯 CS đóng vai trò quyết định ở bước 4 và 5</h4>
+                    <p>Nhiều khách hàng tiềm năng "chết" ở giai đoạn cân nhắc vì:</p>
+                    <ul>
+                        <li>CS phản hồi chậm → khách mất hứng thú</li>
+                        <li>Không giải đáp được thắc mắc → khách không tin tưởng</li>
+                        <li>Không biết recommend sản phẩm phù hợp → khách confused</li>
+                        <li>Không tạo được urgency → khách "để suy nghĩ" rồi quên</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Chapter 3 -->
+            <section class="content-section" id="chapter-3">
+                <h2>3. USP của Crush Room</h2>
+                
+                <p><strong>USP (Unique Selling Proposition)</strong> là điểm khác biệt độc nhất khiến khách hàng chọn Crush Room thay vì đối thủ. Hiểu rõ USP giúp bạn tự tin trả lời câu hỏi "Tại sao nên mua ở đây?"</p>
+
+                <h3>3.1. So sánh với đối thủ</h3>
+                <table class="comparison-table">
+                    <tr>
+                        <th>Tiêu chí</th>
+                        <th>Crush Room</th>
+                        <th>Shop khác</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Công nghệ ảnh</strong></td>
+                        <td>Nano Projection cao cấp, ảnh sắc nét 70-80%</td>
+                        <td>Thường dùng công nghệ cũ, ảnh mờ</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chất liệu</strong></td>
+                        <td>Thép không gỉ / Bạc 925 chuẩn</td>
+                        <td>Thường dùng hợp kim rẻ tiền</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tùy chỉnh</strong></td>
+                        <td>Khắc chữ, mã nhạc, QR ghi âm, size tùy ý</td>
+                        <td>Ít hoặc không có tùy chỉnh</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bảo hành</strong></td>
+                        <td>Đánh bóng miễn phí, hỗ trợ sau bán</td>
+                        <td>Thường không có bảo hành</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Đóng gói</strong></td>
+                        <td>Hộp + túi cao cấp, sẵn sàng làm quà</td>
+                        <td>Đóng gói đơn giản</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Feedback</strong></td>
+                        <td>Hàng nghìn feedback thật từ khách</td>
+                        <td>Ít hoặc feedback giả</td>
+                    </tr>
+                </table>
+
+                <h3>3.2. Những điểm mạnh cần nhấn mạnh khi tư vấn</h3>
+                
+                <div class="example-box">
+                    <h4>✅ Cách sử dụng USP khi tư vấn</h4>
+                    <p><strong>Khi khách hỏi "Shop khác rẻ hơn mà?":</strong></p>
+                    <p>"Dạ bên em dùng chất liệu thép không gỉ/bạc 925 chuẩn, không đen không gỉ sét nên bền hơn nhiều so với hợp kim thường ạ. Với lại ảnh chiếu sáng của shop dùng công nghệ Nano Projection nên độ nét đạt 70-80% ảnh gốc, các bạn thấy rõ như nhìn bằng mắt luôn í. Đơn nào cũng có hộp túi đẹp sẵn sàng làm quà, không cần mua thêm gì nữa ạ 😊"</p>
+                </div>
+            </section>
+
+            <!-- Chapter 4 -->
+            <section class="content-section" id="chapter-4">
+                <h2>4. Văn hóa CS tại Crush Room</h2>
+                
+                <h3>4.1. Tiêu chuẩn của một CS chuyên nghiệp</h3>
+                
+                <table class="comparison-table">
+                    <tr>
+                        <th style="width: 30%;">Tiêu chí</th>
+                        <th>Kỳ vọng</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Thời gian phản hồi</strong></td>
+                        <td>Trong vòng <strong>1-2 phút</strong> trong giờ làm việc. Khách nhắn tin mà chờ lâu = mất đơn.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Giọng điệu</strong></td>
+                        <td>Thân thiện, gần gũi như bạn bè. Dùng emoji phù hợp 😊💝. Tránh cứng nhắc, máy móc.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kiến thức sản phẩm</strong></td>
+                        <td>Thuộc lòng giá, chất liệu, size, thời gian sản xuất của TẤT CẢ sản phẩm.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tư duy giải quyết vấn đề</strong></td>
+                        <td>Không nói "không được". Luôn tìm giải pháp thay thế cho khách.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Proactive</strong></td>
+                        <td>Chủ động hỏi, chủ động đề xuất, chủ động follow up. Không chờ khách hỏi mới trả lời.</td>
+                    </tr>
+                </table>
+
+                <h3>4.2. Những điều KHÔNG được làm</h3>
+                
+                <div class="warning-box">
+                    <h4>🚫 Tuyệt đối tránh</h4>
+                    <ul>
+                        <li><strong>Phản hồi chậm:</strong> Quá 5 phút không rep = khách đã nhắn shop khác</li>
+                        <li><strong>Trả lời cộc lốc:</strong> "Dạ 349k" mà không giải thích thêm</li>
+                        <li><strong>Đổ lỗi cho khách:</strong> "Ảnh bạn gửi không đẹp nên mới vậy"</li>
+                        <li><strong>Hứa suông:</strong> Hứa ship nhanh mà không chắc chắn được</li>
+                        <li><strong>Tranh cãi với khách:</strong> Dù khách sai, vẫn phải nhẹ nhàng giải thích</li>
+                        <li><strong>Chốt đơn ở Zalo:</strong> Chỉ chốt đơn tại Facebook/Instagram</li>
+                    </ul>
+                </div>
+
+                <h3>4.3. Mindset đúng đắn</h3>
+                
+                <div class="key-point">
+                    <h4>🧠 Hãy nhớ</h4>
+                    <ul>
+                        <li><strong>Mỗi tin nhắn = 1 cơ hội kiếm tiền.</strong> Đừng lãng phí.</li>
+                        <li><strong>Khách hàng không mua sản phẩm, họ mua cảm xúc.</strong> Bán cho họ sự an tâm, hạnh phúc.</li>
+                        <li><strong>Từ chối không phải là kết thúc.</strong> 80% khách từ chối lần đầu vì chưa đủ thông tin.</li>
+                        <li><strong>Bạn là chuyên gia, không phải người bán hàng.</strong> Hãy tư vấn như giúp bạn chọn quà.</li>
+                        <li><strong>Feedback xấu = cơ hội cải thiện.</strong> Xử lý tốt = khách quay lại + giới thiệu bạn bè.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Chapter 5 -->
+            <section class="content-section" id="chapter-5">
+                <h2>5. Quy trình & Công cụ làm việc</h2>
+                
+                <h3>5.1. Các kênh tiếp nhận khách hàng</h3>
+                <ul>
+                    <li><strong>Facebook Messenger:</strong> Kênh chính, nhiều khách nhất</li>
+                    <li><strong>Instagram DM:</strong> Kênh phụ, khách thường trẻ hơn</li>
+                    <li><strong>Website:</strong> Khách tự đặt, CS confirm lại</li>
+                </ul>
+
+                <div class="warning-box">
+                    <h4>⚠️ Lưu ý quan trọng</h4>
+                    <p><strong>KHÔNG chốt đơn ở Zalo.</strong> Nếu khách liên hệ qua Zalo, hướng dẫn họ nhắn qua Facebook/Instagram để được hỗ trợ tốt nhất.</p>
+                </div>
+
+                <h3>5.2. Công cụ sử dụng</h3>
+                <ul>
+                    <li><strong>Pancake:</strong> Quản lý tin nhắn, quick replies</li>
+                    <li><strong>Website upload ảnh:</strong> crushroom.vn/pages/couplepix</li>
+                    <li><strong>Link ghi âm:</strong> bit.ly/qr-crushroom (100k) hoặc bit.ly/cr-lovecounter (150k)</li>
+                </ul>
+
+                <h3>5.3. Quick Replies</h3>
+                <p>Crush Room có hệ thống Quick Replies (mẫu trả lời nhanh) trong Pancake. Tuy nhiên:</p>
+                
+                <div class="insight-box">
+                    <h4>💡 Sử dụng Quick Replies thông minh</h4>
+                    <ul>
+                        <li><strong>KHÔNG</strong> copy paste nguyên văn mà không đọc câu hỏi khách</li>
+                        <li><strong>KHÔNG</strong> gửi quick reply dài khi khách chỉ hỏi 1 câu đơn giản</li>
+                        <li><strong>NÊN</strong> dùng làm base rồi chỉnh sửa cho phù hợp từng khách</li>
+                        <li><strong>NÊN</strong> thêm tên khách, thêm emoji, thêm câu hỏi follow-up</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section class="content-section" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+                <h2>📝 Tóm tắt Module 1</h2>
+                <ul>
+                    <li>Crush Room bán <strong>kỷ niệm và cảm xúc</strong>, không chỉ bán trang sức</li>
+                    <li>Khách hàng chính là <strong>nam 18-28 tuổi</strong> muốn tặng quà ý nghĩa cho người yêu</li>
+                    <li>USP: Công nghệ chiếu ảnh Nano, chất liệu cao cấp, tùy chỉnh đa dạng, bảo hành tốt</li>
+                    <li>CS cần phản hồi <strong>trong 1-2 phút</strong>, giọng điệu thân thiện, proactive</li>
+                    <li>Chỉ chốt đơn tại Facebook/Instagram, KHÔNG chốt ở Zalo</li>
+                </ul>
+            </section>
+
+            <!-- Navigation -->
+            <div class="nav-buttons">
+                <a href="../library.html" class="nav-btn prev">← Quay lại Thư viện</a>
+                <a href="module-2-products.html" class="nav-btn next">Module 2: Sản phẩm →</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../../js/main.js"></script>
+</body>
+</html>

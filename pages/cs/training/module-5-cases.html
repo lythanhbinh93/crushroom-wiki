@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5: Case Study - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .module-banner {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+        .module-banner h1 { margin: 0 0 8px 0; }
+        .module-banner p { margin: 0; opacity: 0.9; }
+        
+        .learning-objectives {
+            background: #fff3e0;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+        .learning-objectives h3 { margin-top: 0; color: #e65100; }
+        
+        .case-study {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 24px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .case-header {
+            padding: 20px 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .case-header.success { background: linear-gradient(135deg, #4caf50, #81c784); }
+        .case-header.challenge { background: linear-gradient(135deg, #ff9800, #ffb74d); }
+        .case-header.difficult { background: linear-gradient(135deg, #f44336, #e57373); }
+        .case-header h3 { margin: 0; }
+        .case-body { padding: 24px; }
+        
+        .context-box {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .context-box h4 { margin-top: 0; color: #616161; }
+        
+        .conversation {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            background: #fafafa;
+        }
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin: 8px 0;
+        }
+        .message.customer {
+            background: #e3f2fd;
+            border-radius: 16px 16px 16px 4px;
+        }
+        .message.cs {
+            background: #e8f5e9;
+            margin-left: auto;
+            border-radius: 16px 16px 4px 16px;
+        }
+        .message .sender {
+            font-size: 12px;
+            color: #757575;
+            margin-bottom: 4px;
+        }
+        
+        .analysis-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+        .analysis-box h4 { margin-top: 0; color: #1565c0; }
+        
+        .lesson-box {
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        .lesson-box h4 { margin-top: 0; color: #f57c00; }
+        
+        .mistake-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        .mistake-box h4 { margin-top: 0; color: #c62828; }
+        
+        .practice-section {
+            background: #f3e5f5;
+            padding: 24px;
+            border-radius: 12px;
+            margin: 24px 0;
+        }
+        .practice-section h3 { margin-top: 0; color: #7b1fa2; }
+        
+        .scenario-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 12px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .scenario-card h4 { margin-top: 0; }
+        
+        .reveal-answer {
+            background: #9c27b0;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+        .reveal-answer:hover { background: #7b1fa2; }
+        
+        .answer-content {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .answer-content.show { display: block; }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-btn.prev { background: #f5f5f5; color: #333; }
+        .nav-btn.next { background: #ff9800; color: white; }
+        .nav-btn:hover { transform: translateY(-2px); }
+        
+        .result-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .result-tag.won { background: #c8e6c9; color: #2e7d32; }
+        .result-tag.lost { background: #ffcdd2; color: #c62828; }
+        .result-tag.saved { background: #fff9c4; color: #f57f17; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../../../index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="../../schedule.html" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Đăng ký lịch làm</span>
+                </a>
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../library.html" class="nav-subitem active">Thư viện học tập</a>
+                        <a href="../quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">📢</span>
+                        <span>Marketing</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../../marketing/library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="../../marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">⚡</span>
+                        <span>Laser</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../../laser/guide.html" class="nav-subitem">Hướng dẫn khắc Laser</a>
+                        <a href="../../laser/lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../../index.html">Trang chủ</a>
+                <span>/</span>
+                <a href="../library.html">CS Training</a>
+                <span>/</span>
+                <span>Module 5: Case Study</span>
+            </div>
+
+            <div class="module-banner">
+                <h1>📚 Module 5: Case Study thực tế</h1>
+                <p>Học từ những tình huống có thật để xử lý tốt hơn • ⏱️ ~30 phút đọc</p>
+            </div>
+
+            <div class="learning-objectives">
+                <h3>🎯 Mục đích của module này:</h3>
+                <ul>
+                    <li>Phân tích các cuộc hội thoại thực tế để hiểu điều gì hiệu quả, điều gì không</li>
+                    <li>Rút ra bài học từ cả case thành công lẫn case thất bại</li>
+                    <li>Thực hành xử lý tình huống qua các bài tập</li>
+                </ul>
+            </div>
+
+            <!-- Case 1: Success -->
+            <div class="case-study">
+                <div class="case-header success">
+                    <span style="font-size: 24px;">✅</span>
+                    <h3>Case 1: Khách lần đầu mua quà - THÀNH CÔNG</h3>
+                    <span class="result-tag won">Chốt đơn 1.048k</span>
+                </div>
+                <div class="case-body">
+                    <div class="context-box">
+                        <h4>📋 Bối cảnh</h4>
+                        <p>Khách nam, 24 tuổi, lần đầu mua quà tặng bạn gái. Sinh nhật bạn gái còn 15 ngày. Budget không rõ ràng.</p>
+                    </div>
+
+                    <div class="conversation">
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Shop ơi tư vấn giúp em với
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Crush Room xin chào anh ạ! 💝 Anh đang muốn mua tặng ai ạ?
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Tặng người yêu, sinh nhật bạn ấy
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Ui sinh nhật thì phải có quà đặc biệt rồi 🎂 Sinh nhật ngày nào ạ anh? Để em tính xem kịp ship không nha
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Còn 15 ngày nữa
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            15 ngày là thoải mái luôn anh ơi! 😊 Bạn gái thích vòng tay hay dây chuyền hơn ạ? Shop có cả 2 loại đều chiếu được ảnh 2 người vào đó luôn í!
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Vòng tay đi shop, mà giá bao nhiêu?
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ vòng tay chiếu ảnh giá 349k/chiếc ạ. Nhưng mà em recommend anh lấy set đôi cho 2 người đeo chung nha, giá chỉ 599k (giảm 99k) mà ý nghĩa hơn nhiều! 💕
+
+Hoặc nếu anh muốn sang hơn, có set Cỏ Bốn Lá mix vòng bạc cho nữ + vòng thép cho nam, giá 1.048k (giảm 100k). Set này feedback rất đẹp luôn á!
+
+Anh thích kiểu nào ạ?
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Set cỏ bốn lá được đó, cho xem ảnh đi shop
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            [Gửi ảnh sản phẩm + feedback khách]
+                            
+Đây anh nè! Set này lên tay siêu đẹp luôn. Vòng bạc nữ thì sang trọng, vòng thép nam thì bền bỉ, nam tính. Mỗi vòng đều có viên ngọc chiếu ảnh 2 người vào đó 😍
+
+Anh thấy ưng không ạ?
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Ok lấy set này, giờ làm sao?
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ anh up ảnh 2 người lên link này nha: crushroom.vn/pages/couplepix
+
+Up xong nhắn em, em check ảnh rồi hướng dẫn tiếp ạ! 😊
+                        </div>
+                    </div>
+
+                    <div class="analysis-box">
+                        <h4>🔍 Phân tích: Tại sao case này thành công?</h4>
+                        <ul>
+                            <li><strong>Khai thác nhu cầu tốt:</strong> Hỏi được tặng ai, dịp gì, deadline</li>
+                            <li><strong>Recommend có lý do:</strong> "Set đôi ý nghĩa hơn", "Set Cỏ Bốn Lá feedback đẹp"</li>
+                            <li><strong>Upsell tự nhiên:</strong> Từ 349k → 599k → 1.048k, khách tự chọn cao hơn</li>
+                            <li><strong>Tạo cảm xúc:</strong> "Sinh nhật phải có quà đặc biệt", "2 người đeo chung ý nghĩa"</li>
+                            <li><strong>Flow mượt:</strong> Không hỏi dồn dập, dẫn dắt tự nhiên</li>
+                        </ul>
+                    </div>
+
+                    <div class="lesson-box">
+                        <h4>📝 Bài học rút ra</h4>
+                        <ul>
+                            <li>Luôn hỏi deadline để tạo urgency và tính toán thời gian</li>
+                            <li>Recommend từ thấp đến cao, để khách tự chọn lên</li>
+                            <li>Kết nối sản phẩm với cảm xúc (đeo chung, ý nghĩa, đặc biệt)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case 2: Challenge -->
+            <div class="case-study">
+                <div class="case-header challenge">
+                    <span style="font-size: 24px;">⚠️</span>
+                    <h3>Case 2: Khách so sánh giá - CỨU ĐƯỢC</h3>
+                    <span class="result-tag saved">Chốt đơn 599k</span>
+                </div>
+                <div class="case-body">
+                    <div class="context-box">
+                        <h4>📋 Bối cảnh</h4>
+                        <p>Khách đã tìm hiểu nhiều shop, so sánh giá. Có vẻ đang do dự giữa Crush Room và shop khác rẻ hơn.</p>
+                    </div>
+
+                    <div class="conversation">
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Shop ơi sao giá đắt hơn chỗ khác vậy? Chỗ kia có 250k thôi
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ em hiểu anh/chị ạ! 😊 Cho em hỏi anh/chị đang so sánh với mẫu nào ạ? Để em giải thích rõ hơn sự khác biệt nha.
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Cũng vòng chiếu ảnh đó, nhìn y chang mà rẻ hơn 100k
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ em hiểu rồi ạ! Thật ra nhìn bên ngoài có vẻ giống nhưng khác nhau nhiều lắm:
+
+🔹 Chất liệu: Bên em dùng thép không gỉ 316L chuẩn, không đen không gỉ. Nhiều shop dùng hợp kim rẻ, đeo vài tháng là đen luôn.
+
+🔹 Công nghệ ảnh: Bên em dùng Nano Projection, ảnh nét 70-80%. Shop giá rẻ thường dùng công nghệ cũ, ảnh mờ nhòe lắm.
+
+🔹 Bảo hành: Bên em có bảo hành, hỗ trợ sau bán. Shop giá rẻ thường bán xong là xong.
+
+🔹 Đóng gói: Bên em có hộp + túi đẹp, sẵn sàng làm quà luôn.
+
+Anh/chị thử hỏi shop kia xem họ dùng chất liệu gì, có bảo hành không ạ? 😊
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Hmm nghe cũng có lý, nhưng mà vẫn đắt
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ em hiểu budget cũng quan trọng ạ! Anh/chị tính mua tặng ai, dịp gì ạ?
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Tặng người yêu, kỷ niệm 1 năm yêu nhau
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Ôi kỷ niệm 1 năm thì phải có món quà đáng nhớ chứ anh/chị 💕 
+
+Nghĩ xem, tặng hoa 300k thì héo sau 3 ngày. Còn vòng này người ấy đeo được cả năm trời, mỗi lần nhìn là nhớ đến mình. Tính ra mỗi ngày chưa tới 1.000đ thôi á!
+
+Với lại, mua set đôi thì 2 người đeo chung, mỗi lần nhìn là thấy ảnh nhau trong đó, lãng mạn cực 🥰
+
+Anh/chị lấy set 599k không ạ? Giảm 99k so với mua lẻ, freeship luôn!
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Ok lấy set đi
+                        </div>
+                    </div>
+
+                    <div class="analysis-box">
+                        <h4>🔍 Phân tích: Làm sao cứu được case này?</h4>
+                        <ul>
+                            <li><strong>Không defensive:</strong> Không phản ứng tiêu cực khi bị so sánh giá</li>
+                            <li><strong>Giải thích giá trị:</strong> Chất liệu, công nghệ, bảo hành, đóng gói</li>
+                            <li><strong>Chuyển hướng:</strong> Từ giá → nhu cầu (tặng ai, dịp gì)</li>
+                            <li><strong>So sánh giá trị:</strong> "Hoa 300k héo 3 ngày vs vòng đeo cả năm"</li>
+                            <li><strong>Tạo cảm xúc:</strong> "Kỷ niệm 1 năm phải đáng nhớ"</li>
+                        </ul>
+                    </div>
+
+                    <div class="lesson-box">
+                        <h4>📝 Bài học rút ra</h4>
+                        <ul>
+                            <li>Khi khách so sánh giá, đừng chỉ nói "bên em đắt hơn vì tốt hơn"</li>
+                            <li>Giải thích CỤ THỂ sự khác biệt (chất liệu, công nghệ, BH)</li>
+                            <li>Chuyển từ "đắt/rẻ" sang "giá trị/ý nghĩa"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case 3: Failed -->
+            <div class="case-study">
+                <div class="case-header difficult">
+                    <span style="font-size: 24px;">❌</span>
+                    <h3>Case 3: Mất đơn vì phản hồi chậm - THẤT BẠI</h3>
+                    <span class="result-tag lost">Mất đơn</span>
+                </div>
+                <div class="case-body">
+                    <div class="context-box">
+                        <h4>📋 Bối cảnh</h4>
+                        <p>Khách hỏi giá vào 9h sáng. CS đang bận, 30 phút sau mới reply.</p>
+                    </div>
+
+                    <div class="conversation">
+                        <div class="message customer">
+                            <div class="sender">Khách - 9:00</div>
+                            Giá vòng tay bao nhiêu shop?
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS - 9:32</div>
+                            Dạ vòng tay chiếu ảnh giá 349k/chiếc, mua đôi còn 599k ạ. Bạn cần tư vấn thêm gì không ạ?
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách - 9:45</div>
+                            Mình đặt bên khác rồi, cảm ơn shop
+                        </div>
+                    </div>
+
+                    <div class="mistake-box">
+                        <h4>❌ Sai ở đâu?</h4>
+                        <ul>
+                            <li><strong>Phản hồi chậm 32 phút:</strong> Khách đang "nóng", muốn mua ngay. Chờ lâu → nhắn shop khác</li>
+                            <li><strong>Chỉ trả lời giá:</strong> Không hỏi thêm để giữ chân khách</li>
+                            <li><strong>Không tạo urgency:</strong> Không có lý do để khách chờ</li>
+                        </ul>
+                    </div>
+
+                    <div class="lesson-box">
+                        <h4>📝 Bài học rút ra</h4>
+                        <ul>
+                            <li><strong>Phản hồi trong 1-2 phút</strong> là rule số 1</li>
+                            <li>Nếu bận, ít nhất gửi tin "Shop nhận tin rồi ạ, 5 phút nữa em reply nha!"</li>
+                            <li>Luôn kết thúc bằng câu hỏi để giữ conversation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case 4: Urgent -->
+            <div class="case-study">
+                <div class="case-header success">
+                    <span style="font-size: 24px;">⚡</span>
+                    <h3>Case 4: Khách cần gấp - XỬ LÝ TỐT</h3>
+                    <span class="result-tag won">Chốt đơn 499k + 100k hỏa tốc</span>
+                </div>
+                <div class="case-body">
+                    <div class="context-box">
+                        <h4>📋 Bối cảnh</h4>
+                        <p>Khách cần quà trong 7 ngày. Sản phẩm chiếu ảnh cần 10-14 ngày. Cần tìm giải pháp thay thế.</p>
+                    </div>
+
+                    <div class="conversation">
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Shop ơi còn 7 ngày nữa là sinh nhật người yêu, có kịp không?
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ 7 ngày hơi gấp với sản phẩm chiếu ảnh (cần 10-14 ngày) 😅 Nhưng em có 2 giải pháp cho anh/chị nha:
+
+1️⃣ Vòng khắc mắt - chỉ 5-7 ngày, kịp luôn! Giá 299k/chiếc, 499k/đôi. Khắc hình đôi mắt người yêu lên vòng, độc đáo lắm!
+
+2️⃣ Đơn hỏa tốc chiếu ảnh - 10 ngày nhận, phụ phí 100k. Hơi căng nhưng có thể kịp!
+
+Anh/chị muốn chọn phương án nào ạ?
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Vòng khắc mắt là sao shop?
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            [Gửi ảnh sản phẩm]
+                            
+Đây anh/chị nè! Vòng sẽ khắc hình đôi mắt của người yêu lên mặt vòng. Nhìn vào là thấy ánh mắt người ấy luôn 👁️💕
+
+Mặt sau có thể khắc thêm chữ, mã nhạc Spotify, hoặc QR ghi âm nữa ạ!
+
+Sản phẩm này đang hot lắm vì ý nghĩa mà thời gian làm nhanh. 7 ngày là dư sức giao rồi!
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Ok lấy set đôi khắc mắt đi, thêm mã nhạc Spotify nha
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ set đôi 499k + khắc mã nhạc 55k x 2 = 609k tổng ạ. Freeship luôn nha!
+
+Anh/chị gửi em:
+📸 Ảnh mắt 2 người (chụp rõ, ngoài sáng)
+🎵 Link bài hát Spotify
+
+Em hướng dẫn chụp ảnh mắt đẹp nha...
+                        </div>
+                    </div>
+
+                    <div class="analysis-box">
+                        <h4>🔍 Phân tích: Xử lý tốt ở đâu?</h4>
+                        <ul>
+                            <li><strong>Không từ chối:</strong> Không nói "không kịp", mà đưa ra giải pháp</li>
+                            <li><strong>Đưa options:</strong> 2 lựa chọn để khách quyết định</li>
+                            <li><strong>Recommend phù hợp:</strong> Vòng khắc mắt phù hợp với deadline</li>
+                            <li><strong>Upsell tự nhiên:</strong> Gợi ý thêm mã nhạc Spotify</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case 5: Complaint -->
+            <div class="case-study">
+                <div class="case-header challenge">
+                    <span style="font-size: 24px;">😤</span>
+                    <h3>Case 5: Khách khiếu nại - XỬ LÝ KHÉO</h3>
+                    <span class="result-tag saved">Giữ được khách</span>
+                </div>
+                <div class="case-body">
+                    <div class="context-box">
+                        <h4>📋 Bối cảnh</h4>
+                        <p>Khách nhận hàng và phản ánh không thấy ảnh khi soi. Khách đang bực tức.</p>
+                    </div>
+
+                    <div class="conversation">
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Shop ơi sao nhận hàng về soi mãi không thấy ảnh gì hết vậy? Lừa đảo à?
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ anh/chị ơi, shop xin lỗi vì trải nghiệm chưa tốt ạ 🙏 
+
+Cho em hỏi anh/chị đang soi bằng cách nào ạ? Sản phẩm có 3 cách xem, để em hướng dẫn lại nha!
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Mình đưa lên mắt nhìn nhưng không thấy gì
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ anh/chị thử cách này nha:
+
+1️⃣ Ra ngoài sáng (gần cửa sổ)
+2️⃣ Đưa mặt LỒI của viên ngọc lên gần mắt
+3️⃣ Đừng lấy tay che phía sau ngọc
+4️⃣ Tập trung nhìn vào giữa ngọc
+
+Nếu bị cận thì đeo kính, đặt ngọc sát kính và nhìn nha!
+
+Hoặc dùng camera điện thoại đưa sát mặt ngọc, dễ thấy hơn ạ 😊
+                        </div>
+                        <div class="message customer">
+                            <div class="sender">Khách</div>
+                            Ơ thấy rồi! Xinh ghê, cảm ơn shop nha. Sorry hồi nãy nóng quá 😅
+                        </div>
+                        <div class="message cs">
+                            <div class="sender">CS</div>
+                            Dạ không sao ạ, shop hiểu mà! 😊 Lần đầu soi ai cũng vậy hết á. 
+
+Anh/chị nhớ hướng dẫn người yêu cách soi để người ấy thấy bất ngờ nha! Có gì cần hỗ trợ thêm cứ nhắn shop ạ 💝
+                        </div>
+                    </div>
+
+                    <div class="analysis-box">
+                        <h4>🔍 Phân tích: Xử lý khiếu nại đúng cách</h4>
+                        <ul>
+                            <li><strong>Không defensive:</strong> Không phản ứng lại "lừa đảo", giữ bình tĩnh</li>
+                            <li><strong>Xin lỗi trước:</strong> "Xin lỗi vì trải nghiệm chưa tốt"</li>
+                            <li><strong>Hỏi để hiểu:</strong> Tìm hiểu khách đang làm gì sai</li>
+                            <li><strong>Hướng dẫn cụ thể:</strong> Từng bước một, dễ làm theo</li>
+                            <li><strong>Kết thúc tích cực:</strong> "Shop hiểu mà", tạo thiện cảm</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice Section -->
+            <div class="practice-section">
+                <h3>🎯 Bài tập thực hành</h3>
+                <p>Hãy thử xử lý các tình huống sau. Click "Xem gợi ý" để so sánh với cách xử lý đề xuất.</p>
+
+                <div class="scenario-card">
+                    <h4>Tình huống 1</h4>
+                    <p><strong>Khách:</strong> "Mình muốn đổi ảnh, đơn đang làm được không shop?"</p>
+                    <button class="reveal-answer" onclick="toggleAnswer(1)">Xem gợi ý</button>
+                    <div class="answer-content" id="answer-1">
+                        <strong>Gợi ý trả lời:</strong><br>
+                        "Dạ anh/chị ơi, đơn đang làm rồi nên đổi ảnh sẽ phụ phí 200k cho 2 sản phẩm ạ. Hoặc nếu anh/chị không muốn đổi, shop có thể tháo ảnh ra, giữ vòng có viên ngọc trống (không thu thêm phí). Anh/chị muốn chọn phương án nào ạ?"
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <h4>Tình huống 2</h4>
+                    <p><strong>Khách:</strong> "Shop giao hàng chậm quá, đã hơn 2 tuần rồi!"</p>
+                    <button class="reveal-answer" onclick="toggleAnswer(2)">Xem gợi ý</button>
+                    <div class="answer-content" id="answer-2">
+                        <strong>Gợi ý trả lời:</strong><br>
+                        "Dạ anh/chị ơi, shop xin lỗi vì sự chậm trễ ạ 🙏 Cho em xin SĐT hoặc mã đơn để em check ngay trạng thái nha. Nếu đơn đang làm thì em sẽ ưu tiên xử lý gấp, nếu đã gửi thì em check mã vận đơn cho anh/chị ạ!"
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <h4>Tình huống 3</h4>
+                    <p><strong>Khách:</strong> "Bạn gái mình không thích vòng, muốn đổi sang dây chuyền được không?"</p>
+                    <button class="reveal-answer" onclick="toggleAnswer(3)">Xem gợi ý</button>
+                    <div class="answer-content" id="answer-3">
+                        <strong>Gợi ý trả lời:</strong><br>
+                        "Dạ anh ơi, sản phẩm cá nhân hóa nên shop không hỗ trợ đổi trả ạ 😢 Nhưng mà anh có thể giữ vòng làm kỷ niệm, hoặc tặng cho người khác ạ. Nếu muốn mua thêm dây chuyền cho bạn gái, shop giảm 10% cho anh nhé!"
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <section class="content-section" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);">
+                <h2>📝 Tóm tắt Module 5</h2>
+                <ul>
+                    <li><strong>Phản hồi nhanh</strong> là yếu tố quyết định - Chậm 30 phút = mất đơn</li>
+                    <li><strong>Khi bị so sánh giá:</strong> Giải thích giá trị, không chỉ nói "tốt hơn"</li>
+                    <li><strong>Khi khách cần gấp:</strong> Đưa ra giải pháp thay thế, không từ chối</li>
+                    <li><strong>Khi khách khiếu nại:</strong> Xin lỗi trước, hỏi để hiểu, hướng dẫn cụ thể</li>
+                    <li><strong>Luôn kết thúc bằng câu hỏi</strong> để giữ conversation</li>
+                </ul>
+            </section>
+
+            <!-- Navigation -->
+            <div class="nav-buttons">
+                <a href="module-4-advanced.html" class="nav-btn prev">← Module 4: Nghiệp vụ nâng cao</a>
+                <a href="../quiz.html" class="nav-btn next">Làm bài kiểm tra →</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../../js/main.js"></script>
+    <script>
+        function toggleAnswer(num) {
+            const answer = document.getElementById('answer-' + num);
+            answer.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>

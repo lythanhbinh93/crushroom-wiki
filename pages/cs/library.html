@@ -7,172 +7,178 @@
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .product-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-left: 4px solid #e91e63;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .product-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-        }
-        .product-card h3 {
-            margin: 0 0 8px 0;
-            color: #333;
-            font-size: 18px;
-        }
-        .product-card .material {
-            color: #757575;
-            font-size: 13px;
-            margin-bottom: 12px;
-        }
-        .price-tag {
-            background: linear-gradient(135deg, #e91e63, #f48fb1);
+        .welcome-banner {
+            background: linear-gradient(135deg, #e91e63 0%, #9c27b0 100%);
             color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            display: inline-block;
-            font-weight: 600;
-            margin-bottom: 8px;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 32px;
         }
-        .price-combo {
-            background: #4caf50;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-left: 8px;
+        .welcome-banner h1 {
+            margin: 0 0 12px 0;
+            font-size: 32px;
         }
-        .info-box {
-            background: #f5f5f5;
-            padding: 16px;
-            border-radius: 8px;
-            margin: 16px 0;
+        .welcome-banner p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 16px;
         }
-        .info-box.highlight {
+        .learning-path {
             background: #fff3e0;
             border-left: 4px solid #ff9800;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 32px;
         }
-        .info-box.success {
-            background: #e8f5e9;
-            border-left: 4px solid #4caf50;
+        .learning-path h3 {
+            margin: 0 0 12px 0;
+            color: #e65100;
         }
-        .info-box.primary {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
+        .path-steps {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
         }
-        .step-list {
-            counter-reset: step;
+        .path-step {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .path-arrow {
+            color: #ff9800;
+            font-weight: bold;
+        }
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .module-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .module-header {
+            padding: 24px;
+            color: white;
+        }
+        .module-header.foundation { background: linear-gradient(135deg, #2196f3, #03a9f4); }
+        .module-header.products { background: linear-gradient(135deg, #e91e63, #f48fb1); }
+        .module-header.skills { background: linear-gradient(135deg, #4caf50, #8bc34a); }
+        .module-header.advanced { background: linear-gradient(135deg, #9c27b0, #ce93d8); }
+        .module-header.cases { background: linear-gradient(135deg, #ff9800, #ffb74d); }
+        .module-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        .module-header h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+        }
+        .module-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .module-body {
+            padding: 20px 24px;
+        }
+        .module-topics {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
-        .step-list li {
-            counter-increment: step;
-            padding: 16px 16px 16px 60px;
+        .module-topics li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #555;
+        }
+        .module-topics li:last-child {
+            border-bottom: none;
+        }
+        .module-topics li::before {
+            content: "→ ";
+            color: #e91e63;
+        }
+        .module-footer {
+            padding: 16px 24px;
             background: #f8f9fa;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            position: relative;
-        }
-        .step-list li::before {
-            content: counter(step);
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 32px;
-            height: 32px;
-            background: #e91e63;
-            color: white;
-            border-radius: 50%;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            font-weight: 700;
         }
-        .price-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 16px 0;
+        .module-time {
+            font-size: 13px;
+            color: #757575;
         }
-        .price-table th, .price-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .price-table th {
-            background: #f5f5f5;
+        .module-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 600;
         }
-        .price-table tr:hover {
-            background: #fce4ec;
+        .status-required {
+            background: #ffebee;
+            color: #c62828;
         }
-        .addon-tag {
+        .status-recommended {
             background: #e3f2fd;
-            color: #1976d2;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-right: 4px;
+            color: #1565c0;
         }
-        .quick-nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 24px;
-            padding: 16px;
+        .status-advanced {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .progress-section {
             background: #f8f9fa;
+            padding: 24px;
             border-radius: 12px;
+            margin-bottom: 32px;
         }
-        .quick-nav a {
-            padding: 8px 16px;
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e91e63, #9c27b0);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .quick-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+        .quick-link {
             background: white;
-            border-radius: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
             text-decoration: none;
             color: #333;
             font-size: 14px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             transition: all 0.2s;
         }
-        .quick-nav a:hover {
-            background: #e91e63;
-            color: white;
-        }
-        .toc-section {
-            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-        .toc-section h3 {
-            margin-top: 0;
-        }
-        .toc-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-        }
-        .toc-item {
-            background: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-        .toc-item:hover {
+        .quick-link:hover {
             background: #e91e63;
             color: white;
         }
@@ -252,661 +258,167 @@
                 <span>/</span>
                 <span>Thư viện học tập</span>
             </div>
-            
-            <header class="page-header">
-                <h1>💬 Thư viện CS</h1>
-                <p class="header-subtitle">Tất cả kiến thức cần biết để tư vấn khách hàng</p>
-            </header>
 
-            <!-- MỤC LỤC -->
-            <div class="toc-section">
-                <h3>📚 Mục lục nhanh</h3>
-                <div class="toc-grid">
-                    <a href="#san-pham" class="toc-item">💍 Sản phẩm & Giá</a>
-                    <a href="#khac-laser" class="toc-item">⚡ Khắc Laser</a>
-                    <a href="#quy-trinh" class="toc-item">📋 Quy trình đặt hàng</a>
-                    <a href="#thanh-toan" class="toc-item">💳 Thanh toán</a>
-                    <a href="#size" class="toc-item">📏 Bảng Size</a>
-                    <a href="#ship" class="toc-item">🚚 Vận chuyển</a>
-                    <a href="#bao-hanh" class="toc-item">🛡️ Bảo hành</a>
-                    <a href="#huong-dan" class="toc-item">📖 Hướng dẫn sử dụng</a>
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <h1>🎓 Chào mừng đến với CS Training</h1>
+                <p>Đây là nơi bạn học TẤT CẢ những gì cần biết để trở thành một CS chuyên nghiệp tại Crush Room. Hãy học theo thứ tự từ Module 1 đến Module 5 để có nền tảng vững chắc nhất.</p>
+            </div>
+
+            <!-- Learning Path -->
+            <div class="learning-path">
+                <h3>🗺️ Lộ trình học tập khuyến nghị</h3>
+                <div class="path-steps">
+                    <span class="path-step">1. Nền tảng</span>
+                    <span class="path-arrow">→</span>
+                    <span class="path-step">2. Sản phẩm</span>
+                    <span class="path-arrow">→</span>
+                    <span class="path-step">3. Kỹ năng tư vấn</span>
+                    <span class="path-arrow">→</span>
+                    <span class="path-step">4. Nâng cao</span>
+                    <span class="path-arrow">→</span>
+                    <span class="path-step">5. Case Study</span>
+                    <span class="path-arrow">→</span>
+                    <span class="path-step">🎯 Bài kiểm tra</span>
                 </div>
             </div>
 
-            <!-- PHẦN 1: SẢN PHẨM & GIÁ -->
-            <section class="content-section" id="san-pham">
-                <h2>💍 Sản phẩm & Bảng giá</h2>
-                
-                <!-- DÒNG THÉP KHÔNG GỈ -->
-                <h3>🔩 Dòng Thép Không Gỉ (Stainless Steel)</h3>
-                <p>Chất liệu bền, không đen, không gỉ sét. Phù hợp với nam giới và người thích đơn giản.</p>
-                
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Sản phẩm</th>
-                            <th>Giá lẻ</th>
-                            <th>Giá đôi</th>
-                            <th>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Vòng tay chiếu ảnh</strong></td>
-                            <td>349k</td>
-                            <td>599k <span class="price-combo">-99k</span></td>
-                            <td>Freeship toàn quốc</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Dây chuyền chiếu ảnh</strong></td>
-                            <td>349k</td>
-                            <td>599k <span class="price-combo">-99k</span></td>
-                            <td>Freeship toàn quốc</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Vòng khắc mắt (CoupleYes)</strong></td>
-                            <td>299k</td>
-                            <td>499k <span class="price-combo">-99k</span></td>
-                            <td>SX 5-7 ngày</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Dây chuyền khắc mắt</strong></td>
-                            <td>299k</td>
-                            <td>499k <span class="price-combo">-99k</span></td>
-                            <td>SX 5-7 ngày</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Móc khóa khắc mắt/chibi</strong></td>
-                            <td>299k</td>
-                            <td>499k <span class="price-combo">-99k</span></td>
-                            <td>SX 5-7 ngày</td>
-                        </tr>
-                        <tr>
-                            <td><strong>WarmLove (đổi màu)</strong></td>
-                            <td><del>599k</del> → 449k</td>
-                            <td>799k <span class="price-combo">-150k</span></td>
-                            <td>Đang giảm giá!</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Sổ ký ức 1 trang</strong></td>
-                            <td>299k</td>
-                            <td>-</td>
-                            <td>SX 5-7 ngày</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Sổ ký ức 3 trang</strong></td>
-                            <td>399k</td>
-                            <td>-</td>
-                            <td>SX 5-7 ngày</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Sổ ký ức 5 trang</strong></td>
-                            <td>499k</td>
-                            <td>-</td>
-                            <td>SX 5-7 ngày</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Sổ ký ức full 7 trang</strong></td>
-                            <td>599k</td>
-                            <td>-</td>
-                            <td>SX 5-7 ngày</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Module Grid -->
+            <div class="module-grid">
+                <!-- Module 1: Nền tảng -->
+                <a href="training/module-1-foundation.html" class="module-card">
+                    <div class="module-header foundation">
+                        <div class="module-icon">🏗️</div>
+                        <h3>Module 1: Nền tảng</h3>
+                        <p>Hiểu về Crush Room, khách hàng và văn hóa làm việc</p>
+                    </div>
+                    <div class="module-body">
+                        <ul class="module-topics">
+                            <li>Crush Room là ai? Câu chuyện thương hiệu</li>
+                            <li>Khách hàng mục tiêu & Tâm lý mua hàng</li>
+                            <li>Vị thế trên thị trường & USP</li>
+                            <li>Văn hóa CS tại Crush Room</li>
+                            <li>Quy trình làm việc & Công cụ sử dụng</li>
+                        </ul>
+                    </div>
+                    <div class="module-footer">
+                        <span class="module-time">⏱️ ~30 phút đọc</span>
+                        <span class="module-status status-required">Bắt buộc</span>
+                    </div>
+                </a>
 
-                <!-- DÒNG BẠC 925 -->
-                <h3>✨ Dòng Bạc S925</h3>
-                <p>Chất liệu cao cấp, sang trọng. Có thể đen theo thời gian nhưng đánh bóng được.</p>
-                
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Sản phẩm</th>
-                            <th>Giá lẻ</th>
-                            <th>Giá đôi/Set</th>
-                            <th>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Vòng tay bạc nữ (CherishPix)</strong></td>
-                            <td>799k</td>
-                            <td>1.498k <span class="price-combo">-100k</span></td>
-                            <td>Cọc 50%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Dây chuyền bạc nữ</strong></td>
-                            <td>699k</td>
-                            <td>1.298k <span class="price-combo">-100k</span></td>
-                            <td>Cọc 50%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Vòng tay bạc nam</strong></td>
-                            <td>1.399k</td>
-                            <td>-</td>
-                            <td>Cọc 50%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Nhẫn bạc chiếu ảnh</strong></td>
-                            <td>599k</td>
-                            <td>1.099k <span class="price-combo">-100k</span></td>
-                            <td>Điều chỉnh size</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Nhẫn vương miện (CrownPix)</strong></td>
-                            <td>-</td>
-                            <td>779k/set 2 nhẫn</td>
-                            <td>Không tách set</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Nhẫn chiếu chữ (Luminous)</strong></td>
-                            <td>-</td>
-                            <td>599k/đôi</td>
-                            <td>Điều chỉnh size</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Bae Choker (100 ngôn ngữ)</strong></td>
-                            <td>-</td>
-                            <td>599k/đôi</td>
-                            <td>Kèm giám định</td>
-                        </tr>
-                        <tr>
-                            <td><strong>MomPix (dây chuyền mẹ)</strong></td>
-                            <td>699k</td>
-                            <td>-</td>
-                            <td>Quà tặng mẹ</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <!-- Module 2: Sản phẩm -->
+                <a href="training/module-2-products.html" class="module-card">
+                    <div class="module-header products">
+                        <div class="module-icon">💍</div>
+                        <h3>Module 2: Sản phẩm</h3>
+                        <p>Kiến thức chuyên sâu về từng dòng sản phẩm</p>
+                    </div>
+                    <div class="module-body">
+                        <ul class="module-topics">
+                            <li>Công nghệ chiếu ảnh Nano Projection</li>
+                            <li>Dòng PIX Collection (vòng/dây chuyền chiếu ảnh)</li>
+                            <li>Dòng Engraved (khắc mắt, khắc laser)</li>
+                            <li>Dòng WarmLove (đổi màu theo nhiệt)</li>
+                            <li>Sổ ký ức & Sản phẩm đặc biệt</li>
+                            <li>Chất liệu: Thép vs Bạc 925</li>
+                            <li>Bảng giá & Chính sách ưu đãi</li>
+                        </ul>
+                    </div>
+                    <div class="module-footer">
+                        <span class="module-time">⏱️ ~45 phút đọc</span>
+                        <span class="module-status status-required">Bắt buộc</span>
+                    </div>
+                </a>
 
-                <!-- SET MIX BẠC + THÉP -->
-                <h3>💑 Set Couple Mix (Bạc + Thép)</h3>
-                <p>Combo tiết kiệm: Nữ đeo bạc sang trọng, Nam đeo thép bền bỉ.</p>
-                
-                <div class="info-box success">
-                    <strong>🔥 Set Cỏ Bốn Lá & các set mix:</strong><br>
-                    • Vòng bạc nữ: 799k + Vòng thép nam: 349k<br>
-                    • <strong>Giá set: 1.048k</strong> (giảm 100k)<br>
-                    • Dây chuyền bạc nữ + thép nam: 948k (giảm 100k)<br>
-                    • Set 2 vòng bạc (nữ + nam): 2.098k (giảm 100k)
-                </div>
+                <!-- Module 3: Kỹ năng tư vấn -->
+                <a href="training/module-3-consulting.html" class="module-card">
+                    <div class="module-header skills">
+                        <div class="module-icon">💬</div>
+                        <h3>Module 3: Kỹ năng tư vấn</h3>
+                        <p>Từ mở đầu đến chốt đơn thành công</p>
+                    </div>
+                    <div class="module-body">
+                        <ul class="module-topics">
+                            <li>Nguyên tắc vàng trong tư vấn</li>
+                            <li>Mở đầu cuộc trò chuyện ấn tượng</li>
+                            <li>Khai thác nhu cầu khách hàng</li>
+                            <li>Recommend sản phẩm phù hợp</li>
+                            <li>Xử lý từ chối & Objection handling</li>
+                            <li>Kỹ thuật chốt đơn hiệu quả</li>
+                            <li>Upsell & Cross-sell thông minh</li>
+                        </ul>
+                    </div>
+                    <div class="module-footer">
+                        <span class="module-time">⏱️ ~40 phút đọc</span>
+                        <span class="module-status status-required">Bắt buộc</span>
+                    </div>
+                </a>
 
-                <!-- SẢN PHẨM KHÁC -->
-                <h3>🎁 Sản phẩm khác</h3>
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Sản phẩm</th>
-                            <th>Giá</th>
-                            <th>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Mặt lẻ thép (không dây)</strong></td>
-                            <td>324k/cái - 549k/cặp</td>
-                            <td>Freeship từ 299k</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Mặt lẻ bạc (không dây)</strong></td>
-                            <td>649k/cái</td>
-                            <td>Giảm 100k khi mua 2 sp bạc</td>
-                        </tr>
-                        <tr>
-                            <td><strong>SoundPix (set dây chuyền + charm + QR)</strong></td>
-                            <td>449k (thép) / 799k (bạc)</td>
-                            <td>Bao gồm khắc QR</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Counter Love (đếm ngày yêu)</strong></td>
-                            <td>599k/đôi</td>
-                            <td>+ 150k khắc QR đếm ngày</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
+                <!-- Module 4: Nâng cao -->
+                <a href="training/module-4-advanced.html" class="module-card">
+                    <div class="module-header advanced">
+                        <div class="module-icon">🚀</div>
+                        <h3>Module 4: Nghiệp vụ nâng cao</h3>
+                        <p>Quy trình, chính sách và xử lý tình huống</p>
+                    </div>
+                    <div class="module-body">
+                        <ul class="module-topics">
+                            <li>Quy trình đặt hàng chi tiết</li>
+                            <li>Hệ thống thanh toán & Xác nhận đơn</li>
+                            <li>Vận chuyển & Ship 2 nơi</li>
+                            <li>Bảo hành & Xử lý khiếu nại</li>
+                            <li>Xử lý đơn hủy, đổi ảnh, hoàn tiền</li>
+                            <li>Size & Thông số kỹ thuật</li>
+                        </ul>
+                    </div>
+                    <div class="module-footer">
+                        <span class="module-time">⏱️ ~35 phút đọc</span>
+                        <span class="module-status status-recommended">Khuyến nghị</span>
+                    </div>
+                </a>
 
-            <!-- PHẦN 2: KHẮC LASER -->
-            <section class="content-section" id="khac-laser">
-                <h2>⚡ Dịch vụ khắc Laser</h2>
-                
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Loại khắc</th>
-                            <th>Giá</th>
-                            <th>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Chữ đánh máy</strong></td>
-                            <td>45k/mặt</td>
-                            <td>Tên, ngày kỷ niệm...</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Chữ viết tay</strong></td>
-                            <td>85k/mặt</td>
-                            <td>Scan chữ viết tay khách</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Chữ phức tạp/Icon</strong></td>
-                            <td>65-100k/mặt</td>
-                            <td>Tùy độ phức tạp</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Mã nhạc Spotify</strong></td>
-                            <td>55k/mặt</td>
-                            <td>Quét ra bài hát</td>
-                        </tr>
-                        <tr>
-                            <td><strong>QR ghi âm (loại thường)</strong></td>
-                            <td>100k/mặt</td>
-                            <td>Link: bit.ly/qr-crushroom</td>
-                        </tr>
-                        <tr>
-                            <td><strong>QR ghi âm + đếm ngày (Counter Love)</strong></td>
-                            <td>150k/mặt</td>
-                            <td>Link: bit.ly/cr-lovecounter</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Khắc chữ trong nhẫn</strong></td>
-                            <td>70k/đôi</td>
-                            <td>Cần TT full đơn</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Khắc dấu môi</strong></td>
-                            <td>Miễn phí (có vòng)</td>
-                            <td>Gửi ảnh dấu môi</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <!-- Module 5: Case Study -->
+                <a href="training/module-5-cases.html" class="module-card">
+                    <div class="module-header cases">
+                        <div class="module-icon">📚</div>
+                        <h3>Module 5: Case Study thực tế</h3>
+                        <p>Học từ những tình huống có thật</p>
+                    </div>
+                    <div class="module-body">
+                        <ul class="module-topics">
+                            <li>Case 1: Khách hàng lần đầu mua quà</li>
+                            <li>Case 2: Khách so sánh giá với shop khác</li>
+                            <li>Case 3: Khách cần gấp cho sinh nhật</li>
+                            <li>Case 4: Khách khiếu nại sản phẩm</li>
+                            <li>Case 5: Khách muốn hủy đơn giữa chừng</li>
+                            <li>Bài tập thực hành & Role-play</li>
+                        </ul>
+                    </div>
+                    <div class="module-footer">
+                        <span class="module-time">⏱️ ~30 phút đọc</span>
+                        <span class="module-status status-advanced">Nâng cao</span>
+                    </div>
+                </a>
+            </div>
 
-                <div class="info-box highlight">
-                    <strong>⚠️ Lưu ý khắc laser:</strong>
-                    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Cần thanh toán cọc 50% nếu chọn khắc</li>
-                        <li>Thời gian khắc tốn thêm 1-2 ngày</li>
-                        <li>Vòng thép có 4 mặt khắc được</li>
-                    </ul>
-                </div>
-            </section>
-
-            <!-- PHẦN 3: QUY TRÌNH ĐẶT HÀNG -->
-            <section class="content-section" id="quy-trinh">
-                <h2>📋 Quy trình đặt hàng</h2>
-                
-                <ol class="step-list">
-                    <li>
-                        <strong>Gửi ảnh cho shop</strong><br>
-                        Link upload: <a href="https://crushroom.vn/pages/couplepix" target="_blank">crushroom.vn/pages/couplepix</a><br>
-                        <span style="color: #757575;">Ảnh tải lên thành công sẽ có thông báo. Up xong nhắn admin!</span>
-                    </li>
-                    <li>
-                        <strong>Thanh toán cọc</strong><br>
-                        • Đơn thường: cọc 50%<br>
-                        • Đơn có khắc laser: cọc 50%<br>
-                        • Đơn hỏa tốc: thanh toán 100%
-                    </li>
-                    <li>
-                        <strong>Cung cấp thông tin nhận hàng</strong><br>
-                        • Tên người nhận<br>
-                        • Số điện thoại<br>
-                        • Địa chỉ cụ thể: số nhà, phường/xã, quận/huyện, tỉnh/TP
-                    </li>
-                    <li>
-                        <strong>Chờ shop xác nhận đơn</strong><br>
-                        Shop sẽ gửi tin nhắn xác nhận chi tiết đơn hàng
-                    </li>
-                    <li>
-                        <strong>Nhận hàng</strong><br>
-                        • Đơn thường: 10-14 ngày SX + 2-4 ngày ship<br>
-                        • Đơn khắc mắt/sổ: 5-7 ngày SX + 2-5 ngày ship<br>
-                        • Đơn hỏa tốc: 10 ngày nhận (đã gồm ship)
-                    </li>
-                </ol>
-
-                <div class="info-box primary">
-                    <strong>📌 Yêu cầu ảnh đẹp:</strong>
-                    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Chủ thể ở giữa, chụp ban ngày càng tốt</li>
-                        <li>Ảnh rõ nét, sáng</li>
-                        <li>Ảnh sẽ được cắt thành hình tròn (như avatar FB)</li>
-                        <li>Độ nét thành phẩm = 70-80% ảnh gốc</li>
-                    </ul>
-                </div>
-
-                <div class="info-box highlight">
-                    <strong>❌ Lưu ý quan trọng:</strong>
-                    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Chỉ chốt đơn tại Facebook hoặc Instagram (KHÔNG chốt Zalo)</li>
-                        <li>Ảnh đã chốt sẽ KHÔNG đổi được</li>
-                        <li>Hiện chưa hỗ trợ quay clip/chụp ảnh từng sản phẩm trước khi gửi</li>
-                    </ul>
-                </div>
-            </section>
-
-            <!-- PHẦN 4: THANH TOÁN -->
-            <section class="content-section" id="thanh-toan">
-                <h2>💳 Thông tin thanh toán</h2>
-                
-                <div class="info-box success" style="font-size: 16px;">
-                    <strong>🏦 Chuyển khoản ngân hàng:</strong><br><br>
-                    <strong>LY THANH BINH</strong><br>
-                    MB Bank (Ngân Hàng Quân Đội)<br>
-                    <span style="font-size: 24px; font-weight: 700; color: #2e7d32;">140320208888</span><br><br>
-                    
-                    <strong>📱 Momo:</strong> 0938 293959 - Lý Thanh Bình
-                </div>
-
-                <div class="info-box highlight">
-                    <strong>❌ NỘI DUNG CHUYỂN KHOẢN:</strong><br>
-                    Ghi đúng: <code style="background: white; padding: 4px 8px; border-radius: 4px;">"SĐT + Tên người nhận đơn hàng"</code><br>
-                    <span style="color: #757575;">Ví dụ: 0901234567 Nguyen Van A</span>
-                </div>
-
-                <h3>Các hình thức thanh toán</h3>
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Loại đơn</th>
-                            <th>Yêu cầu thanh toán</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Đơn thường (không khắc)</td>
-                            <td>COD hoặc cọc 50%</td>
-                        </tr>
-                        <tr>
-                            <td>Đơn có khắc laser</td>
-                            <td>Cọc ít nhất 50%</td>
-                        </tr>
-                        <tr>
-                            <td>Đơn khắc chữ trong nhẫn</td>
-                            <td>Thanh toán 100%</td>
-                        </tr>
-                        <tr>
-                            <td>Đơn hỏa tốc</td>
-                            <td>Thanh toán 100%</td>
-                        </tr>
-                        <tr>
-                            <td>Đơn ship 2 nơi (COD)</td>
-                            <td>Ship tuần tự (người tặng → người nhận)</td>
-                        </tr>
-                        <tr>
-                            <td>Đơn ship 2 nơi (đã TT)</td>
-                            <td>Ship cùng lúc + ship nhanh</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-
-            <!-- PHẦN 5: BẢNG SIZE -->
-            <section class="content-section" id="size">
-                <h2>📏 Bảng Size</h2>
-                
-                <h3>Vòng tay</h3>
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Loại</th>
-                            <th>Size phổ thông</th>
-                            <th>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Vòng nữ thép</strong></td>
-                            <td>25cm (freesize)</td>
-                            <td>Kéo chỉnh tùy ý</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Vòng nam thép</strong></td>
-                            <td>18,5cm + 5cm nấc chỉnh</td>
-                            <td>Hỗ trợ cắt free</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Vòng nữ bạc</strong></td>
-                            <td>15,5cm + 5cm nấc chỉnh</td>
-                            <td>Cắt phụ thu 30k</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Vòng khắc mắt nữ</strong></td>
-                            <td>15cm + 5cm nấc chỉnh</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Vòng khắc mắt nam</strong></td>
-                            <td>18cm + 5cm nấc chỉnh</td>
-                            <td>-</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Dây chuyền</h3>
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Loại</th>
-                            <th>Độ dài</th>
-                            <th>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Dây chuyền nữ</strong></td>
-                            <td>45cm + 5cm nấc chỉnh</td>
-                            <td>Có thể yêu cầu độ dài khác</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Dây chuyền nam</strong></td>
-                            <td>60cm</td>
-                            <td>Không có nấc chỉnh</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Nhẫn</h3>
-                <div class="info-box">
-                    <strong>Nhẫn điều chỉnh được size phổ thông</strong><br>
-                    • Nhẫn nhỏ (chiếu ❤️YOU): tay 5.1-5.8cm<br>
-                    • Nhẫn lớn (chiếu I ❤️): tay 5.3-6cm<br><br>
-                    <strong>Cách đo:</strong> Lấy giấy/thước dây quấn 1 vòng xung quanh vị trí đeo nhẫn, đo cm.
-                </div>
-
-                <h3>Đường kính lỗ xỏ mặt</h3>
-                <p>• Mặt nam: 3mm<br>• Mặt nữ: 3mm hoặc 6mm</p>
-            </section>
-
-            <!-- PHẦN 6: VẬN CHUYỂN -->
-            <section class="content-section" id="ship">
-                <h2>🚚 Vận chuyển</h2>
-                
-                <h3>Thời gian giao hàng</h3>
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Loại đơn</th>
-                            <th>Thời gian SX</th>
-                            <th>Thời gian ship</th>
-                            <th>Phụ phí</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Đơn thường (chiếu ảnh)</strong></td>
-                            <td>10-14 ngày</td>
-                            <td>2-4 ngày</td>
-                            <td>Freeship</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Đơn khắc mắt/sổ ký ức</strong></td>
-                            <td>5-7 ngày</td>
-                            <td>2-5 ngày</td>
-                            <td>Freeship</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Đơn hỏa tốc</strong></td>
-                            <td colspan="2">10 ngày nhận hàng</td>
-                            <td>+100k</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Ship nhanh (COD)</strong></td>
-                            <td>-</td>
-                            <td>Nhanh hơn</td>
-                            <td>+25k</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Ship 2 nơi</h3>
-                <div class="info-box">
-                    <strong>Áp dụng đơn từ 299k:</strong>
-                    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Địa chỉ 1 (người được tặng): Freeship</li>
-                        <li>Địa chỉ 2 (người tặng): +25k</li>
-                        <li>Cần mua thêm hộp nếu muốn mỗi địa chỉ đều có hộp</li>
-                        <li>Đơn COD: ship tuần tự (người tặng nhận trước)</li>
-                        <li>Đơn đã TT: ship cùng lúc + ship nhanh</li>
-                    </ul>
-                </div>
-
-                <h3>Địa chỉ kho</h3>
-                <div class="info-box primary">
-                    <strong>🏠 Crush Room</strong><br>
-                    Tháp 5 - SAV5 Office, Chung cư The Sun Avenue<br>
-                    28 Mai Chí Thọ, An Phú, Thủ Đức<br><br>
-                    📞 0772 613 384<br>
-                    ⏰ 9h-18h, Thứ 2 - Thứ 7<br><br>
-                    📍 <a href="https://maps.app.goo.gl/JeXtbLw5UAXPvDXj9" target="_blank">Xem Google Maps</a><br><br>
-                    <span style="color: #d32f2f;">⚠️ Vui lòng gọi trước 30p-1h khi đến lấy hàng</span><br>
-                    <span style="color: #757575;">Nếu book Grab: để tên người gửi là "Crush Room"</span>
-                </div>
-
-                <div class="info-box highlight">
-                    <strong>❌ Lưu ý:</strong> Shop chỉ hỗ trợ khách đến LẤY hàng đã đặt, chưa có store để xem sản phẩm trực tiếp.
-                </div>
-            </section>
-
-            <!-- PHẦN 7: BẢO HÀNH -->
-            <section class="content-section" id="bao-hanh">
-                <h2>🛡️ Bảo hành & Bảo quản</h2>
-                
-                <h3>Chính sách bảo hành</h3>
-                <table class="price-table">
-                    <thead>
-                        <tr>
-                            <th>Dịch vụ</th>
-                            <th>Lần 1</th>
-                            <th>Lần 2+</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Đánh bóng, làm sạch (bạc)</strong></td>
-                            <td>Miễn phí</td>
-                            <td>Hỗ trợ 50% phí ship</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Bảo hành vòng bạc CherishPix</strong></td>
-                            <td colspan="2">1 tháng đánh bóng miễn phí</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Hướng dẫn bảo quản</h3>
-                
-                <div class="info-box">
-                    <strong>🔩 Thép không gỉ:</strong>
-                    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Chất liệu: Bền, không đen, không gỉ sét</li>
-                        <li>Chạm nước: OK với chất liệu</li>
-                        <li>Hình ảnh: Hạn chế nước, hóa chất để ảnh bền hơn</li>
-                        <li>Tuổi thọ ảnh: 6 tháng - 1 năm nếu tiếp xúc nước thường xuyên</li>
-                    </ul>
-                </div>
-
-                <div class="info-box">
-                    <strong>✨ Bạc 925:</strong>
-                    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Có thể đen do bám bụi, mồ hôi, chất tẩy rửa (bình thường)</li>
-                        <li>Khắc phục: Lau bằng khăn lau bạc (tặng kèm) hoặc ra tiệm đánh bóng</li>
-                        <li>Nam hay vận động, ra mồ hôi → nên chọn thép</li>
-                    </ul>
-                </div>
-
-                <div class="info-box">
-                    <strong>🌡️ WarmLove (đổi màu):</strong>
-                    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Màu đen: nhiệt độ lạnh (~10°C trở xuống)</li>
-                        <li>Ảnh mờ ảo: nhiệt độ mát (10-30°C)</li>
-                        <li>Hiện ảnh rõ: nhiệt độ nóng (30°C trở lên)</li>
-                    </ul>
-                </div>
-
-                <h3>Vệ sinh sản phẩm</h3>
-                <p>• Ảnh bám bụi: Thổi nhẹ hoặc dùng tăm bông phủi nhẹ mặt sau<br>
-                • Đơn có kèm khăn lau (có dung dịch làm sạch) - KHÔNG giặt nước</p>
-            </section>
-
-            <!-- PHẦN 8: HƯỚNG DẪN SỬ DỤNG -->
-            <section class="content-section" id="huong-dan">
-                <h2>📖 Hướng dẫn sử dụng</h2>
-                
-                <h3>3 cách soi ảnh trong viên ngọc</h3>
-                <div class="info-box success">
-                    <ol style="margin: 0; padding-left: 20px;">
-                        <li><strong>Nhìn trực tiếp:</strong> Đặt mắt nhìn vào mặt trước viên ngọc (ngoài sáng, không che phía sau)</li>
-                        <li><strong>Dùng camera điện thoại:</strong> Đưa camera sát mặt trước viên ngọc (ngoài sáng)</li>
-                        <li><strong>Chiếu đèn flash:</strong> Rọi đèn từ phía sau (trong tối) - ảnh/chữ sẽ lật ngược theo chiều dọc</li>
-                    </ol>
-                </div>
-
-                <div class="info-box highlight">
-                    <strong>💡 Mẹo:</strong>
-                    <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Mặt trước = mặt LỒI của viên ngọc</li>
-                        <li>Nếu bị cận: đeo kính, đặt viên ngọc chạm sát kính và tập trung nhìn</li>
-                        <li>Với nhẫn: cần đèn pin nhỏ để chiếu (đèn flash ĐT không đặt vừa)</li>
-                    </ul>
-                </div>
-
-                <p><strong>🎬 Video hướng dẫn:</strong> <a href="https://www.instagram.com/p/DI84X5bvb8U/" target="_blank">Xem trên Instagram</a></p>
-
-                <h3>Cách quét mã Spotify</h3>
-                <p>Xem video: <a href="https://www.facebook.com/crushroom.vn/videos/288557214254481" target="_blank">Hướng dẫn quét mã nhạc</a></p>
-
-                <h3>Đơn kèm theo</h3>
-                <p>Mỗi đơn hàng đều có sẵn: 1 hộp đựng + 1 túi đen + khăn lau vệ sinh trang sức</p>
-            </section>
-
-            <!-- PHẦN XỬ LÝ TÌNH HUỐNG -->
+            <!-- Quick Links -->
             <section class="content-section">
-                <h2>🚨 Xử lý tình huống đặc biệt</h2>
-                
-                <h3>Khách muốn hủy đơn đang làm</h3>
-                <div class="info-box highlight">
-                    <strong>Có 3 phương án:</strong>
-                    <ol style="margin: 8px 0 0 0; padding-left: 20px;">
-                        <li>Vẫn nhận đơn để giữ làm kỷ niệm</li>
-                        <li>Đổi ảnh (phụ phí 200k cho 2 sản phẩm)</li>
-                        <li>Tháo ảnh, vòng có viên ngọc trơn (không thu thêm phí)</li>
-                    </ol>
-                    <p style="margin-top: 12px; color: #d32f2f;"><strong>Lý do:</strong> Cọc 50% không đủ bù cho đơn hàng đang sản xuất</p>
+                <h2>⚡ Truy cập nhanh</h2>
+                <div class="quick-links">
+                    <a href="training/bang-gia.html" class="quick-link">💰 Bảng giá đầy đủ</a>
+                    <a href="training/bang-size.html" class="quick-link">📏 Bảng size</a>
+                    <a href="training/scripts.html" class="quick-link">📝 Scripts mẫu</a>
+                    <a href="training/faq.html" class="quick-link">❓ FAQ thường gặp</a>
+                    <a href="training/quy-trinh.html" class="quick-link">📋 Quy trình đặt hàng</a>
+                    <a href="training/bao-hanh.html" class="quick-link">🛡️ Chính sách bảo hành</a>
                 </div>
-
-                <h3>Khách muốn chụp ảnh trước khi gửi</h3>
-                <p>→ "Dạ bạn được kiểm tra hàng với shipper trước khi nhận nha ạ, hiện tại shop chưa hỗ trợ quay clip chụp ảnh từng sản phẩm vì nhân lực có hạn ạ"</p>
-
-                <h3>Khách muốn đến xem sản phẩm</h3>
-                <p>→ "Địa chỉ kho chỉ hỗ trợ khách đã đặt và đến lấy, chưa có hỗ trợ đến xem sản phẩm ạ. CR là shop online, hiện tại chưa có store ạ 😊"</p>
             </section>
 
             <!-- CTA -->
             <section class="content-section" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
-                <h2>✏️ Sẵn sàng kiểm tra?</h2>
-                <p>Sau khi học xong, hãy làm bài kiểm tra để đánh giá kiến thức của bạn.</p>
+                <h2>✏️ Đã học xong?</h2>
+                <p>Sau khi hoàn thành tất cả các module, hãy làm bài kiểm tra để đánh giá kiến thức của bạn. Cần đạt 80% trở lên để được cấp chứng nhận.</p>
                 <a href="quiz.html" class="btn btn-primary" style="margin-top: 12px;">
                     Làm bài kiểm tra CS →
                 </a>

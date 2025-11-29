@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: Nghiệp vụ nâng cao - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .module-banner {
+            background: linear-gradient(135deg, #9c27b0, #ce93d8);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+        .module-banner h1 { margin: 0 0 8px 0; }
+        .module-banner p { margin: 0; opacity: 0.9; }
+        
+        .learning-objectives {
+            background: #f3e5f5;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+        .learning-objectives h3 { margin-top: 0; color: #7b1fa2; }
+        
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .info-card h4 { margin-top: 0; }
+        
+        .stk-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            padding: 24px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .stk-box .bank-name {
+            font-size: 14px;
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+        .stk-box .account-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .stk-box .account-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1b5e20;
+            letter-spacing: 2px;
+        }
+        .stk-box .momo {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed #a5d6a7;
+        }
+        
+        .process-steps {
+            counter-reset: step;
+        }
+        .process-step {
+            position: relative;
+            padding: 20px 20px 20px 70px;
+            background: #f8f9fa;
+            margin: 12px 0;
+            border-radius: 12px;
+        }
+        .process-step::before {
+            content: counter(step);
+            counter-increment: step;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            background: #9c27b0;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .data-table th, .data-table td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .data-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+        .data-table tr:hover { background: #f3e5f5; }
+        
+        .warning-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .warning-box h4 { margin-top: 0; color: #c62828; }
+        
+        .key-point {
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .key-point h4 { margin-top: 0; color: #f57c00; }
+        
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success-box h4 { margin-top: 0; color: #2e7d32; }
+        
+        .script-box {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        .script-box .cs {
+            background: #e8f5e9;
+            padding: 14px 18px;
+            border-radius: 8px;
+        }
+        
+        .address-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 24px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .address-box h4 { margin-top: 0; color: #1565c0; }
+        
+        .situation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #ff9800;
+        }
+        .situation-card h4 { 
+            margin-top: 0; 
+            color: #e65100;
+        }
+        .situation-card .solution {
+            background: #e8f5e9;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-btn.prev { background: #f5f5f5; color: #333; }
+        .nav-btn.next { background: #9c27b0; color: white; }
+        .nav-btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../../../index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="../../schedule.html" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Đăng ký lịch làm</span>
+                </a>
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../library.html" class="nav-subitem active">Thư viện học tập</a>
+                        <a href="../quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">📢</span>
+                        <span>Marketing</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../../marketing/library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="../../marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">⚡</span>
+                        <span>Laser</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../../laser/guide.html" class="nav-subitem">Hướng dẫn khắc Laser</a>
+                        <a href="../../laser/lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../../index.html">Trang chủ</a>
+                <span>/</span>
+                <a href="../library.html">CS Training</a>
+                <span>/</span>
+                <span>Module 4: Nghiệp vụ nâng cao</span>
+            </div>
+
+            <div class="module-banner">
+                <h1>🚀 Module 4: Nghiệp vụ nâng cao</h1>
+                <p>Quy trình, chính sách và xử lý tình huống đặc biệt • ⏱️ ~35 phút đọc</p>
+            </div>
+
+            <div class="learning-objectives">
+                <h3>🎯 Sau khi hoàn thành module này, bạn sẽ:</h3>
+                <ul>
+                    <li>Nắm vững quy trình đặt hàng từ A-Z</li>
+                    <li>Biết cách xử lý thanh toán và xác nhận đơn</li>
+                    <li>Hiểu chính sách vận chuyển, ship 2 nơi</li>
+                    <li>Xử lý được các tình huống: hủy đơn, đổi ảnh, khiếu nại</li>
+                    <li>Thuộc bảng size và thông số kỹ thuật</li>
+                </ul>
+            </div>
+
+            <!-- Section 1: Quy trình đặt hàng -->
+            <section class="content-section">
+                <h2>1. Quy trình đặt hàng chi tiết</h2>
+                
+                <div class="process-steps">
+                    <div class="process-step">
+                        <strong>Khách gửi ảnh</strong><br>
+                        Link upload: <a href="https://crushroom.vn/pages/couplepix" target="_blank">crushroom.vn/pages/couplepix</a><br>
+                        <span style="color: #757575;">Ảnh upload thành công sẽ có thông báo. Khách nhắn lại shop sau khi up xong.</span>
+                    </div>
+                    <div class="process-step">
+                        <strong>CS check ảnh + tư vấn</strong><br>
+                        Kiểm tra ảnh có đủ điều kiện không (rõ nét, chủ thể ở giữa, ánh sáng tốt).<br>
+                        Nếu ảnh chưa đạt → hướng dẫn khách chụp lại.
+                    </div>
+                    <div class="process-step">
+                        <strong>Xác nhận sản phẩm + giá</strong><br>
+                        Xác nhận: loại sản phẩm, size, có khắc thêm gì không, tổng giá tiền.
+                    </div>
+                    <div class="process-step">
+                        <strong>Khách thanh toán (cọc hoặc full)</strong><br>
+                        Gửi STK → Khách chuyển khoản → Check và xác nhận đã nhận tiền.
+                    </div>
+                    <div class="process-step">
+                        <strong>Lấy thông tin ship</strong><br>
+                        Tên người nhận, SĐT, địa chỉ cụ thể (số nhà, phường, quận, tỉnh/TP).
+                    </div>
+                    <div class="process-step">
+                        <strong>Xác nhận đơn hàng</strong><br>
+                        Gửi tin nhắn xác nhận chi tiết đơn để khách kiểm tra lại.
+                    </div>
+                    <div class="process-step">
+                        <strong>Sản xuất + Gửi hàng</strong><br>
+                        10-14 ngày (PIX) hoặc 5-7 ngày (Engraved/Sổ). Gửi mã đơn khi ship.
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Lưu ý quan trọng</h4>
+                    <ul>
+                        <li><strong>Chỉ chốt đơn tại Facebook/Instagram</strong> - KHÔNG chốt ở Zalo</li>
+                        <li><strong>Ảnh đã chốt không đổi được</strong> - Nhắc khách kiểm tra kỹ trước khi xác nhận</li>
+                        <li><strong>Nội dung CK phải đúng:</strong> "SĐT + Tên người nhận"</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 2: Thanh toán -->
+            <section class="content-section">
+                <h2>2. Hệ thống thanh toán</h2>
+                
+                <div class="stk-box">
+                    <div class="bank-name">MB Bank (Ngân Hàng Quân Đội)</div>
+                    <div class="account-name">LY THANH BINH</div>
+                    <div class="account-number">140320208888</div>
+                    <div class="momo">
+                        <strong>Momo:</strong> 0938 293 959 - Lý Thanh Bình
+                    </div>
+                </div>
+
+                <div class="key-point">
+                    <h4>📝 Nội dung chuyển khoản</h4>
+                    <p>Khách ghi: <code style="background: white; padding: 4px 8px; border-radius: 4px; font-size: 16px;">"SĐT + Tên người nhận đơn hàng"</code></p>
+                    <p><em>Ví dụ: 0901234567 Nguyen Van A</em></p>
+                </div>
+
+                <h3>2.1. Các hình thức thanh toán</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>Loại đơn</th>
+                        <th>Yêu cầu thanh toán</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                    <tr>
+                        <td>Đơn thường (không khắc)</td>
+                        <td>COD hoặc cọc 50%</td>
+                        <td>Có thể thanh toán khi nhận</td>
+                    </tr>
+                    <tr>
+                        <td>Đơn có khắc laser</td>
+                        <td>Cọc ít nhất 50%</td>
+                        <td>Phải cọc mới làm</td>
+                    </tr>
+                    <tr>
+                        <td>Khắc chữ trong nhẫn</td>
+                        <td>Thanh toán 100%</td>
+                        <td>Bắt buộc TT full</td>
+                    </tr>
+                    <tr>
+                        <td>Đơn hỏa tốc</td>
+                        <td>Thanh toán 100%</td>
+                        <td>Bắt buộc TT full</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Section 3: Vận chuyển -->
+            <section class="content-section">
+                <h2>3. Vận chuyển</h2>
+                
+                <h3>3.1. Thời gian giao hàng</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>Loại đơn</th>
+                        <th>Thời gian SX</th>
+                        <th>Ship</th>
+                        <th>Tổng</th>
+                        <th>Phụ phí</th>
+                    </tr>
+                    <tr>
+                        <td>Đơn chiếu ảnh (PIX)</td>
+                        <td>10-14 ngày</td>
+                        <td>2-4 ngày</td>
+                        <td>12-18 ngày</td>
+                        <td>Freeship</td>
+                    </tr>
+                    <tr>
+                        <td>Đơn khắc mắt/Sổ ký ức</td>
+                        <td>5-7 ngày</td>
+                        <td>2-5 ngày</td>
+                        <td>7-12 ngày</td>
+                        <td>Freeship</td>
+                    </tr>
+                    <tr>
+                        <td>Đơn hỏa tốc</td>
+                        <td colspan="2">10 ngày nhận hàng</td>
+                        <td>10 ngày</td>
+                        <td>+100k</td>
+                    </tr>
+                    <tr>
+                        <td>Ship nhanh (COD)</td>
+                        <td>-</td>
+                        <td>Nhanh hơn</td>
+                        <td>-</td>
+                        <td>+25k</td>
+                    </tr>
+                </table>
+
+                <h3>3.2. Ship 2 nơi</h3>
+                <div class="info-card">
+                    <h4>📦 Chính sách ship 2 địa chỉ</h4>
+                    <p><strong>Áp dụng:</strong> Đơn hàng từ 299k</p>
+                    <ul>
+                        <li><strong>Địa chỉ 1 (người được tặng):</strong> Freeship</li>
+                        <li><strong>Địa chỉ 2 (người tặng):</strong> +25k</li>
+                    </ul>
+                    <p><strong>Lưu ý:</strong></p>
+                    <ul>
+                        <li>Đơn tặng kèm 1 hộp. Muốn mỗi địa chỉ có hộp → mua thêm hộp</li>
+                        <li><strong>Đơn COD:</strong> Ship tuần tự (người tặng nhận + TT trước → mới ship người được tặng)</li>
+                        <li><strong>Đơn đã thanh toán:</strong> Ship cùng lúc + ship nhanh</li>
+                    </ul>
+                </div>
+
+                <h3>3.3. Địa chỉ kho</h3>
+                <div class="address-box">
+                    <h4>🏠 Crush Room</h4>
+                    <p><strong>Tháp 5 - SAV5 Office</strong><br>
+                    Chung cư The Sun Avenue<br>
+                    28 Mai Chí Thọ, An Phú, Thủ Đức, TP.HCM</p>
+                    <p>📞 <strong>0772 613 384</strong><br>
+                    ⏰ 9h-18h, Thứ 2 - Thứ 7</p>
+                    <p>📍 <a href="https://maps.app.goo.gl/JeXtbLw5UAXPvDXj9" target="_blank">Google Maps</a></p>
+                    <p style="color: #c62828; margin-top: 12px;">⚠️ Gọi trước 30p-1h khi đến lấy hàng<br>
+                    💡 Book Grab: để tên người gửi là "Crush Room"</p>
+                </div>
+
+                <div class="warning-box">
+                    <h4>❌ Lưu ý</h4>
+                    <p>Shop chỉ hỗ trợ khách đến <strong>LẤY hàng đã đặt</strong>. Chưa có store để xem sản phẩm trực tiếp.</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Bảng size -->
+            <section class="content-section">
+                <h2>4. Bảng size & Thông số</h2>
+                
+                <h3>4.1. Size vòng tay</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>Loại</th>
+                        <th>Size phổ thông</th>
+                        <th>Điều chỉnh</th>
+                        <th>Phí cắt</th>
+                    </tr>
+                    <tr>
+                        <td>Vòng nữ thép</td>
+                        <td>25cm (freesize)</td>
+                        <td>Kéo chỉnh tùy ý</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Vòng nam thép</td>
+                        <td>18,5cm + 5cm nấc</td>
+                        <td>Hỗ trợ cắt</td>
+                        <td>Miễn phí</td>
+                    </tr>
+                    <tr>
+                        <td>Vòng nữ bạc</td>
+                        <td>15,5cm + 5cm nấc</td>
+                        <td>Hỗ trợ cắt</td>
+                        <td>+30k</td>
+                    </tr>
+                    <tr>
+                        <td>Vòng khắc mắt nữ</td>
+                        <td>15cm + 5cm nấc</td>
+                        <td>Theo yêu cầu</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Vòng khắc mắt nam</td>
+                        <td>18cm + 5cm nấc</td>
+                        <td>Theo yêu cầu</td>
+                        <td>-</td>
+                    </tr>
+                </table>
+
+                <h3>4.2. Size dây chuyền</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>Loại</th>
+                        <th>Độ dài</th>
+                        <th>Nấc chỉnh</th>
+                    </tr>
+                    <tr>
+                        <td>Dây chuyền nữ</td>
+                        <td>45cm</td>
+                        <td>+5cm</td>
+                    </tr>
+                    <tr>
+                        <td>Dây chuyền nam</td>
+                        <td>60cm</td>
+                        <td>Không có</td>
+                    </tr>
+                </table>
+
+                <h3>4.3. Size nhẫn</h3>
+                <div class="info-card">
+                    <h4>💍 Nhẫn điều chỉnh được size</h4>
+                    <ul>
+                        <li><strong>Nhẫn nhỏ (chiếu ❤️YOU):</strong> Tay 5.1 - 5.8cm</li>
+                        <li><strong>Nhẫn lớn (chiếu I ❤️):</strong> Tay 5.3 - 6cm</li>
+                    </ul>
+                    <p><strong>Cách đo:</strong> Dùng giấy/thước dây quấn 1 vòng quanh vị trí đeo nhẫn, đo số cm.</p>
+                </div>
+
+                <h3>4.4. Thông số khác</h3>
+                <table class="data-table">
+                    <tr>
+                        <th>Thông số</th>
+                        <th>Giá trị</th>
+                    </tr>
+                    <tr>
+                        <td>Đường kính lỗ xỏ mặt nam</td>
+                        <td>3mm</td>
+                    </tr>
+                    <tr>
+                        <td>Đường kính lỗ xỏ mặt nữ</td>
+                        <td>3mm hoặc 6mm</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Section 5: Bảo hành -->
+            <section class="content-section">
+                <h2>5. Chính sách bảo hành</h2>
+                
+                <table class="data-table">
+                    <tr>
+                        <th>Dịch vụ</th>
+                        <th>Lần 1</th>
+                        <th>Lần 2+</th>
+                    </tr>
+                    <tr>
+                        <td>Đánh bóng, làm sạch (bạc)</td>
+                        <td>Miễn phí</td>
+                        <td>Hỗ trợ 50% phí ship</td>
+                    </tr>
+                    <tr>
+                        <td>Bảo hành vòng bạc CherishPix</td>
+                        <td colspan="2">1 tháng đánh bóng miễn phí</td>
+                    </tr>
+                </table>
+
+                <h3>5.1. Hướng dẫn bảo quản</h3>
+                <div class="info-card">
+                    <h4>🔩 Thép không gỉ</h4>
+                    <ul>
+                        <li>Chạm nước: OK với chất liệu</li>
+                        <li>Hình ảnh: Hạn chế nước, hóa chất để bền hơn</li>
+                        <li>Tuổi thọ ảnh: 6 tháng - 1 năm nếu tiếp xúc nước thường xuyên</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4>✨ Bạc 925</h4>
+                    <ul>
+                        <li>Có thể đen do mồ hôi, hóa chất (bình thường)</li>
+                        <li>Khắc phục: Lau bằng khăn lau bạc (tặng kèm) hoặc ra tiệm đánh bóng</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4>🌡️ WarmLove</h4>
+                    <ul>
+                        <li>Tránh ngâm nước lâu</li>
+                        <li>Tránh hóa chất, chất tẩy rửa</li>
+                        <li>Tuổi thọ lớp đổi màu: 1-2 năm</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 6: Xử lý tình huống -->
+            <section class="content-section">
+                <h2>6. Xử lý tình huống đặc biệt</h2>
+                
+                <div class="situation-card">
+                    <h4>🚫 Khách muốn hủy đơn đang làm</h4>
+                    <p>Cọc 50% không đủ bù chi phí sản xuất. Đưa ra 3 phương án:</p>
+                    <div class="solution">
+                        <ol>
+                            <li><strong>Vẫn nhận đơn</strong> để giữ làm kỷ niệm</li>
+                            <li><strong>Đổi ảnh</strong> (phụ phí 200k cho 2 sản phẩm)</li>
+                            <li><strong>Tháo ảnh</strong>, vòng có viên ngọc trơng (không thu thêm phí)</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="situation-card">
+                    <h4>📸 Khách muốn chụp ảnh sản phẩm trước khi gửi</h4>
+                    <div class="solution">
+                        "Dạ bạn được kiểm tra hàng với shipper trước khi nhận nha ạ. Hiện tại shop chưa hỗ trợ quay clip chụp ảnh từng sản phẩm vì nhân lực có hạn ạ 🙇"
+                    </div>
+                </div>
+
+                <div class="situation-card">
+                    <h4>🏪 Khách muốn đến xem sản phẩm</h4>
+                    <div class="solution">
+                        "Dạ địa chỉ kho chỉ hỗ trợ khách đã đặt và đến lấy, chưa có hỗ trợ đến xem sản phẩm ạ. CR là shop online, hiện tại chưa có store ạ 😊"
+                    </div>
+                </div>
+
+                <div class="situation-card">
+                    <h4>👁️ Khách không thấy ảnh khi soi</h4>
+                    <div class="solution">
+                        "Dạ bạn thử 3 cách này nha:<br>
+                        1️⃣ Ra ngoài sáng, đưa mặt LỒI của ngọc lên gần mắt nhìn (đừng che tay phía sau)<br>
+                        2️⃣ Hoặc dùng camera điện thoại đưa sát mặt ngọc<br>
+                        3️⃣ Hoặc vào phòng tối, rọi đèn flash từ phía SAU ngọc chiếu lên tường<br><br>
+                        Nếu vẫn không thấy thì quay clip gửi shop xem giúp ạ 😊"
+                    </div>
+                </div>
+
+                <div class="situation-card">
+                    <h4>🖤 Khách phản ánh bạc bị đen</h4>
+                    <div class="solution">
+                        "Dạ bạc đeo một thời gian có thể đen do tiếp xúc mồ hôi hoặc hóa chất, đây là hiện tượng bình thường của bạc thật ạ.<br><br>
+                        Cách xử lý:<br>
+                        ✅ Lau bằng khăn lau bạc (shop tặng kèm)<br>
+                        ✅ Hoặc mang ra tiệm đánh bóng<br><br>
+                        Shop bảo hành đánh bóng miễn phí lần 1 nha bạn 😊"
+                    </div>
+                </div>
+
+                <div class="situation-card">
+                    <h4>🧹 Ảnh bị bám bụi</h4>
+                    <div class="solution">
+                        "Dạ ảnh bám bụi mịn chứ không sao đâu ạ. Bạn thổi nhẹ hoặc lấy tăm bông phủi nhẹ nhàng ở mặt sau nhé."
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary -->
+            <section class="content-section" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);">
+                <h2>📝 Tóm tắt Module 4</h2>
+                <ul>
+                    <li><strong>Quy trình 7 bước:</strong> Nhận ảnh → Check → Xác nhận → Thanh toán → Thông tin ship → Xác nhận đơn → Sản xuất + Gửi</li>
+                    <li><strong>STK:</strong> MB Bank 140320208888 - Ly Thanh Binh</li>
+                    <li><strong>Ship 2 nơi:</strong> Địa chỉ 1 free, địa chỉ 2 +25k</li>
+                    <li><strong>Bảo hành bạc:</strong> Đánh bóng miễn phí lần 1</li>
+                    <li><strong>Hủy đơn:</strong> 3 phương án (giữ, đổi ảnh +200k, tháo ảnh)</li>
+                </ul>
+            </section>
+
+            <!-- Navigation -->
+            <div class="nav-buttons">
+                <a href="module-3-consulting.html" class="nav-btn prev">← Module 3: Kỹ năng tư vấn</a>
+                <a href="module-5-cases.html" class="nav-btn next">Module 5: Case Study →</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../../js/main.js"></script>
+</body>
+</html>

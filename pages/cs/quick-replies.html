@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Replies - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .search-box {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #e91e63;
+            box-shadow: 0 0 0 3px rgba(233,30,99,0.1);
+        }
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .category-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: none;
+        }
+        .category-tab:hover, .category-tab.active {
+            background: #e91e63;
+            color: white;
+        }
+        .reply-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #e91e63;
+        }
+        .reply-card.hidden {
+            display: none;
+        }
+        .reply-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .reply-shortcut {
+            background: #fce4ec;
+            color: #e91e63;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: monospace;
+        }
+        .reply-category {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .reply-content {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .reply-content:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn.copied {
+            background: #4caf50;
+        }
+        .reply-note {
+            margin-top: 12px;
+            padding: 12px;
+            background: #fff3e0;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #e65100;
+        }
+        .stats-bar {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border-radius: 12px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #e91e63;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #757575;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="../../index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                
+                <a href="../schedule.html" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Đăng ký lịch làm</span>
+                </a>
+                
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="quick-replies.html" class="nav-subitem active">Quick Replies</a>
+                        <a href="quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">📢</span>
+                        <span>Marketing</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../marketing/library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="../marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group collapsed">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">⚡</span>
+                        <span>Laser</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="../laser/guide.html" class="nav-subitem">Hướng dẫn khắc Laser</a>
+                        <a href="../laser/lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../index.html">Trang chủ</a>
+                <span>/</span>
+                <a href="library.html">CS - Thư viện</a>
+                <span>/</span>
+                <span>Quick Replies</span>
+            </div>
+            
+            <header class="page-header">
+                <h1>⚡ Quick Replies</h1>
+                <p class="header-subtitle">Mẫu trả lời nhanh cho các câu hỏi thường gặp</p>
+            </header>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-replies">104</div>
+                    <div class="stat-label">Mẫu trả lời</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Danh mục</div>
+                </div>
+            </div>
+
+            <input type="text" class="search-box" placeholder="🔍 Tìm kiếm theo từ khóa (vd: giá, bạc, ship, size...)" id="searchInput" onkeyup="filterReplies()">
+
+            <div class="category-tabs">
+                <button class="category-tab active" onclick="filterByCategory('all')">Tất cả</button>
+                <button class="category-tab" onclick="filterByCategory('chao')">👋 Chào khách</button>
+                <button class="category-tab" onclick="filterByCategory('sanpham')">💍 Sản phẩm</button>
+                <button class="category-tab" onclick="filterByCategory('gia')">💰 Giá cả</button>
+                <button class="category-tab" onclick="filterByCategory('quy-trinh')">📋 Quy trình</button>
+                <button class="category-tab" onclick="filterByCategory('thanhtoan')">💳 Thanh toán</button>
+                <button class="category-tab" onclick="filterByCategory('size')">📏 Size</button>
+                <button class="category-tab" onclick="filterByCategory('baohanh')">🛡️ Bảo hành</button>
+                <button class="category-tab" onclick="filterByCategory('khac')">⚙️ Khắc laser</button>
+                <button class="category-tab" onclick="filterByCategory('ship')">🚚 Ship hàng</button>
+                <button class="category-tab" onclick="filterByCategory('xacnhan')">✅ Xác nhận đơn</button>
+                <button class="category-tab" onclick="filterByCategory('feedback')">⭐ Feedback</button>
+            </div>
+
+            <div id="replies-container">
+                <!-- CHÀO KHÁCH -->
+                <div class="reply-card" data-category="chao" data-keywords="chào xin chào hello hi">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">xinchao</span>
+                        <span class="reply-category">👋 Chào khách</span>
+                    </div>
+                    <div class="reply-content">Crush Room xin chào, bạn đang quan tâm sản phẩm nào ạ? 
+Cho shop xin ảnh sản phẩm để tiện tư vấn chi tiết hơn nhé!<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <div class="reply-card" data-category="chao" data-keywords="comment cmt inbox">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">cmt</span>
+                        <span class="reply-category">👋 Chào khách</span>
+                    </div>
+                    <div class="reply-content">Dạ thông tin ưu đãi đã được shop gửi trong tin nhắn riêng. Bạn phản hồi trong tin nhắn riêng để admin hỗ trợ nhanh cho bạn nha ❤️<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SẢN PHẨM - VÒNG TAY THÉP -->
+                <div class="reply-card" data-category="sanpham gia" data-keywords="vòng tay thép chiếu ảnh giá 349 599">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">pix_vòngtay</span>
+                        <span class="reply-category">💍 Vòng tay thép</span>
+                    </div>
+                    <div class="reply-content">Dạ vòng tay chiếu ảnh giá 1 chiếc: 349k
+⟢ Giảm 99k khi đặt 1 đôi, còn 599k 
+⟢ Shop freeship toàn quốc ạ
+- Chất liệu vòng là THÉP KHÔNG GỈ
+
+Bạn đang cần 1 chiếc để tặng hay 1 đôi đeo chung ạ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SẢN PHẨM - DÂY CHUYỀN THÉP -->
+                <div class="reply-card" data-category="sanpham gia" data-keywords="dây chuyền thép chiếu ảnh giá 349 599">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">pix_dâychuyền</span>
+                        <span class="reply-category">💍 Dây chuyền thép</span>
+                    </div>
+                    <div class="reply-content">Dạ dây chuyền chiếu ảnh giá 1 chiếc: 349k
+⟢ Giảm 99k khi đặt 1 đôi, còn 599k 
+
+- Chất liệu vòng cổ là THÉP KHÔNG GỈ 
+Mẫu khắc được bên ngoài shop k có bạc ạ.
+
+Bạn đang cần 1 chiếc để tặng hay 1 đôi đeo chung ạ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SẢN PHẨM - NHẪN BẠC -->
+                <div class="reply-card" data-category="sanpham gia" data-keywords="nhẫn bạc in ảnh 599 1099">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">nhanbac_khacanh</span>
+                        <span class="reply-category">💍 Nhẫn bạc</span>
+                    </div>
+                    <div class="reply-content">Nhẫn bạc in ảnh theo yêu cầu
+✨Chất liệu: bạc s925
+
+- Giá lẻ: 599k 1 chiếc
+- Giảm 100k khi đặt 1 đôi: 1.099k 
+
+💝 Nhẫn điều chỉnh được khoảng size phổ thông ạ<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                    <div class="reply-note">📌 Có 3 cách soi ảnh: nhìn trực tiếp, camera điện thoại, rọi đèn từ phía sau</div>
+                </div>
+
+                <!-- SẢN PHẨM - VÒNG BẠC NỮ -->
+                <div class="reply-card" data-category="sanpham gia" data-keywords="vòng bạc nữ 799 cherishpix">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">CherishPix_vòngtaybạc</span>
+                        <span class="reply-category">💍 Vòng bạc nữ</span>
+                    </div>
+                    <div class="reply-content">Shop gửi thông tin vòng tay CherishPix ạ
+
+- Chất liệu: bạc s925 , giá 799k/ 1 vòng
+- Shop freeship toàn quốc
+- Tặng kèm 1 hộp 1 túi đựng làm quà tặng
+- Thời gian hoàn thành: 10-14 ngày
+- Đây là sản phẩm đặt theo yêu cầu, bạn cần cọc trước 50% nhé.
+- Shop bảo hành miễn phí 1 tháng dịch vụ làm sạch, đánh bóng ạ<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SET BẠC + THÉP -->
+                <div class="reply-card" data-category="sanpham gia" data-keywords="set bạc thép 1048 mix couple cỏ bốn lá">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">set_cỏ4lá</span>
+                        <span class="reply-category">💍 Set couple</span>
+                    </div>
+                    <div class="reply-content">Dạ hiện tại 1 cặp vòng tay bao gồm ảnh chiếu sáng đang ưu đãi giảm 100k, còn 1048k
+
+Giá lẻ: 
+⟡1 vòng nữ chất liệu BẠC: 799k
+⟡1 vòng nam chất liệu THÉP KHÔNG GỈ: 349k
+🎁 Tặng kèm 1 hộp và 1 túi đựng
+💝 Shop freeship toàn quốc ạ
+
+B cần 1 chiếc để tặng hay 1 đôi để đeo chung ạ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- WARMLOVE -->
+                <div class="reply-card" data-category="sanpham gia" data-keywords="warmlove nóng lạnh đổi màu nhiệt độ 449 799">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">GiáNóngLạnh</span>
+                        <span class="reply-category">💍 WarmLove</span>
+                    </div>
+                    <div class="reply-content">Dạ WarmLove sẽ hoạt động như sau 
+- Mặt màu đen khi ở nhiệt độ lạnh (~ từ 10°C trở xuống)
+- Ảnh mờ ảo khi ở nhiệt độ mát (10°C-30°C) 
+- Hiện ảnh rõ khi môi trường nóng (từ 30°C trở lên)
+
+Đang có deal giảm 150k cho WarmLove khi đặt trong tháng này đó ạ:
+
+⟡˖ ࣪ Từ 599k còn 449k/ 1 chiếc
+⟡˖ ࣪ Giảm thêm 99k khi mua 1 đôi, còn 799k/1 đôi
+- Chất liệu là THÉP KHÔNG GỈ 
+
+- Shop freeship toàn quốc
+- Tặng kèm 1 hộp 1 túi 
+- Thời gian hoàn thành: 10-14 ngày + 2-5 ngày ship ạ
+
+Bạn cần 1 chiếc để tặng hay 1 đôi để đeo chung ạ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- VÒNG KHẮC MẮT -->
+                <div class="reply-card" data-category="sanpham gia" data-keywords="khắc mắt coupleyes heyes 299 499">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">COUPLEYES</span>
+                        <span class="reply-category">💍 Vòng khắc mắt</span>
+                    </div>
+                    <div class="reply-content">Dạ 1 vòng khắc mắt giá 299k ạ. 
+Đặt 1 đôi còn 499k freeship 
+⟡˖ ࣪Chất liệu: thép không gỉ 
+⌛Thời gian sản xuất: 5-7 ngày + thời gian ship 2-5 ngày tùy nơi. 
+B cần gấp thì chọn đơn hoả tốc sản xuất nhanh trong 48h nhé (phụ phí 100k ạ)
+
+Mặt sau của vòng có thể khắc thêm chữ, mã nhạc, hoặc mã QR quét ra ghi âm ạ!
+⋆ Chữ đánh máy: 45k
+⋆ Chữ viết tay: 85k
+⋆ Mã nhạc Spotify: 55k
+⋆ QR ghi âm: 100-150k
+
+B cần 1 chiếc để tặng hay 1 đôi để đeo chung ạ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SỔ KÝ ỨC -->
+                <div class="reply-card" data-category="sanpham gia" data-keywords="sổ ký ức sách 299 399 499 599">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">sổkíức</span>
+                        <span class="reply-category">💍 Sổ ký ức</span>
+                    </div>
+                    <div class="reply-content">Dạ Sổ tay kí ức chất liệu thép không gỉ, đang có ưu đãi freeship và giá như sau ạ 
+⟡˖ 1 sổ tay + khắc 1 trang, trống 5 trang: 299k 
+⟡˖ 1 sổ tay + khắc 3 trang, trống 3 trang: 399k 
+⟡˖ 1 sổ tay + khắc 5 trang, trống 1 trang: 499k 
+⟡˖ 1 sổ tay + khắc full 7 trang (6 trang và 1 bìa): 599k 
+
+⌛Thời gian sản xuất: 5-7 ngày + thời gian ship 2-5 ngày tùy nơi. 
+B cần gấp thì chọn đơn hoả tốc sản xuất nhanh trong 48h nhé (phụ phí 100k ạ)
+
+📖1 trang tương ứng 1 bề mặt ạ.
+✧˖°.B có thể khắc lời nhắn, tên, mã QR, hoặc hình ảnh dưới dạng ảnh hoạt hình (1 sách sẽ khắc tối đa 3 ảnh nha ạ)
+
+Bạn cần 1 đôi hay 1 chiếc để tặng ạ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- QUY TRÌNH ĐẶT HÀNG -->
+                <div class="reply-card" data-category="quy-trinh" data-keywords="quy trình đặt hàng cách đặt order">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">quy_trinh</span>
+                        <span class="reply-category">📋 Quy trình</span>
+                    </div>
+                    <div class="reply-content">Quy trình đặt như sau ạ: 
+💌 Bước 1. Gửi ảnh cho shop (phần ảnh chiếu sáng ở viên ngọc)
+Bạn tải ảnh lên đây ạ: https://crushroom.vn/pages/couplepix
+
+💰Bước 2. Thanh toán chuyển khoản trước 1 phần (tại fb hoặc insta)
+✨ 50% cho đơn thường
+
+📦Bước 3. Chốt đơn tại facebook hoặc insta (k chốt đơn ở zalo ạ)
+- Tên người nhận 
+- Sdt
+- Địa chỉ cụ thể<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- NHẬN ẢNH -->
+                <div class="reply-card" data-category="quy-trinh" data-keywords="gửi ảnh upload tải ảnh link">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">nhận_ảnh</span>
+                        <span class="reply-category">📋 Nhận ảnh</span>
+                    </div>
+                    <div class="reply-content">Shop nhận ảnh bằng link này ạ 
+https://crushroom.vn/pages/couplepix
+
+Ảnh tải lên thành công sẽ có thông báo. 
+Up ảnh xong b nhắn ad nhé!<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- YÊU CẦU ẢNH ĐẸP -->
+                <div class="reply-card" data-category="quy-trinh" data-keywords="ảnh đẹp yêu cầu ảnh chất lượng">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">Ảnhdep</span>
+                        <span class="reply-category">📋 Yêu cầu ảnh</span>
+                    </div>
+                    <div class="reply-content">Ảnh ưu tiên chủ thể ở giữa, chụp ban ngày càng tốt, rõ và sáng ạ. 
+Ảnh sẽ được cắt thành hình tròn, giống ảnh đại diện ở facebook của bạn í. 
+
+- Độ rõ & nét của thành phẩm sẽ bằng khoảng 70-80% ảnh của bạn gửi (khi xem ảnh bằng camera điện thoại bạn nha)<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- THÔNG TIN KHÁCH -->
+                <div class="reply-card" data-category="quy-trinh" data-keywords="thông tin địa chỉ ship giao hàng">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">thôngtinkhách</span>
+                        <span class="reply-category">📋 Lấy thông tin</span>
+                    </div>
+                    <div class="reply-content">Dạ bạn cho shop thông tin ship nha (địa chỉ CŨ - CHƯA xác nhận)
+⟡ Tên người nhận 
+⟡ Sdt 
+⟡ Địa chỉ cụ thể: số nhà, xã (phường), huyện (quận), tỉnh (tp)<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- THANH TOÁN - STK -->
+                <div class="reply-card" data-category="thanhtoan" data-keywords="stk số tài khoản chuyển khoản bank momo">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">stk</span>
+                        <span class="reply-category">💳 Thanh toán</span>
+                    </div>
+                    <div class="reply-content">Shop gửi thông tin chuyển khoản ạ
+
+Ly Thanh Binh
+MB bank (Ngân Hàng Quân Đội)
+
+140320208888
+
+❌❌ LƯU Ý: B ghi đúng nội dung khi chuyển khoản như sau để shop dễ check nha: "sdt + tên người nhận đơn hàng"
+
+Hoặc Momo 0938 293959 Lý Thanh Bình<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- CỌC 50% -->
+                <div class="reply-card" data-category="thanhtoan" data-keywords="cọc đặt cọc 50%">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">Cọc_1_nửa</span>
+                        <span class="reply-category">💳 Đặt cọc</span>
+                    </div>
+                    <div class="reply-content">Mẫu đặt theo yêu cầu b cọc trc ít nhất 50% giúp shop
+sau đó b nhớ cho shop xin sđt và địa chỉ kẻo sót đơn nhé !!<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SIZE VÒNG TAY THÉP -->
+                <div class="reply-card" data-category="size" data-keywords="size vòng tay thép nam nữ">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">size_VTthép</span>
+                        <span class="reply-category">📏 Size vòng tay</span>
+                    </div>
+                    <div class="reply-content">✨Vòng nữ: 25cm, freesize ạ, có thể kéo chỉnh tuỳ ý í. 
+✨Vòng nam: size phổ thông đang là 18,5+5cm (phần +5cm là nấc chỉnh rộng ra)
+
+Bạn có muốn thay đổi gì số đo trên k ạ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SIZE VÒNG BẠC -->
+                <div class="reply-card" data-category="size" data-keywords="size vòng bạc">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">sizevòngbạc</span>
+                        <span class="reply-category">📏 Size vòng bạc</span>
+                    </div>
+                    <div class="reply-content">Size phổ thông vòng của shop
+- vòng bạc: 15,5cm và 5cm nấc chỉnh rộng ở cuối
+- vòng nam thép k gỉ:18,5 & 5cm nấc chỉnh rộng ở cuối
+
+shop hỗ trợ cắt free vòng thép khi đặt
+vòng bạc nếu có cắt shop phụ thu 30k
+
+Bạn có muốn thay đổi gì số đo trên k ạ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SIZE DÂY CHUYỀN -->
+                <div class="reply-card" data-category="size" data-keywords="size dây chuyền độ dài">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">size_dc/couple</span>
+                        <span class="reply-category">📏 Size dây chuyền</span>
+                    </div>
+                    <div class="reply-content">Dây chuyền nữ đang có độ dài 45+5cm (nấc 5cm để điều chỉnh)
+Dây chuyền nam đang là 60cm (k có nấc điều chỉnh) ạ 
+
+Nếu b muốn độ dài khác với thông tin trên có thể đặt riêng để shop điều chỉnh giúp b nhé.
+Thông số này okii chưa ạ ?<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- CÁCH ĐO NHẪN -->
+                <div class="reply-card" data-category="size" data-keywords="đo nhẫn size nhẫn cách đo">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">cáchdonhan</span>
+                        <span class="reply-category">📏 Đo nhẫn</span>
+                    </div>
+                    <div class="reply-content">Cách đo nhẫn: b lấy thước dây quấn xung quanh vị trí đeo nhẫn 1 vòng tròn xem bao nhiêu cm nhé!
+
+Hoặc dùng giấy quấn 1 vòng, đánh dấu lại rồi lấy thước đo lại đoạn í xem bao nhiêu cm ạ<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- KHẮC LASER -->
+                <div class="reply-card" data-category="khac" data-keywords="khắc laser chữ mã nhạc spotify qr ghi âm">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">PhíkhắcLaser</span>
+                        <span class="reply-category">⚙️ Khắc laser</span>
+                    </div>
+                    <div class="reply-content">Phí khắc laser bên ngoài mặt vòng
+♡ Mã nhạc: 55k/ 1 mặt
+♡ Chữ: 45k-100k/1 mặt
+♡ QR ghi âm: 100-150k<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- KHẮC NHẪN -->
+                <div class="reply-card" data-category="khac" data-keywords="khắc nhẫn chữ trong nhẫn">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">khắc_nhẫn</span>
+                        <span class="reply-category">⚙️ Khắc nhẫn</span>
+                    </div>
+                    <div class="reply-content">Dạ khắc chữ cho nhẫn shop phụ thu 70k 1 đôi
+Cần thanh toán full đơn nhẫn nếu chọn khắc nhé b.
+Nếu k khắc chữ thì b có thể thanh toán khi nhận ạ<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- GHI ÂM -->
+                <div class="reply-card" data-category="khac" data-keywords="ghi âm qr âm thanh 100k">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">ghi_âm100k</span>
+                        <span class="reply-category">⚙️ Ghi âm</span>
+                    </div>
+                    <div class="reply-content">Bạn up ghi âm + ảnh bìa cho giao diện QR + lời nhắn lên link này ạ:
+https://bit.ly/qr-crushroom<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- CÁCH SOI ẢNH -->
+                <div class="reply-card" data-category="baohanh" data-keywords="cách soi ảnh xem ảnh chiếu">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">soiảnh</span>
+                        <span class="reply-category">🛡️ Hướng dẫn</span>
+                    </div>
+                    <div class="reply-content">Sẽ có 3 cách soi ảnh trong viên ngọc ạ
+1. B nhìn mắt vào phía trc viên ngọc (ngoài sáng, k lấy tay che phía sau)
+2. Soi bằng camera dt phía trc viên ngọc (ngoài sáng)
+3. Rọi đèn flash từ phía sau (trong tối)
+
+❌Mặt trước là mặt lồi của viên ngọc
+Nếu bị cận bạn có thể đeo kính bình thường, đặt viên ngọc chạm sát vào kính và tập trung mắt nhìn sẽ thấy nhen!
+
+Clip cho bạn dễ hình dung ạ
+https://www.instagram.com/p/DI84X5bvb8U/<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- BẢO QUẢN -->
+                <div class="reply-card" data-category="baohanh" data-keywords="bảo quản bảo hành bền đụng nước">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">Đụngnuoc</span>
+                        <span class="reply-category">🛡️ Bảo quản</span>
+                    </div>
+                    <div class="reply-content">- Về chất liệu: chạm nước sẽ k sao ạ
+- Về hình ảnh: mình nên hạn chế nước, hóa chất, chất tẩy rửa thì hình ảnh sẽ bền hơn ạ, nếu mình tắm rửa vẫn đeo thì khả năng ảnh sẽ nhanh hư hơn (tuổi thọ ảnh tầm 6 tháng - 1 năm nếu tiếp xúc nước và chất tẩy rửa bạn nhé)<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- BẠC ĐEN -->
+                <div class="reply-card" data-category="baohanh" data-keywords="bạc đen xỉn đánh bóng">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">Bạcđen</span>
+                        <span class="reply-category">🛡️ Bạc đen</span>
+                    </div>
+                    <div class="reply-content">bạc đeo thì sẽ tùy cơ địa làn da mỗi người sẽ biết rõ nhất.
+bạc đeo sẽ có hiện tượng đen do bám bụi bẩn hoặc phản ứng với mồ hôi, chất tẩy rửa khi sinh hoạt. Hiện tượng này là bình thường í, sẽ khắc phục lại như mới được bằng cách ra tiệm trang sức bạc nhờ vệ sinh đánh bóng (nếu bị nhiều), hoặc lau bằng khăn lau bạc (shop tặng kèm) nếu bị nhẹ nhé<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- SHIP 2 NƠI -->
+                <div class="reply-card" data-category="ship" data-keywords="ship 2 nơi 2 địa chỉ">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">ship2nơi</span>
+                        <span class="reply-category">🚚 Ship hàng</span>
+                    </div>
+                    <div class="reply-content">Dạ shop gửi b thông tin ship 2 nơi. Áp dụng cho đơn hàng từ 299k
+- địa chỉ 1: freeship (người được tặng)
+- địa chỉ 2: phụ thu phí ship 25k toàn quốc (người tặng)
+
+- Đơn tặng kèm 1 hộp, cần mua thêm hộp thứ 2 nếu muốn mỗi địa chỉ đều có hộp. Hoặc 1 địa chỉ có hộp, 1 địa chỉ k hộp (để túi zip)
+
+- Đơn đã thanh toán trước: shop ship 2 nơi cùng lúc + ship nhanh
+- Đơn thanh toán khi nhận: ship theo thứ tự. Người tặng nhận được hàng và thanh toán thành công thì sẽ ship người được tặng.<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- HỎA TỐC -->
+                <div class="reply-card" data-category="ship" data-keywords="hỏa tốc gấp nhanh thời gian">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">Hoả_tốc</span>
+                        <span class="reply-category">🚚 Hỏa tốc</span>
+                    </div>
+                    <div class="reply-content">Thời gian áp dụng cho những mẫu có ảnh chiếu sáng
+
+✨Đơn thường:
+10-14 ngày shop làm xong + thêm ngày ship giao động 2-4 ngày. Freeship
+
+✨Đơn hỏa tốc:
+10 ngày bạn nhận được (đã bao gồm thời gian vận chuyển)
+⋆ Phụ thu 100k phí sản xuất nhanh (không phải phí ship)
+⋆ Đơn hoả tốc cần thanh toán trước toàn bộ ạ<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- ĐỊA CHỈ KHO -->
+                <div class="reply-card" data-category="ship" data-keywords="địa chỉ kho lấy hàng">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">Đ/c kho</span>
+                        <span class="reply-category">🚚 Địa chỉ</span>
+                    </div>
+                    <div class="reply-content">Dạ shop gửi địa chỉ kho Crush Room
+🌼Tháp 5 - SAV5 Office, chung cư The Sun Avenue, 28 Mai Chí Thọ, An Phú, Thủ Đức
+📞 0772613384
+⏰ 9h-18h, thứ 2 - thứ 7 
+
+💥💥Nếu book grab lấy đơn, b để tên người gửi là Crush Room và nhắn shop chuẩn bị đơn trước nha
+
+📍 Đi theo google map:
+https://maps.app.goo.gl/JeXtbLw5UAXPvDXj9
+
+💌Vui lòng gọi trước khi đến 30p -1 tiếng<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- XÁC NHẬN ĐƠN COD -->
+                <div class="reply-card" data-category="xacnhan" data-keywords="xác nhận đơn cod thanh toán khi nhận">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">xacnhandonCOC</span>
+                        <span class="reply-category">✅ Xác nhận COD</span>
+                    </div>
+                    <div class="reply-content">✅Mình check lại đơn nha ạ
+
+- Thanh toán khi nhận hàng: .000vnđ  & freeship
+- 10-14 ngày shop làm xong và bắt đầu gửi cho bên vận chuyển
+
+🎁 Tặng kèm: 1 hộp & 1 túi đen
+- Được kiểm tra hàng trước khi nhận với shipper
+- Đi đơn shop sẽ gửi mã đơn cho mình ạ 
+
+❌Lưu ý: ảnh shop đã chốt sẽ k đổi ảnh đc nữa ạ
+ 
+Shop sẽ lên đơn và xử lý nếu có vấn đề phát sinh dựa vào tin nhắn chốt này ạ!
+
+Bạn check xem đơn đúng chưa ạ<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- XÁC NHẬN ĐƠN ĐÃ TT ĐỦ -->
+                <div class="reply-card" data-category="xacnhan" data-keywords="xác nhận đơn thanh toán đủ đã thanh toán">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">xacnhandonĐủ</span>
+                        <span class="reply-category">✅ Xác nhận TT đủ</span>
+                    </div>
+                    <div class="reply-content">✅Mình check lại đơn nha ạ
+
+- ĐÃ THANH TOÁN ĐỦ 
+
+🎁 Tặng kèm: 1 hộp & 1 túi đen
+- Được kiểm tra hàng trước khi nhận với shipper
+- Đi đơn shop sẽ gửi mã đơn cho mình ạ 
+
+❌Lưu ý: ảnh đã chốt sẽ k đổi ảnh đc nữa ạ
+Shop sẽ lên đơn và xử lý nếu có vấn đề phát sinh dựa vào tin nhắn chốt này ạ!
+
+Bạn check xem đơn đúng chưa ạ<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- CẢM ƠN -->
+                <div class="reply-card" data-category="feedback" data-keywords="cảm ơn thank you feedback voucher">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">cảmơn</span>
+                        <span class="reply-category">⭐ Feedback</span>
+                    </div>
+                    <div class="reply-content">💓 Thank you bạn đã đặt hàng. Gửi tặng b 1 voucher 30k lần mua hàng sau nếu gửi ảnh feedback về FB/IG Crush Room hoặc feedback tại website: crushroom.vn ạ 😊. Mong nhận đc feedback từ b nhé!<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+                <!-- XIN FEEDBACK -->
+                <div class="reply-card" data-category="feedback" data-keywords="xin feedback vote review">
+                    <div class="reply-header">
+                        <span class="reply-shortcut">feedback</span>
+                        <span class="reply-category">⭐ Xin feedback</span>
+                    </div>
+                    <div class="reply-content">Cảm ơn bạn đã ủng hộ shop nhennnn. Nếu có thời gian b cho shop xin 1 vote ở đây nhá, feedback xong sẽ có voucher tặng b í:
+https://crushroom.vn/products/combo-heyes<button class="copy-btn" onclick="copyText(this)">📋 Copy</button></div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        let currentCategory = 'all';
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            // Update tab active state
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            filterReplies();
+        }
+
+        function filterReplies() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.reply-card');
+            
+            cards.forEach(card => {
+                const keywords = card.dataset.keywords.toLowerCase();
+                const category = card.dataset.category;
+                const content = card.querySelector('.reply-content').textContent.toLowerCase();
+                
+                const matchesSearch = searchTerm === '' || 
+                    keywords.includes(searchTerm) || 
+                    content.includes(searchTerm);
+                
+                const matchesCategory = currentCategory === 'all' || 
+                    category.includes(currentCategory);
+                
+                if (matchesSearch && matchesCategory) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function copyText(btn) {
+            const content = btn.parentElement.textContent.replace('📋 Copy', '').trim();
+            navigator.clipboard.writeText(content).then(() => {
+                btn.textContent = '✅ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
