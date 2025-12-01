@@ -139,11 +139,46 @@
                     <li>Không đăng ký quá <strong>10 tiếng/ngày</strong></li>
                 </ul>
 
-                <h3>4. Link đăng ký</h3>
-                <p>Nhấn vào link bên dưới để đăng ký lịch làm việc:</p>
-                <a href="#" class="btn btn-primary" style="margin-top: 12px;">
-                    📝 Đăng ký lịch làm (Google Form)
-                </a>
+                <!-- ==== 4. ĐĂNG KÝ CA LINH HOẠT (TRONG HỆ THỐNG) ==== -->
+                <h3>4. Đăng ký ca linh hoạt</h3>
+                <p>Chọn tuần và tick những ca bạn có thể làm. Leader sẽ phân ca dựa trên đăng ký này.</p>
+
+                <div class="schedule-controls" style="margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+                    <label for="week-start-input">Tuần bắt đầu:</label>
+                    <input type="date" id="week-start-input">
+                    <button id="load-week-btn" class="btn btn-secondary">Tải đăng ký</button>
+                </div>
+
+                <div class="schedule-table-wrapper" style="overflow-x:auto;">
+                    <table class="data-table schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Ca / Ngày</th>
+                                <th>Thứ 2</th>
+                                <th>Thứ 3</th>
+                                <th>Thứ 4</th>
+                                <th>Thứ 5</th>
+                                <th>Thứ 6</th>
+                                <th>Thứ 7</th>
+                                <th>Chủ nhật</th>
+                            </tr>
+                        </thead>
+                        <tbody id="availability-body">
+                            <!-- JS render -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="schedule-actions" style="margin-top:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <button id="save-availability-btn" class="btn btn-primary">
+                        💾 Lưu đăng ký ca
+                    </button>
+                    <span id="schedule-message" class="schedule-message" style="font-size:14px;"></span>
+                </div>
+
+                <p style="margin-top:12px; font-size:13px; color:#777;">
+                    Nếu hệ thống gặp lỗi, tạm thời có thể báo lịch qua quản lý hoặc Google Form như trước.
+                </p>
             </section>
 
             <section class="content-section">
@@ -177,9 +212,15 @@
 
     <script src="../js/auth.js"></script>
     <script src="../js/main.js"></script>
+    <script src="../js/schedule.js"></script>
     <script>
-        if (!Auth.requireAuth()) { /* redirect */ }
-        else { Auth.renderAuthUI(); }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.requireAuth()) return;
+            Auth.renderAuthUI();
+            if (window.SchedulePage && typeof SchedulePage.init === 'function') {
+                SchedulePage.init();
+            }
+        });
     </script>
 </body>
 </html>
