@@ -114,6 +114,9 @@
                 </div>
             </nav>
             
+            <!-- User Info -->
+            <div class="user-info"></div>
+            
             <div class="sidebar-footer">
                 <p>© 2025 Crush Room</p>
             </div>
@@ -357,6 +360,12 @@
         </main>
     </div>
 
+    <script src="../../js/auth.js"></script>
     <script src="../../js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) { /* redirect */ }
+        else if (!Auth.requirePermission('laser')) { /* show denied */ }
+        else { Auth.renderAuthUI(); }
+    </script>
 </body>
 </html>

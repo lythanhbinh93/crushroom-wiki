@@ -31,42 +31,45 @@
                     <span>Đăng ký lịch làm</span>
                 </a>
                 
-                <div class="nav-group">
+                <div class="nav-group" data-module-group="cs">
                     <div class="nav-group-header">
                         <span class="nav-icon">💬</span>
                         <span>Customer Service</span>
                         <span class="nav-arrow">▼</span>
                     </div>
                     <div class="nav-group-items">
-                        <a href="pages/cs/library.html" class="nav-subitem">Thư viện học tập</a>
-                        <a href="pages/cs/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                        <a href="pages/cs/library.html" class="nav-subitem" data-module="cs">Thư viện học tập</a>
+                        <a href="pages/cs/quiz.html" class="nav-subitem" data-module="cs">Bài kiểm tra</a>
                     </div>
                 </div>
                 
-                <div class="nav-group">
+                <div class="nav-group" data-module-group="marketing">
                     <div class="nav-group-header">
                         <span class="nav-icon">📢</span>
                         <span>Marketing</span>
                         <span class="nav-arrow">▼</span>
                     </div>
                     <div class="nav-group-items">
-                        <a href="pages/marketing/library.html" class="nav-subitem">Thư viện học tập</a>
-                        <a href="pages/marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+                        <a href="pages/marketing/library.html" class="nav-subitem" data-module="marketing">Thư viện học tập</a>
+                        <a href="pages/marketing/quiz.html" class="nav-subitem" data-module="marketing">Bài kiểm tra</a>
                     </div>
                 </div>
                 
-                <div class="nav-group">
+                <div class="nav-group" data-module-group="laser">
                     <div class="nav-group-header">
                         <span class="nav-icon">⚡</span>
                         <span>Laser</span>
                         <span class="nav-arrow">▼</span>
                     </div>
                     <div class="nav-group-items">
-                        <a href="pages/laser/guide.html" class="nav-subitem">Hướng dẫn khắc Laser</a>
-                        <a href="pages/laser/lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+                        <a href="pages/laser/guide.html" class="nav-subitem" data-module="laser">Hướng dẫn khắc Laser</a>
+                        <a href="pages/laser/lightburn.html" class="nav-subitem" data-module="laser">Thông số Lightburn</a>
                     </div>
                 </div>
             </nav>
+            
+            <!-- User Info -->
+            <div class="user-info"></div>
             
             <div class="sidebar-footer">
                 <p>© 2025 Crush Room</p>
@@ -145,6 +148,16 @@
         </main>
     </div>
 
+    <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // Require authentication
+        if (!Auth.requireAuth()) {
+            // Will redirect to login
+        } else {
+            // Render auth UI (user info, lock modules)
+            Auth.renderAuthUI();
+        }
+    </script>
 </body>
 </html>
