@@ -9,6 +9,7 @@ const Auth = {
     
     // Storage keys
     STORAGE_KEY: 'crushroom_wiki_auth',
+    LOGS_KEY: 'crushroom_page_logs',
     
     /**
      * Đăng nhập
@@ -205,6 +206,111 @@ const Auth = {
     },
     
     /**
+     * Ghi log xem trang
+     * @param {string} pageName - Tên trang (optional, tự detect từ URL)
+     */
+    async logPageView(pageName = null) {
+        const user = this.getCurrentUser();
+        if (!user) return;
+        
+        // Tự detect tên trang từ URL nếu không truyền vào
+        if (!pageName) {
+            pageName = this._getPageNameFromURL();
+        }
+        
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            userEmail: user.email,
+            userName: user.name,
+            page: pageName,
+            url: window.location.pathname
+        };
+        
+        // Nếu chưa setup API, lưu local
+        if (this.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+            this._saveLogLocal(logEntry);
+            return;
+        }
+        
+        // Gọi API ghi log
+        try {
+            fetch(this.API_URL, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify({
+                    action: 'logPageView',
+                    log: logEntry
+                })
+            });
+        } catch (error) {
+            console.error('Error logging page view:', error);
+            // Fallback to local storage
+            this._saveLogLocal(logEntry);
+        }
+    },
+    
+    /**
+     * Lưu log vào localStorage (fallback)
+     */
+    _saveLogLocal(logEntry) {
+        try {
+            const logs = JSON.parse(localStorage.getItem(this.LOGS_KEY) || '[]');
+            logs.push(logEntry);
+            // Giữ tối đa 1000 logs gần nhất
+            if (logs.length > 1000) {
+                logs.splice(0, logs.length - 1000);
+            }
+            localStorage.setItem(this.LOGS_KEY, JSON.stringify(logs));
+        } catch (error) {
+            console.error('Error saving log to localStorage:', error);
+        }
+    },
+    
+    /**
+     * Lấy tên trang từ URL
+     */
+    _getPageNameFromURL() {
+        const path = window.location.pathname;
+        
+        // Map path to readable name
+        const pageNames = {
+            '/index.html': 'Trang chủ',
+            '/admin.html': 'Admin Panel',
+            '/login.html': 'Đăng nhập',
+            '/pages/schedule.html': 'Đăng ký lịch làm',
+            '/pages/cs/library.html': 'CS - Thư viện học tập',
+            '/pages/cs/quiz.html': 'CS - Bài kiểm tra',
+            '/pages/cs/quick-replies.html': 'CS - Quick Replies',
+            '/pages/cs/training/module-1-foundation.html': 'CS - Module 1: Nền tảng',
+            '/pages/cs/training/module-2-products.html': 'CS - Module 2: Sản phẩm',
+            '/pages/cs/training/module-3-consulting.html': 'CS - Module 3: Kỹ năng tư vấn',
+            '/pages/cs/training/module-4-advanced.html': 'CS - Module 4: Nghiệp vụ nâng cao',
+            '/pages/cs/training/module-5-cases.html': 'CS - Module 5: Case Study',
+            '/pages/cs/products/pix-collection.html': 'CS - PIX Collection',
+            '/pages/cs/products/engraved-collection.html': 'CS - Engraved Collection',
+            '/pages/cs/products/warm-love.html': 'CS - WarmLove',
+            '/pages/cs/products/memory-book.html': 'CS - Memory Book',
+            '/pages/cs/skills/mo-dau-tro-chuyen.html': 'CS - Mở đầu trò chuyện',
+            '/pages/cs/skills/xu-ly-tu-choi.html': 'CS - Xử lý từ chối',
+            '/pages/marketing/library.html': 'Marketing - Thư viện',
+            '/pages/marketing/quiz.html': 'Marketing - Bài kiểm tra',
+            '/pages/laser/guide.html': 'Laser - Hướng dẫn',
+            '/pages/laser/lightburn.html': 'Laser - Thông số Lightburn'
+        };
+        
+        // Tìm matching path
+        for (const [key, value] of Object.entries(pageNames)) {
+            if (path.endsWith(key) || path === key) {
+                return value;
+            }
+        }
+        
+        // Fallback: lấy tên file
+        const fileName = path.split('/').pop() || 'Unknown';
+        return fileName.replace('.html', '');
+    },
+    
+    /**
      * Hiển thị popup không có quyền
      */
     _showAccessDenied() {
@@ -294,6 +400,9 @@ const Auth = {
         const user = this.getCurrentUser();
         if (!user) return;
         
+        // Log page view
+        this.logPageView();
+        
         // Update user info trong sidebar nếu có
         const userInfo = document.querySelector('.user-info');
         if (userInfo) {
@@ -343,6 +452,15 @@ const Auth = {
                 }
             }
         });
+        
+        // Ẩn link Admin nếu không phải admin
+        const user = this.getCurrentUser();
+        if (user && user.role !== 'admin') {
+            const adminLinks = document.querySelectorAll('[data-admin-only]');
+            adminLinks.forEach(link => {
+                link.style.display = 'none';
+            });
+        }
     },
     
     /**

@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Crush Room Wiki</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Admin specific styles */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0;
+        }
+        
+        .admin-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #757575;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        
+        .admin-tab:hover {
+            color: #e91e63;
+        }
+        
+        .admin-tab.active {
+            color: #e91e63;
+            border-bottom-color: #e91e63;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 13px;
+            color: #616161;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-table tr:hover {
+            background: #fafafa;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Permission badges */
+        .permission-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 4px;
+        }
+        
+        .permission-badge.active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .permission-badge.inactive {
+            background: #f5f5f5;
+            color: #9e9e9e;
+        }
+        
+        /* Role badge */
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .role-badge.admin {
+            background: linear-gradient(135deg, #e91e63, #9c27b0);
+            color: white;
+        }
+        
+        .role-badge.staff {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        /* Action buttons */
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 4px;
+        }
+        
+        .btn-edit {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .btn-edit:hover {
+            background: #bbdefb;
+        }
+        
+        .btn-delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .btn-delete:hover {
+            background: #ffcdd2;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e91e63, #9c27b0);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.2s;
+        }
+        
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #757575;
+            padding: 4px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #e91e63;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #e91e63;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .stat-card .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 14px;
+            color: #757575;
+            margin-top: 4px;
+        }
+        
+        .stat-card.pink {
+            background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+        }
+        
+        .stat-card.blue {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        }
+        
+        .stat-card.green {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        }
+        
+        .stat-card.purple {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+        }
+        
+        /* Page stats table */
+        .page-stats-table .view-count {
+            font-weight: 600;
+            color: #e91e63;
+        }
+        
+        .user-views-list {
+            font-size: 13px;
+            color: #616161;
+        }
+        
+        .user-view-item {
+            display: inline-block;
+            background: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px;
+        }
+        
+        /* Loading */
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #757575;
+        }
+        
+        .loading-spinner::after {
+            content: "";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e0e0e0;
+            border-top-color: #e91e63;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 12px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .alert.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .alert.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9e9e9e;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        /* Filter bar */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-bar select,
+        .filter-bar input {
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .filter-bar select:focus,
+        .filter-bar input:focus {
+            outline: none;
+            border-color: #e91e63;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                
+                <a href="admin.html" class="nav-item active">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </a>
+                
+                <a href="pages/schedule.html" class="nav-item">
+                    <span class="nav-icon">📅</span>
+                    <span>Đăng ký lịch làm</span>
+                </a>
+                
+                <div class="nav-group" data-module-group="cs">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="pages/cs/library.html" class="nav-subitem" data-module="cs">Thư viện học tập</a>
+                        <a href="pages/cs/quiz.html" class="nav-subitem" data-module="cs">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group" data-module-group="marketing">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">📢</span>
+                        <span>Marketing</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="pages/marketing/library.html" class="nav-subitem" data-module="marketing">Thư viện học tập</a>
+                        <a href="pages/marketing/quiz.html" class="nav-subitem" data-module="marketing">Bài kiểm tra</a>
+                    </div>
+                </div>
+                
+                <div class="nav-group" data-module-group="laser">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">⚡</span>
+                        <span>Laser</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="pages/laser/guide.html" class="nav-subitem" data-module="laser">Hướng dẫn khắc Laser</a>
+                        <a href="pages/laser/lightburn.html" class="nav-subitem" data-module="laser">Thông số Lightburn</a>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- User Info -->
+            <div class="user-info"></div>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="admin-header">
+                <h1>⚙️ Admin Panel</h1>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="users">👥 Quản lý User</button>
+                <button class="admin-tab" data-tab="stats">📊 Thống kê xem trang</button>
+            </div>
+            
+            <!-- Tab: Users -->
+            <div class="tab-content active" id="tab-users">
+                <div class="admin-header">
+                    <div></div>
+                    <button class="btn-primary" onclick="openAddUserModal()">
+                        + Thêm User
+                    </button>
+                </div>
+                
+                <div id="usersTableContainer">
+                    <div class="loading-spinner">Đang tải dữ liệu</div>
+                </div>
+            </div>
+            
+            <!-- Tab: Stats -->
+            <div class="tab-content" id="tab-stats">
+                <div class="stats-grid" id="statsOverview">
+                    <div class="stat-card pink">
+                        <div class="stat-value" id="statTotalViews">--</div>
+                        <div class="stat-label">Tổng lượt xem</div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-value" id="statTotalUsers">--</div>
+                        <div class="stat-label">Tổng user</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-value" id="statTotalPages">--</div>
+                        <div class="stat-label">Số trang</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-value" id="statToday">--</div>
+                        <div class="stat-label">Lượt xem hôm nay</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 16px;">📄 Chi tiết theo trang</h3>
+                
+                <div id="pageStatsContainer">
+                    <div class="loading-spinner">Đang tải thống kê</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Add/Edit User -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Thêm User</h2>
+                <button class="modal-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            
+            <form id="userForm">
+                <input type="hidden" id="editingRow" value="">
+                
+                <div class="form-group">
+                    <label for="userEmail">Email *</label>
+                    <input type="email" id="userEmail" required placeholder="email@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="userPassword">Mật khẩu *</label>
+                    <input type="text" id="userPassword" required placeholder="Nhập mật khẩu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="userName">Tên hiển thị *</label>
+                    <input type="text" id="userName" required placeholder="Nguyễn Văn A">
+                </div>
+                
+                <div class="form-group">
+                    <label for="userRole">Vai trò *</label>
+                    <select id="userRole" required>
+                        <option value="staff">Staff</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Quyền truy cập</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="permCS" value="cs">
+                            <span>Customer Service</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="permMarketing" value="marketing">
+                            <span>Marketing</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="permLaser" value="laser">
+                            <span>Laser</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeUserModal()">Hủy</button>
+                    <button type="submit" class="btn-primary" id="btnSaveUser">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirm Delete -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>⚠️ Xác nhận xóa</h2>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <p>Bạn có chắc muốn xóa user <strong id="deleteUserEmail"></strong>?</p>
+            <p style="color: #c62828; font-size: 14px;">Hành động này không thể hoàn tác.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeDeleteModal()">Hủy</button>
+                <button type="button" class="btn-primary" style="background: #c62828;" onclick="confirmDelete()">Xóa</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Check admin access
+        if (!Auth.requireAuth()) {
+            // Redirect to login
+        } else {
+            const user = Auth.getCurrentUser();
+            if (user.role !== 'admin') {
+                document.body.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column;">
+                        <div style="font-size: 64px; margin-bottom: 16px;">🔒</div>
+                        <h1>Không có quyền truy cập</h1>
+                        <p>Trang này chỉ dành cho Admin.</p>
+                        <a href="index.html" style="margin-top: 20px; color: #e91e63;">← Về trang chủ</a>
+                    </div>
+                `;
+            } else {
+                Auth.renderAuthUI();
+                initAdmin();
+            }
+        }
+        
+        // Tab switching
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                
+                if (tab.dataset.tab === 'stats') {
+                    loadStats();
+                }
+            });
+        });
+        
+        // Variables
+        let allUsers = [];
+        let deletingRow = null;
+        
+        // Initialize
+        function initAdmin() {
+            loadUsers();
+        }
+        
+        // Load users
+        async function loadUsers() {
+            const container = document.getElementById('usersTableContainer');
+            
+            try {
+                const users = await AdminAPI.getUsers();
+                allUsers = users;
+                renderUsersTable(users);
+            } catch (error) {
+                container.innerHTML = `<div class="alert error">Lỗi tải dữ liệu: ${error.message}</div>`;
+            }
+        }
+        
+        // Render users table
+        function renderUsersTable(users) {
+            const container = document.getElementById('usersTableContainer');
+            
+            if (users.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>Chưa có user nào</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Tên</th>
+                            <th>Vai trò</th>
+                            <th>Quyền</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            users.forEach((user, index) => {
+                const permissions = [];
+                if (user.cs) permissions.push('<span class="permission-badge active">CS</span>');
+                else permissions.push('<span class="permission-badge inactive">CS</span>');
+                if (user.marketing) permissions.push('<span class="permission-badge active">MKT</span>');
+                else permissions.push('<span class="permission-badge inactive">MKT</span>');
+                if (user.laser) permissions.push('<span class="permission-badge active">Laser</span>');
+                else permissions.push('<span class="permission-badge inactive">Laser</span>');
+                
+                html += `
+                    <tr>
+                        <td>${user.email}</td>
+                        <td>${user.name}</td>
+                        <td><span class="role-badge ${user.role}">${user.role === 'admin' ? 'Admin' : 'Staff'}</span></td>
+                        <td>${permissions.join('')}</td>
+                        <td>
+                            <button class="btn-action btn-edit" onclick="editUser(${user.row})">Sửa</button>
+                            <button class="btn-action btn-delete" onclick="deleteUser(${user.row}, '${user.email}')">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        // Open add user modal
+        function openAddUserModal() {
+            document.getElementById('modalTitle').textContent = 'Thêm User';
+            document.getElementById('userForm').reset();
+            document.getElementById('editingRow').value = '';
+            document.getElementById('userModal').classList.add('show');
+        }
+        
+        // Edit user
+        function editUser(row) {
+            const user = allUsers.find(u => u.row === row);
+            if (!user) return;
+            
+            document.getElementById('modalTitle').textContent = 'Sửa User';
+            document.getElementById('editingRow').value = row;
+            document.getElementById('userEmail').value = user.email;
+            document.getElementById('userPassword').value = user.password;
+            document.getElementById('userName').value = user.name;
+            document.getElementById('userRole').value = user.role;
+            document.getElementById('permCS').checked = user.cs;
+            document.getElementById('permMarketing').checked = user.marketing;
+            document.getElementById('permLaser').checked = user.laser;
+            
+            document.getElementById('userModal').classList.add('show');
+        }
+        
+        // Close modal
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('show');
+        }
+        
+        // Delete user
+        function deleteUser(row, email) {
+            deletingRow = row;
+            document.getElementById('deleteUserEmail').textContent = email;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+            deletingRow = null;
+        }
+        
+        async function confirmDelete() {
+            if (!deletingRow) return;
+            
+            try {
+                await AdminAPI.deleteUser(deletingRow);
+                showAlert('Đã xóa user thành công', 'success');
+                closeDeleteModal();
+                loadUsers();
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'error');
+            }
+        }
+        
+        // Save user form
+        document.getElementById('userForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const editingRow = document.getElementById('editingRow').value;
+            const userData = {
+                email: document.getElementById('userEmail').value,
+                password: document.getElementById('userPassword').value,
+                name: document.getElementById('userName').value,
+                role: document.getElementById('userRole').value,
+                cs: document.getElementById('permCS').checked,
+                marketing: document.getElementById('permMarketing').checked,
+                laser: document.getElementById('permLaser').checked
+            };
+            
+            try {
+                if (editingRow) {
+                    await AdminAPI.updateUser(parseInt(editingRow), userData);
+                    showAlert('Đã cập nhật user thành công', 'success');
+                } else {
+                    await AdminAPI.addUser(userData);
+                    showAlert('Đã thêm user thành công', 'success');
+                }
+                closeUserModal();
+                loadUsers();
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'error');
+            }
+        });
+        
+        // Load stats
+        async function loadStats() {
+            const container = document.getElementById('pageStatsContainer');
+            
+            try {
+                const stats = await AdminAPI.getStats();
+                
+                // Update overview
+                document.getElementById('statTotalViews').textContent = stats.totalViews || 0;
+                document.getElementById('statTotalUsers').textContent = stats.totalUsers || 0;
+                document.getElementById('statTotalPages').textContent = stats.totalPages || 0;
+                document.getElementById('statToday').textContent = stats.todayViews || 0;
+                
+                // Render page stats
+                if (!stats.pageStats || stats.pageStats.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <p>Chưa có dữ liệu thống kê</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = `
+                    <table class="data-table page-stats-table">
+                        <thead>
+                            <tr>
+                                <th>Trang</th>
+                                <th>Lượt xem</th>
+                                <th>User đã xem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                stats.pageStats.forEach(page => {
+                    const userViews = page.userViews.map(uv => 
+                        `<span class="user-view-item">${uv.name}: ${uv.count}</span>`
+                    ).join('');
+                    
+                    html += `
+                        <tr>
+                            <td>${page.pageName}</td>
+                            <td><span class="view-count">${page.totalViews}</span></td>
+                            <td><div class="user-views-list">${userViews || '-'}</div></td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                
+            } catch (error) {
+                container.innerHTML = `<div class="alert error">Lỗi tải thống kê: ${error.message}</div>`;
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `<div class="alert ${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+        
+        // Admin API - sẽ gọi Google Apps Script
+        const AdminAPI = {
+            API_URL: Auth.API_URL,
+            
+            async getUsers() {
+                // Mock data nếu chưa setup API
+                if (this.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+                    return this._mockGetUsers();
+                }
+                
+                const response = await fetch(this.API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getUsers' })
+                });
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                return data.users;
+            },
+            
+            async addUser(userData) {
+                if (this.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+                    return this._mockAddUser(userData);
+                }
+                
+                const response = await fetch(this.API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'addUser', userData })
+                });
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                return data;
+            },
+            
+            async updateUser(row, userData) {
+                if (this.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+                    return this._mockUpdateUser(row, userData);
+                }
+                
+                const response = await fetch(this.API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'updateUser', row, userData })
+                });
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                return data;
+            },
+            
+            async deleteUser(row) {
+                if (this.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+                    return this._mockDeleteUser(row);
+                }
+                
+                const response = await fetch(this.API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'deleteUser', row })
+                });
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                return data;
+            },
+            
+            async getStats() {
+                if (this.API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+                    return this._mockGetStats();
+                }
+                
+                const response = await fetch(this.API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getStats' })
+                });
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+                return data.stats;
+            },
+            
+            // Mock functions
+            _mockGetUsers() {
+                const stored = localStorage.getItem('crushroom_mock_users');
+                if (stored) {
+                    return JSON.parse(stored);
+                }
+                
+                // Default users
+                const defaultUsers = [
+                    { row: 2, email: 'admin@crushroom.vn', password: 'admin123', name: 'Admin', role: 'admin', cs: true, marketing: true, laser: true },
+                    { row: 3, email: 'cs@crushroom.vn', password: 'cs123', name: 'CS Team', role: 'staff', cs: true, marketing: false, laser: false },
+                    { row: 4, email: 'marketing@crushroom.vn', password: 'mkt123', name: 'Marketing Team', role: 'staff', cs: false, marketing: true, laser: false },
+                    { row: 5, email: 'laser@crushroom.vn', password: 'laser123', name: 'Laser Team', role: 'staff', cs: false, marketing: false, laser: true },
+                    { row: 6, email: 'test@test.com', password: 'test123', name: 'Test User', role: 'staff', cs: true, marketing: true, laser: true }
+                ];
+                localStorage.setItem('crushroom_mock_users', JSON.stringify(defaultUsers));
+                return defaultUsers;
+            },
+            
+            _mockAddUser(userData) {
+                const users = this._mockGetUsers();
+                const maxRow = Math.max(...users.map(u => u.row), 1);
+                users.push({ ...userData, row: maxRow + 1 });
+                localStorage.setItem('crushroom_mock_users', JSON.stringify(users));
+                return { success: true };
+            },
+            
+            _mockUpdateUser(row, userData) {
+                const users = this._mockGetUsers();
+                const index = users.findIndex(u => u.row === row);
+                if (index !== -1) {
+                    users[index] = { ...users[index], ...userData };
+                    localStorage.setItem('crushroom_mock_users', JSON.stringify(users));
+                }
+                return { success: true };
+            },
+            
+            _mockDeleteUser(row) {
+                const users = this._mockGetUsers();
+                const filtered = users.filter(u => u.row !== row);
+                localStorage.setItem('crushroom_mock_users', JSON.stringify(filtered));
+                return { success: true };
+            },
+            
+            _mockGetStats() {
+                const logs = JSON.parse(localStorage.getItem('crushroom_page_logs') || '[]');
+                const users = this._mockGetUsers();
+                
+                // Calculate stats
+                const today = new Date().toDateString();
+                const todayLogs = logs.filter(l => new Date(l.timestamp).toDateString() === today);
+                
+                // Group by page
+                const pageGroups = {};
+                logs.forEach(log => {
+                    if (!pageGroups[log.page]) {
+                        pageGroups[log.page] = { views: 0, users: {} };
+                    }
+                    pageGroups[log.page].views++;
+                    
+                    const userName = log.userName || log.userEmail;
+                    if (!pageGroups[log.page].users[userName]) {
+                        pageGroups[log.page].users[userName] = 0;
+                    }
+                    pageGroups[log.page].users[userName]++;
+                });
+                
+                const pageStats = Object.entries(pageGroups).map(([page, data]) => ({
+                    pageName: page,
+                    totalViews: data.views,
+                    userViews: Object.entries(data.users).map(([name, count]) => ({ name, count }))
+                })).sort((a, b) => b.totalViews - a.totalViews);
+                
+                return {
+                    totalViews: logs.length,
+                    totalUsers: users.length,
+                    totalPages: Object.keys(pageGroups).length,
+                    todayViews: todayLogs.length,
+                    pageStats
+                };
+            }
+        };
+    </script>
+</body>
+</html>

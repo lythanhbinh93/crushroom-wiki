@@ -4,20 +4,27 @@
 
 1. Vào [Google Sheets](https://sheets.google.com) và tạo Sheet mới
 2. Đặt tên: `Crush Room Wiki - Users`
-3. Tạo các cột ở hàng 1:
+
+### Sheet 1: Users (đổi tên sheet thành "Users")
+Tạo các cột ở hàng 1:
 
 | A | B | C | D | E | F | G |
 |---|---|---|---|---|---|---|
 | email | password | name | role | cs | marketing | laser |
 
-4. Thêm dữ liệu mẫu từ hàng 2:
+Thêm dữ liệu mẫu từ hàng 2:
 
 | email | password | name | role | cs | marketing | laser |
 |-------|----------|------|------|-----|-----------|-------|
 | admin@crushroom.vn | admin123 | Admin | admin | TRUE | TRUE | TRUE |
 | cs@crushroom.vn | cs123 | CS Team | staff | TRUE | FALSE | FALSE |
-| marketing@crushroom.vn | mkt123 | Marketing Team | staff | FALSE | TRUE | FALSE |
-| laser@crushroom.vn | laser123 | Laser Team | staff | FALSE | FALSE | TRUE |
+
+### Sheet 2: Logs (tạo sheet mới tên "Logs")
+Tạo các cột ở hàng 1:
+
+| A | B | C | D | E |
+|---|---|---|---|---|
+| timestamp | email | name | page | url |
 
 **Lưu ý:**
 - Cột `role`: `admin` hoặc `staff`
@@ -31,48 +38,64 @@
 2. Xóa code mặc định, paste code sau:
 
 ```javascript
-// Crush Room Wiki - Authentication API
+// Crush Room Wiki - Full Authentication API
+// Hỗ trợ: Login, CRUD Users, Page View Logging, Stats
+
+// ===== MAIN HANDLERS =====
 
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
     
-    if (data.action === 'login') {
-      return handleLogin(data.email, data.password);
+    switch(data.action) {
+      case 'login':
+        return handleLogin(data.email, data.password);
+      case 'getUsers':
+        return handleGetUsers();
+      case 'addUser':
+        return handleAddUser(data.userData);
+      case 'updateUser':
+        return handleUpdateUser(data.row, data.userData);
+      case 'deleteUser':
+        return handleDeleteUser(data.row);
+      case 'logPageView':
+        return handleLogPageView(data.log);
+      case 'getStats':
+        return handleGetStats();
+      default:
+        return jsonResponse({ success: false, message: 'Invalid action' });
     }
-    
-    return jsonResponse({ success: false, message: 'Invalid action' });
   } catch (error) {
     return jsonResponse({ success: false, message: error.toString() });
   }
 }
 
+function doGet(e) {
+  return jsonResponse({ success: true, message: 'Crush Room Wiki API is running' });
+}
+
+// ===== LOGIN =====
+
 function handleLogin(email, password) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
   const data = sheet.getDataRange().getValues();
   
-  // Skip header row
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
-    const userEmail = row[0];
-    const userPassword = row[1];
-    const userName = row[2];
-    const userRole = row[3];
-    const hasCS = row[4];
-    const hasMarketing = row[5];
-    const hasLaser = row[6];
-    
-    if (userEmail.toLowerCase() === email.toLowerCase() && userPassword === password) {
+    if (row[0].toLowerCase() === email.toLowerCase() && row[1] === password) {
+      // Log login
+      logActivity(email, row[2], 'Đăng nhập', '');
+      
       return jsonResponse({
         success: true,
         user: {
-          email: userEmail,
-          name: userName,
-          role: userRole,
+          email: row[0],
+          name: row[2],
+          role: row[3],
           permissions: {
-            cs: hasCS === true || hasCS === 'TRUE',
-            marketing: hasMarketing === true || hasMarketing === 'TRUE',
-            laser: hasLaser === true || hasLaser === 'TRUE'
+            cs: row[4] === true || row[4] === 'TRUE',
+            marketing: row[5] === true || row[5] === 'TRUE',
+            laser: row[6] === true || row[6] === 'TRUE'
           }
         }
       });
@@ -82,15 +105,194 @@ function handleLogin(email, password) {
   return jsonResponse({ success: false, message: 'Email hoặc mật khẩu không đúng' });
 }
 
+// ===== USERS CRUD =====
+
+function handleGetUsers() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
+  const data = sheet.getDataRange().getValues();
+  
+  const users = [];
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (row[0]) { // Skip empty rows
+      users.push({
+        row: i + 1, // Sheet row number (1-indexed)
+        email: row[0],
+        password: row[1],
+        name: row[2],
+        role: row[3],
+        cs: row[4] === true || row[4] === 'TRUE',
+        marketing: row[5] === true || row[5] === 'TRUE',
+        laser: row[6] === true || row[6] === 'TRUE'
+      });
+    }
+  }
+  
+  return jsonResponse({ success: true, users: users });
+}
+
+function handleAddUser(userData) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
+  
+  // Check duplicate email
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0].toLowerCase() === userData.email.toLowerCase()) {
+      return jsonResponse({ success: false, message: 'Email đã tồn tại' });
+    }
+  }
+  
+  // Add new row
+  sheet.appendRow([
+    userData.email,
+    userData.password,
+    userData.name,
+    userData.role,
+    userData.cs ? 'TRUE' : 'FALSE',
+    userData.marketing ? 'TRUE' : 'FALSE',
+    userData.laser ? 'TRUE' : 'FALSE'
+  ]);
+  
+  return jsonResponse({ success: true, message: 'Đã thêm user' });
+}
+
+function handleUpdateUser(row, userData) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
+  
+  sheet.getRange(row, 1, 1, 7).setValues([[
+    userData.email,
+    userData.password,
+    userData.name,
+    userData.role,
+    userData.cs ? 'TRUE' : 'FALSE',
+    userData.marketing ? 'TRUE' : 'FALSE',
+    userData.laser ? 'TRUE' : 'FALSE'
+  ]]);
+  
+  return jsonResponse({ success: true, message: 'Đã cập nhật user' });
+}
+
+function handleDeleteUser(row) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
+  sheet.deleteRow(row);
+  return jsonResponse({ success: true, message: 'Đã xóa user' });
+}
+
+// ===== PAGE VIEW LOGGING =====
+
+function handleLogPageView(log) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Logs');
+  
+  sheet.appendRow([
+    log.timestamp || new Date().toISOString(),
+    log.userEmail,
+    log.userName,
+    log.page,
+    log.url
+  ]);
+  
+  return jsonResponse({ success: true });
+}
+
+function logActivity(email, name, page, url) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Logs');
+    sheet.appendRow([
+      new Date().toISOString(),
+      email,
+      name,
+      page,
+      url
+    ]);
+  } catch (e) {
+    // Ignore logging errors
+  }
+}
+
+// ===== STATS =====
+
+function handleGetStats() {
+  const usersSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Users');
+  const logsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Logs');
+  
+  const usersData = usersSheet.getDataRange().getValues();
+  const logsData = logsSheet.getDataRange().getValues();
+  
+  // Count users
+  const totalUsers = usersData.length - 1; // Exclude header
+  
+  // Process logs
+  const today = new Date().toDateString();
+  let totalViews = 0;
+  let todayViews = 0;
+  const pageStats = {};
+  
+  for (let i = 1; i < logsData.length; i++) {
+    const row = logsData[i];
+    if (!row[0]) continue;
+    
+    totalViews++;
+    
+    const logDate = new Date(row[0]).toDateString();
+    if (logDate === today) {
+      todayViews++;
+    }
+    
+    const page = row[3] || 'Unknown';
+    const userName = row[2] || row[1] || 'Unknown';
+    
+    if (!pageStats[page]) {
+      pageStats[page] = { totalViews: 0, users: {} };
+    }
+    pageStats[page].totalViews++;
+    
+    if (!pageStats[page].users[userName]) {
+      pageStats[page].users[userName] = 0;
+    }
+    pageStats[page].users[userName]++;
+  }
+  
+  // Convert to array and sort
+  const pageStatsArray = Object.entries(pageStats).map(([pageName, data]) => ({
+    pageName: pageName,
+    totalViews: data.totalViews,
+    userViews: Object.entries(data.users).map(([name, count]) => ({ name, count }))
+  })).sort((a, b) => b.totalViews - a.totalViews);
+  
+  return jsonResponse({
+    success: true,
+    stats: {
+      totalViews: totalViews,
+      totalUsers: totalUsers,
+      totalPages: Object.keys(pageStats).length,
+      todayViews: todayViews,
+      pageStats: pageStatsArray
+    }
+  });
+}
+
+// ===== HELPER =====
+
 function jsonResponse(data) {
   return ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// Test function
+// ===== TEST FUNCTIONS =====
+
 function testLogin() {
   const result = handleLogin('admin@crushroom.vn', 'admin123');
+  Logger.log(result.getContent());
+}
+
+function testGetUsers() {
+  const result = handleGetUsers();
+  Logger.log(result.getContent());
+}
+
+function testGetStats() {
+  const result = handleGetStats();
   Logger.log(result.getContent());
 }
 ```
@@ -105,7 +307,7 @@ function testLogin() {
 1. Click **Deploy > New deployment**
 2. Click ⚙️ (Settings) > Chọn **Web app**
 3. Cấu hình:
-   - Description: `Wiki Authentication`
+   - Description: `Wiki Authentication v2`
    - Execute as: `Me`
    - Who has access: `Anyone`
 4. Click **Deploy**
@@ -130,53 +332,34 @@ API_URL: 'https://script.google.com/macros/s/xxx/exec',
 
 ## Bước 5: Test
 
-1. Mở trang Wiki
-2. Đăng nhập với tài khoản trong Google Sheet
-3. Kiểm tra quyền truy cập các module
+1. Mở trang Wiki → Đăng nhập
+2. Đăng nhập với tài khoản admin → Vào Admin Panel
+3. Thử thêm/sửa/xóa user
+4. Xem tab "Thống kê xem trang"
 
 ---
 
-## 📝 Quản lý User
+## 📝 Tính năng Admin Panel
 
-### Thêm user mới:
-1. Mở Google Sheet
-2. Thêm hàng mới với thông tin user
-3. Đặt quyền TRUE/FALSE cho từng module
+### Tab 1: Quản lý User
+- Xem danh sách user
+- Thêm user mới
+- Sửa thông tin user
+- Xóa user
+- Phân quyền CS/Marketing/Laser
 
-### Xóa user:
-1. Xóa hàng tương ứng trong Google Sheet
-
-### Đổi mật khẩu:
-1. Sửa cột `password` trong Google Sheet
-
-### Thay đổi quyền:
-1. Sửa cột `cs`, `marketing`, `laser` thành TRUE/FALSE
+### Tab 2: Thống kê xem trang
+- Tổng lượt xem
+- Lượt xem hôm nay
+- Chi tiết từng trang: ai xem, xem bao nhiêu lần
 
 ---
 
-## ⚠️ Lưu ý bảo mật
+## ⚠️ Lưu ý
 
-- Đây là giải pháp phù hợp cho **internal tool** với số lượng user nhỏ
-- Mật khẩu lưu dạng plain text trong Google Sheet (không mã hóa)
-- Chỉ những người có link mới truy cập được API
-- Nếu cần bảo mật cao hơn, nên dùng Firebase Authentication
-
----
-
-## 🔧 Troubleshooting
-
-### Lỗi "CORS error":
-- Đảm bảo Apps Script đã deploy với "Anyone" access
-- Thử deploy lại với version mới
-
-### Đăng nhập không được:
-- Kiểm tra email/password trong Google Sheet
-- Kiểm tra Apps Script URL đúng chưa
-- Mở Console (F12) xem lỗi chi tiết
-
-### Module vẫn truy cập được:
-- Clear localStorage: `localStorage.clear()` trong Console
-- Đăng nhập lại
+- **Re-deploy khi sửa code:** Mỗi lần sửa Apps Script, phải Deploy > New deployment
+- **Giới hạn:** 20,000 API calls/ngày (free tier)
+- **Team 10 người:** ~2,000 calls/ngày → OK
 
 ---
 
@@ -186,8 +369,8 @@ Khi chưa setup Google Sheets, có thể dùng tài khoản test:
 
 | Email | Password | Quyền |
 |-------|----------|-------|
-| admin@crushroom.vn | admin123 | Full |
-| cs@crushroom.vn | cs123 | CS only |
-| marketing@crushroom.vn | mkt123 | Marketing only |
-| laser@crushroom.vn | laser123 | Laser only |
-| test@test.com | test123 | Full |
+| `admin@crushroom.vn` | `admin123` | Full + Admin |
+| `cs@crushroom.vn` | `cs123` | CS only |
+| `marketing@crushroom.vn` | `mkt123` | Marketing only |
+| `laser@crushroom.vn` | `laser123` | Laser only |
+| `test@test.com` | `test123` | Full |
