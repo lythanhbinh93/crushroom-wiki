@@ -4,26 +4,26 @@
  */
 
 const Auth = {
-    // Google Apps Script Web App URL (URL thật sau khi deploy)
+    // Google Apps Script Web App URL (sẽ được cập nhật sau khi deploy)
     API_URL: 'https://script.google.com/macros/s/AKfycbwTV21bX-xYqpkVHt-ZD5azg6DmVXprDFfXBAdryT0zCB4_r3aVhWdxTG4xSAYFaTOhOw/exec',
-
-    // Bật/tắt mock mode (chỉ dùng khi dev offline)
-    USE_MOCK: false,
-
+    
     // Storage keys
     STORAGE_KEY: 'crushroom_wiki_auth',
     LOGS_KEY: 'crushroom_page_logs',
-
+    
     /**
      * Đăng nhập
+     * @param {string} email 
+     * @param {string} password 
+     * @returns {Promise<{success: boolean, message?: string, user?: object}>}
      */
     async login(email, password) {
         try {
-            // Dev mode: dùng mock
-            if (this.USE_MOCK) {
+            // Nếu chưa setup API, dùng mock data để test
+            if (this.API_URL === 'https://script.google.com/macros/s/AKfycbwTV21bX-xYqpkVHt-ZD5azg6DmVXprDFfXBAdryT0zCB4_r3aVhWdxTG4xSAYFaTOhOw/exec') {
                 return this._mockLogin(email, password);
             }
-
+            
             const response = await fetch(this.API_URL, {
                 method: 'POST',
                 mode: 'cors',
@@ -32,17 +32,17 @@ const Auth = {
                 },
                 body: JSON.stringify({
                     action: 'login',
-                    email,
-                    password
+                    email: email,
+                    password: password
                 })
             });
-
+            
             const data = await response.json();
-
-            if (data.success && data.user) {
+            
+            if (data.success) {
                 this._saveSession(data.user);
             }
-
+            
             return data;
         } catch (error) {
             console.error('Login error:', error);
@@ -52,11 +52,13 @@ const Auth = {
             };
         }
     },
-
+    
     /**
      * Mock login cho development/testing
+     * Admin có thể thay đổi danh sách này hoặc setup Google Sheets
      */
     _mockLogin(email, password) {
+        // Danh sách user mẫu - THAY ĐỔI THEO NHU CẦU
         const mockUsers = [
             {
                 email: 'admin@crushroom.vn',
@@ -114,13 +116,14 @@ const Auth = {
                 }
             }
         ];
-
-        const user = mockUsers.find(u =>
-            u.email.toLowerCase() === email.toLowerCase() &&
+        
+        const user = mockUsers.find(u => 
+            u.email.toLowerCase() === email.toLowerCase() && 
             u.password === password
         );
-
+        
         if (user) {
+            // Remove password before saving
             const { password: _, ...userWithoutPassword } = user;
             this._saveSession(userWithoutPassword);
             return {
@@ -128,13 +131,13 @@ const Auth = {
                 user: userWithoutPassword
             };
         }
-
+        
         return {
             success: false,
             message: 'Email hoặc mật khẩu không đúng'
         };
     },
-
+    
     /**
      * Đăng xuất
      */
@@ -142,35 +145,42 @@ const Auth = {
         localStorage.removeItem(this.STORAGE_KEY);
         window.location.href = this._getBasePath() + 'login.html';
     },
-
+    
     /**
      * Kiểm tra đã đăng nhập chưa
+     * @returns {boolean}
      */
     isLoggedIn() {
-        return this._getSession() !== null;
+        const session = this._getSession();
+        return session !== null;
     },
-
+    
     /**
      * Lấy thông tin user hiện tại
+     * @returns {object|null}
      */
     getCurrentUser() {
         return this._getSession();
     },
-
+    
     /**
-     * Kiểm tra quyền truy cập module: 'cs', 'marketing', 'laser'
+     * Kiểm tra quyền truy cập module
+     * @param {string} module - 'cs', 'marketing', 'laser'
+     * @returns {boolean}
      */
     hasPermission(module) {
         const user = this.getCurrentUser();
         if (!user) return false;
-
+        
+        // Admin có tất cả quyền
         if (user.role === 'admin') return true;
-
+        
         return user.permissions && user.permissions[module] === true;
     },
-
+    
     /**
      * Yêu cầu đăng nhập - gọi ở đầu mỗi trang
+     * Redirect về login nếu chưa đăng nhập
      */
     requireAuth() {
         if (!this.isLoggedIn()) {
@@ -179,31 +189,35 @@ const Auth = {
         }
         return true;
     },
-
+    
     /**
      * Yêu cầu quyền truy cập module
+     * @param {string} module 
+     * @returns {boolean}
      */
     requirePermission(module) {
         if (!this.requireAuth()) return false;
-
+        
         if (!this.hasPermission(module)) {
             this._showAccessDenied();
             return false;
         }
         return true;
     },
-
+    
     /**
      * Ghi log xem trang
+     * @param {string} pageName - Tên trang (optional, tự detect từ URL)
      */
     async logPageView(pageName = null) {
         const user = this.getCurrentUser();
         if (!user) return;
-
+        
+        // Tự detect tên trang từ URL nếu không truyền vào
         if (!pageName) {
             pageName = this._getPageNameFromURL();
         }
-
+        
         const logEntry = {
             timestamp: new Date().toISOString(),
             userEmail: user.email,
@@ -211,20 +225,18 @@ const Auth = {
             page: pageName,
             url: window.location.pathname
         };
-
-        // Dev mode hoặc chưa muốn call API: lưu local
-        if (this.USE_MOCK) {
+        
+        // Nếu chưa setup API, lưu local
+        if (this.API_URL === 'https://script.google.com/macros/s/AKfycbwTV21bX-xYqpkVHt-ZD5azg6DmVXprDFfXBAdryT0zCB4_r3aVhWdxTG4xSAYFaTOhOw/exec') {
             this._saveLogLocal(logEntry);
             return;
         }
-
+        
+        // Gọi API ghi log
         try {
             fetch(this.API_URL, {
                 method: 'POST',
                 mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({
                     action: 'logPageView',
                     log: logEntry
@@ -232,10 +244,11 @@ const Auth = {
             });
         } catch (error) {
             console.error('Error logging page view:', error);
+            // Fallback to local storage
             this._saveLogLocal(logEntry);
         }
     },
-
+    
     /**
      * Lưu log vào localStorage (fallback)
      */
@@ -243,6 +256,7 @@ const Auth = {
         try {
             const logs = JSON.parse(localStorage.getItem(this.LOGS_KEY) || '[]');
             logs.push(logEntry);
+            // Giữ tối đa 1000 logs gần nhất
             if (logs.length > 1000) {
                 logs.splice(0, logs.length - 1000);
             }
@@ -251,13 +265,14 @@ const Auth = {
             console.error('Error saving log to localStorage:', error);
         }
     },
-
+    
     /**
      * Lấy tên trang từ URL
      */
     _getPageNameFromURL() {
         const path = window.location.pathname;
-
+        
+        // Map path to readable name
         const pageNames = {
             '/index.html': 'Trang chủ',
             '/admin.html': 'Admin Panel',
@@ -282,21 +297,24 @@ const Auth = {
             '/pages/laser/guide.html': 'Laser - Hướng dẫn',
             '/pages/laser/lightburn.html': 'Laser - Thông số Lightburn'
         };
-
+        
+        // Tìm matching path
         for (const [key, value] of Object.entries(pageNames)) {
             if (path.endsWith(key) || path === key) {
                 return value;
             }
         }
-
+        
+        // Fallback: lấy tên file
         const fileName = path.split('/').pop() || 'Unknown';
         return fileName.replace('.html', '');
     },
-
+    
     /**
      * Hiển thị popup không có quyền
      */
     _showAccessDenied() {
+        // Tạo overlay
         const overlay = document.createElement('div');
         overlay.id = 'access-denied-overlay';
         overlay.innerHTML = `
@@ -311,7 +329,8 @@ const Auth = {
                 </div>
             </div>
         `;
-
+        
+        // Thêm style
         const style = document.createElement('style');
         style.textContent = `
             #access-denied-overlay {
@@ -368,20 +387,23 @@ const Auth = {
                 color: white;
             }
         `;
-
+        
         document.head.appendChild(style);
         document.body.appendChild(overlay);
     },
-
+    
     /**
-     * Render UI cho user đã đăng nhập
+     * Render UI elements cho authenticated user
+     * Gọi sau khi page load
      */
     renderAuthUI() {
         const user = this.getCurrentUser();
         if (!user) return;
-
+        
+        // Log page view
         this.logPageView();
-
+        
+        // Update user info trong sidebar nếu có
         const userInfo = document.querySelector('.user-info');
         if (userInfo) {
             userInfo.innerHTML = `
@@ -399,22 +421,22 @@ const Auth = {
                 </button>
             `;
         }
-
+        
+        // Lock modules không có quyền
         this._lockRestrictedModules();
     },
-
+    
     /**
      * Khóa các module không có quyền
      */
     _lockRestrictedModules() {
         const modules = ['cs', 'marketing', 'laser'];
-
+        
         modules.forEach(module => {
             if (!this.hasPermission(module)) {
-                const links = document.querySelectorAll(
-                    `[data-module="${module}"], [href*="/${module}/"]`
-                );
-
+                // Tìm tất cả link đến module này
+                const links = document.querySelectorAll(`[data-module="${module}"], [href*="/${module}/"]`);
+                
                 links.forEach(link => {
                     link.classList.add('locked');
                     link.addEventListener('click', (e) => {
@@ -422,14 +444,16 @@ const Auth = {
                         this._showAccessDenied();
                     });
                 });
-
+                
+                // Khóa nav group
                 const navGroup = document.querySelector(`[data-module-group="${module}"]`);
                 if (navGroup) {
                     navGroup.classList.add('locked');
                 }
             }
         });
-
+        
+        // Ẩn link Admin nếu không phải admin
         const user = this.getCurrentUser();
         if (user && user.role !== 'admin') {
             const adminLinks = document.querySelectorAll('[data-admin-only]');
@@ -438,17 +462,17 @@ const Auth = {
             });
         }
     },
-
+    
     /**
      * Lưu session vào localStorage
      */
     _saveSession(user) {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
-            user,
+            user: user,
             loginAt: new Date().toISOString()
         }));
     },
-
+    
     /**
      * Lấy session từ localStorage
      */
@@ -456,19 +480,21 @@ const Auth = {
         try {
             const data = localStorage.getItem(this.STORAGE_KEY);
             if (!data) return null;
+            
             const session = JSON.parse(data);
             return session.user;
         } catch {
             return null;
         }
     },
-
+    
     /**
      * Tính base path dựa vào vị trí file hiện tại
      */
     _getBasePath() {
         const path = window.location.pathname;
-
+        const depth = (path.match(/\//g) || []).length - 1;
+        
         if (path.includes('/pages/cs/training/')) return '../../../';
         if (path.includes('/pages/cs/products/')) return '../../../';
         if (path.includes('/pages/cs/skills/')) return '../../../';
@@ -476,7 +502,7 @@ const Auth = {
         if (path.includes('/pages/marketing/')) return '../../';
         if (path.includes('/pages/laser/')) return '../../';
         if (path.includes('/pages/')) return '../';
-
+        
         return '';
     }
 };
@@ -484,6 +510,7 @@ const Auth = {
 // CSS cho locked elements và user info
 const authStyles = document.createElement('style');
 authStyles.textContent = `
+    /* User info in sidebar */
     .user-info {
         display: flex;
         align-items: center;
@@ -493,7 +520,7 @@ authStyles.textContent = `
         border-radius: 12px;
         margin: 16px;
     }
-
+    
     .user-avatar {
         width: 40px;
         height: 40px;
@@ -506,20 +533,22 @@ authStyles.textContent = `
         font-weight: 700;
         font-size: 16px;
     }
-
-    .user-details { flex: 1; }
-
+    
+    .user-details {
+        flex: 1;
+    }
+    
     .user-name {
         font-weight: 600;
         font-size: 14px;
         color: #333;
     }
-
+    
     .user-role {
         font-size: 12px;
         color: #757575;
     }
-
+    
     .btn-logout {
         background: none;
         border: none;
@@ -529,12 +558,13 @@ authStyles.textContent = `
         border-radius: 8px;
         transition: all 0.2s;
     }
-
+    
     .btn-logout:hover {
         background: #ffebee;
         color: #c62828;
     }
-
+    
+    /* Locked modules */
     .nav-item.locked,
     .nav-subitem.locked,
     .nav-group.locked .nav-group-header,
@@ -542,7 +572,7 @@ authStyles.textContent = `
         opacity: 0.5;
         position: relative;
     }
-
+    
     .nav-item.locked::after,
     .nav-subitem.locked::after,
     .nav-group.locked .nav-group-header::after,
@@ -552,17 +582,17 @@ authStyles.textContent = `
         right: 12px;
         font-size: 14px;
     }
-
+    
     .nav-item.locked:hover,
     .nav-subitem.locked:hover,
     .module-card.locked:hover {
         cursor: not-allowed;
     }
-
+    
     .module-card.locked {
         pointer-events: auto !important;
     }
-
+    
     .module-card.locked .module-header {
         filter: grayscale(50%);
     }
