@@ -5,7 +5,7 @@
 
 const Auth = {
     // Google Apps Script Web App URL (sẽ được cập nhật sau khi deploy)
-    API_URL: 'https://script.google.com/macros/s/AKfycbydnQ0r-EDcgRDQYAnhEpdtg9THniUWjjvcyHzkG5zIPMB0aG71CtLLardqggY_K_OHaA/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbzYxNGwglqsiHk1_pqppTdqJr5DLGVQG8Az5kDEbptdkyeQGEuecCLQMPf5wwhF64f-3g/exec',
     
     // Storage keys
     STORAGE_KEY: 'crushroom_wiki_auth',
@@ -20,7 +20,7 @@ const Auth = {
     async login(email, password) {
         try {
             // Nếu chưa setup API, dùng mock data để test
-            if (this.API_URL === 'https://script.google.com/macros/s/AKfycbydnQ0r-EDcgRDQYAnhEpdtg9THniUWjjvcyHzkG5zIPMB0aG71CtLLardqggY_K_OHaA/exec') {
+            if (this.API_URL === 'https://script.google.com/macros/s/AKfycbzYxNGwglqsiHk1_pqppTdqJr5DLGVQG8Az5kDEbptdkyeQGEuecCLQMPf5wwhF64f-3g/exec') {
                 return this._mockLogin(email, password);
             }
             
@@ -227,7 +227,7 @@ const Auth = {
         };
         
         // Nếu chưa setup API, lưu local
-        if (this.API_URL === 'https://script.google.com/macros/s/AKfycbydnQ0r-EDcgRDQYAnhEpdtg9THniUWjjvcyHzkG5zIPMB0aG71CtLLardqggY_K_OHaA/exec') {
+        if (this.API_URL === 'https://script.google.com/macros/s/AKfycbzYxNGwglqsiHk1_pqppTdqJr5DLGVQG8Az5kDEbptdkyeQGEuecCLQMPf5wwhF64f-3g/exec') {
             this._saveLogLocal(logEntry);
             return;
         }
