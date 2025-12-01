@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý lịch làm - Crush Room Wiki</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">💎</span>
+          <span class="logo-text">Crush Room</span>
+        </div>
+        <span class="wiki-badge">Wiki</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="../index.html" class="nav-item">
+          <span class="nav-icon">🏠</span>
+          <span>Trang chủ</span>
+        </a>
+
+        <a href="schedule.html" class="nav-item">
+          <span class="nav-icon">📅</span>
+          <span>Đăng ký lịch làm</span>
+        </a>
+
+        <a href="schedule-admin.html" class="nav-item active" data-admin-only>
+          <span class="nav-icon">🧩</span>
+          <span>Quản lý lịch làm</span>
+        </a>
+
+        <div class="nav-group">
+          <div class="nav-group-header">
+            <span class="nav-icon">💬</span>
+            <span>Customer Service</span>
+            <span class="nav-arrow">▼</span>
+          </div>
+          <div class="nav-group-items">
+            <a href="cs/library.html" class="nav-subitem">Thư viện học tập</a>
+            <a href="cs/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-group-header">
+            <span class="nav-icon">📢</span>
+            <span>Marketing</span>
+            <span class="nav-arrow">▼</span>
+          </div>
+          <div class="nav-group-items">
+            <a href="marketing/library.html" class="nav-subitem">Thư viện học tập</a>
+            <a href="marketing/quiz.html" class="nav-subitem">Bài kiểm tra</a>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-group-header">
+            <span class="nav-icon">⚡</span>
+            <span>Laser</span>
+            <span class="nav-arrow">▼</span>
+          </div>
+          <div class="nav-group-items">
+            <a href="laser/guide.html" class="nav-subitem">Hướng dẫn khắc Laser</a>
+            <a href="laser/lightburn.html" class="nav-subitem">Thông số Lightburn</a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="user-info"></div>
+
+      <div class="sidebar-footer">
+        <p>© 2025 Crush Room</p>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="../index.html">Trang chủ</a>
+        <span>/</span>
+        <span>Quản lý lịch làm</span>
+      </div>
+
+      <header class="page-header">
+        <h1>🧩 Quản lý lịch làm (Leader)</h1>
+        <p class="header-subtitle">Xem đăng ký ca linh hoạt và phân ca theo giờ cho team.</p>
+      </header>
+
+      <section class="content-section">
+        <h2>1. Chọn tuần & team</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:12px;">
+          <div>
+            <label for="week-start-admin">Tuần bắt đầu:</label><br />
+            <input type="date" id="week-start-admin" />
+          </div>
+          <div>
+            <label for="team-select-admin">Team:</label><br />
+            <select id="team-select-admin">
+              <option value="cs">Customer Service (CS)</option>
+              <option value="mo">Marketing (MO)</option>
+            </select>
+          </div>
+          <div style="margin-top:18px;">
+            <button id="load-admin-btn" class="btn btn-secondary">Tải dữ liệu</button>
+          </div>
+          <span id="admin-message" style="font-size:14px; margin-left:8px;"></span>
+        </div>
+        <p style="font-size:13px; color:#777;">
+          Ô trong bảng hiển thị: <strong>Đã phân / Số người đăng ký</strong>. Click vào 1 ô để chọn người cho ca đó.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <h2>2. Bảng ca theo giờ</h2>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Giờ / Ngày</th>
+                <th>Thứ 2</th>
+                <th>Thứ 3</th>
+                <th>Thứ 4</th>
+                <th>Thứ 5</th>
+                <th>Thứ 6</th>
+                <th>Thứ 7</th>
+                <th>Chủ nhật</th>
+              </tr>
+            </thead>
+            <tbody id="schedule-admin-body">
+              <!-- JS render -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-section" id="slot-editor-section">
+        <h2>3. Chi tiết slot đang chọn</h2>
+        <div id="slot-editor-empty" style="font-size:14px; color:#777;">
+          Click vào một ô trong bảng để xem và chọn nhân viên cho slot đó.
+        </div>
+        <div id="slot-editor" style="display:none;">
+          <p id="slot-title" style="font-weight:600; margin-bottom:8px;"></p>
+          <div id="slot-available-users" style="margin-bottom:8px;"></div>
+          <button id="slot-save-btn" class="btn btn-primary">Lưu slot này</button>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>4. Lưu lịch tuần này</h2>
+        <button id="save-week-schedule-btn" class="btn btn-primary">
+          💾 Lưu lịch làm cho tuần này
+        </button>
+        <span id="save-week-message" style="margin-left:8px; font-size:14px;"></span>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/schedule-admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth()) return;
+      const currentUser = Auth.getCurrentUser();
+      // Chỉ cho Admin dùng trang này
+      if (!currentUser || currentUser.role !== 'admin') {
+        Auth.renderAuthUI();
+        if (Auth._showAccessDenied) Auth._showAccessDenied();
+        return;
+      }
+      Auth.renderAuthUI();
+      if (window.ScheduleAdminPage && typeof ScheduleAdminPage.init === 'function') {
+        ScheduleAdminPage.init();
+      }
+    });
+  </script>
+</body>
+</html>
