@@ -662,10 +662,12 @@
                         <a href="index.html" style="margin-top: 20px; color: #e91e63;">← Về trang chủ</a>
                     </div>
                 `;
-            } else {
-                Auth.renderAuthUI();
-                initAdmin();
-            }
+} else {
+    Auth.renderAuthUI();
+    // Gọi initAdmin sau khi script chạy xong (lúc này AdminAPI đã khởi tạo)
+    setTimeout(initAdmin, 0);
+}
+
         }
         
         // Tab switching
