@@ -200,19 +200,32 @@ window.ScheduleAdminPage = {
       });
     }
 
-    function buildAvailabilityMap(dataAvail) {
-      const map = {};
-      if (!dataAvail || !dataAvail.success || !dataAvail.slots) return map;
+function buildAvailabilityMap(dataAvail) {
+  const map = {};
+  if (!dataAvail || !dataAvail.success || !dataAvail.slots) return map;
 
-      dataAvail.slots.forEach(slot => {
-        const date = slot.date;
-        const shift = slot.shift;
-        const key = `${date}|${shift}`;
-        map[key] = slot.users || [];
-      });
+  dataAvail.slots.forEach(slot => {
+    if (!slot) return;
 
-      return map;
+    // Chuẩn hoá date về YYYY-MM-DD cho chắc
+    const rawDate = String(slot.date || '').trim();
+    const date = rawDate.substring(0, 10); // "2025-12-11"
+
+    // Chuẩn hoá shift: chỉ lấy dạng HH-HH (09-10, 13-14, ...)
+    const rawShift = String(slot.shift || '').trim();
+    if (!/^\d{2}-\d{2}$/.test(rawShift)) {
+      // Những slot cũ kiểu "Sat Aug 09 2025..." sẽ bị bỏ qua
+      return;
     }
+    const shift = rawShift;
+
+    const key = `${date}|${shift}`;
+    map[key] = slot.users || [];
+  });
+
+  return map;
+}
+
 
     function buildScheduleMap(dataSched) {
       const map = {};
