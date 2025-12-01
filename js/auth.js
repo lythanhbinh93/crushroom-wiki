@@ -22,42 +22,43 @@ const Auth = {
      * @param {string} password 
      * @returns {Promise<{success: boolean, message?: string, user?: object}>}
      */
-async login(email, password) {
-    try {
-        // Nếu đang bật mock hoặc chưa cấu hình API_URL -> dùng mock
-        if (this.USE_MOCK || !this.API_URL) {
-            return this._mockLogin(email, password);
+    async login(email, password) {
+        try {
+            // Nếu đang bật mock hoặc chưa cấu hình API_URL -> dùng mock
+            if (this.USE_MOCK || !this.API_URL) {
+                return this._mockLogin(email, password);
+            }
+
+            const response = await fetch(this.API_URL, {
+                method: 'POST',
+                redirect: 'follow', // giúp follow redirect của Apps Script
+                headers: {
+                    // dùng text/plain để tránh preflight CORS
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify({
+                    action: 'login',
+                    email: email,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this._saveSession(data.user);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Login error:', error);
+            return {
+                success: false,
+                message: 'Lỗi kết nối. Vui lòng thử lại.'
+            };
         }
-
-        const response = await fetch(this.API_URL, {
-            method: 'POST',
-            redirect: 'follow', // rất quan trọng với Apps Script
-            headers: {
-                // dùng text/plain để tránh preflight CORS của browser
-                'Content-Type': 'text/plain;charset=utf-8',
-            },
-            body: JSON.stringify({
-                action: 'login',
-                email: email,
-                password: password
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            this._saveSession(data.user);
-        }
-
-        return data;
-    } catch (error) {
-        console.error('Login error:', error);
-        return {
-            success: false,
-            message: 'Lỗi kết nối. Vui lòng thử lại.'
-        };
-    }
-}
+    },
+    
     /**
      * Mock login cho development/testing
      * Admin có thể thay đổi danh sách này hoặc setup Google Sheets
@@ -241,7 +242,10 @@ async login(email, password) {
         try {
             fetch(this.API_URL, {
                 method: 'POST',
-                mode: 'cors',
+                redirect: 'follow',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
                 body: JSON.stringify({
                     action: 'logPageView',
                     log: logEntry
@@ -498,7 +502,6 @@ async login(email, password) {
      */
     _getBasePath() {
         const path = window.location.pathname;
-        const depth = (path.match(/\//g) || []).length - 1;
         
         if (path.includes('/pages/cs/training/')) return '../../../';
         if (path.includes('/pages/cs/products/')) return '../../../';
