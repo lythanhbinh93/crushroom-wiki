@@ -4,7 +4,12 @@
  */
 
 const Auth = {
-    // Google Apps Script Web App URL (sẽ được cập nhật sau khi deploy)
+    // Bật/tắt chế độ mock
+    // true  = dùng danh sách user trong _mockLogin (không gọi API)
+    // false = gọi API_URL (Apps Script)
+    USE_MOCK: false,
+
+    // Google Apps Script Web App URL
     API_URL: 'https://script.google.com/macros/s/AKfycbwTV21bX-xYqpkVHt-ZD5azg6DmVXprDFfXBAdryT0zCB4_r3aVhWdxTG4xSAYFaTOhOw/exec',
     
     // Storage keys
@@ -19,8 +24,8 @@ const Auth = {
      */
     async login(email, password) {
         try {
-            // Nếu chưa setup API, dùng mock data để test
-            if (this.API_URL === 'https://script.google.com/macros/s/AKfycbwTV21bX-xYqpkVHt-ZD5azg6DmVXprDFfXBAdryT0zCB4_r3aVhWdxTG4xSAYFaTOhOw/exec') {
+            // Nếu bật mock hoặc chưa có API_URL -> dùng mock
+            if (this.USE_MOCK || !this.API_URL) {
                 return this._mockLogin(email, password);
             }
             
@@ -226,8 +231,8 @@ const Auth = {
             url: window.location.pathname
         };
         
-        // Nếu chưa setup API, lưu local
-        if (this.API_URL === 'https://script.google.com/macros/s/AKfycbwTV21bX-xYqpkVHt-ZD5azg6DmVXprDFfXBAdryT0zCB4_r3aVhWdxTG4xSAYFaTOhOw/exec') {
+        // Nếu dùng mock hoặc chưa có API_URL, lưu local
+        if (this.USE_MOCK || !this.API_URL) {
             this._saveLogLocal(logEntry);
             return;
         }
