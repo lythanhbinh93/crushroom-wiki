@@ -23,12 +23,29 @@ window.ScheduleAdminPage = {
       return;
     }
 
-    // ==== STATE ============================================================
+        // ==== STATE ============================================================
     let dates = [];           // 7 ngày trong tuần
     let timeSlots = [];       // [{key, label}]
     let availabilityMap = {}; // slotId -> [{email,name,team}]
     let scheduleMap = {};     // slotId -> [{email,name,team}]
     let currentSlotId = null; // slot đang chỉnh trong editor
+
+    // Màu cho từng nhân viên (mỗi email 1 màu cố định)
+    const COLOR_PALETTE = [
+      '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0',
+      '#F3E5F5', '#E0F7FA', '#F9FBE7', '#FCE4EC'
+    ];
+    const colorByEmail = {};
+    function getColorForEmail(email) {
+      const key = (email || '').toLowerCase();
+      if (!key) return '#f1f3f4';
+
+      if (!colorByEmail[key]) {
+        const index = Object.keys(colorByEmail).length % COLOR_PALETTE.length;
+        colorByEmail[key] = COLOR_PALETTE[index];
+      }
+      return colorByEmail[key];
+    }
 
     // Tuần mặc định: thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
@@ -193,7 +210,7 @@ window.ScheduleAdminPage = {
     }
 
     // Cập nhật số lượng & danh sách tên trong từng ô
-    function renderGridStats() {
+        function renderGridStats() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
       cells.forEach(td => {
@@ -213,7 +230,7 @@ window.ScheduleAdminPage = {
         namesEl.innerHTML = '';
         if (availCount === 0) return;
 
-        // Map theo email để tránh trùng tên
+        // Gom theo email (unique)
         const availByEmail = {};
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
@@ -222,20 +239,27 @@ window.ScheduleAdminPage = {
         });
 
         Object.values(availByEmail).forEach(u => {
-          const email = (u.email || '').toLowerCase();
+          const emailKey   = (u.email || '').toLowerCase();
           const isAssigned = assignedList.some(
-            a => (a.email || '').toLowerCase() === email
+            a => (a.email || '').toLowerCase() === emailKey
           );
 
           const span = document.createElement('span');
           span.classList.add('slot-name-pill');
-          span.style.display = 'inline-block';
-          span.style.padding = '1px 6px';
+          span.style.display      = 'inline-block';
+          span.style.padding      = '2px 8px';
           span.style.borderRadius = '999px';
-          span.style.background = isAssigned ? '#e8f5e9' : '#f1f3f4';
-          span.style.marginRight = '4px';
+          span.style.marginRight  = '4px';
           span.style.marginBottom = '2px';
-          span.style.cursor = 'pointer';
+          span.style.cursor       = 'pointer';
+
+          // màu riêng cho từng nhân viên
+          const baseColor = getColorForEmail(emailKey);
+          span.style.background = baseColor;
+          span.style.border     = isAssigned ? '1px solid rgba(0,0,0,0.35)'
+                                             : '1px solid transparent';
+          span.style.opacity    = isAssigned ? '1' : '0.5';
+          span.style.fontWeight = isAssigned ? '600' : '400';
 
           span.dataset.slotId = slotId;
           span.dataset.email  = u.email;
@@ -244,13 +268,14 @@ window.ScheduleAdminPage = {
 
           span.textContent = (isAssigned ? '✅ ' : '') + (u.name || u.email);
 
-          // Click vào tên => toggle assign
+          // Click tên để toggle assign
           span.addEventListener('click', onNameClick);
 
           namesEl.appendChild(span);
         });
       });
     }
+
 
     // ======================================================================
     // MAP BUILDERS (từ API)
