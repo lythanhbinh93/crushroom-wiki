@@ -189,22 +189,23 @@ window.ScheduleAdminPage = {
     }
 
     // cập nhật số lượng và danh sách tên trong từng ô
-    function renderGridStats() {
-      const cells = tbody.querySelectorAll('td.schedule-cell');
+   function renderGridStats() {
+  const cells = tbody.querySelectorAll('td.schedule-cell');
 
-      cells.forEach(td => {
-        const slotId = td.dataset.slotId;
-        const statsEl = td.querySelector('.slot-stats');
-        const namesEl = td.querySelector('.slot-names');
+  cells.forEach(td => {
+    const slotId = td.dataset.slotId;
+    const statsEl = td.querySelector('.slot-stats');
 
-        const availUsers    = availabilityMap[slotId] || [];
-        const assignedUsers = scheduleMap[slotId] || [];
+    const availList    = availabilityMap[slotId] || [];
+    const assignedList = scheduleMap[slotId] || [];
 
-        const avail = availUsers.length;
-        const assigned = assignedUsers.length;
+    // Đếm UNIQUE theo email để tránh trùng
+    const availCount = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
+    const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
 
-        statsEl.textContent = `${assigned}/${avail} người`;
-
+    statsEl.textContent = `${assignedCount}/${availCount} người`;
+  });
+}
         namesEl.innerHTML = '';
         if (avail === 0) return;
 
