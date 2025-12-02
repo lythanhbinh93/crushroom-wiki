@@ -10,7 +10,7 @@ const Auth = {
     USE_MOCK: false,
 
     // Google Apps Script Web App URL
-    API_URL: 'https://script.google.com/macros/s/AKfycbzOQp8ld92Z3xeI0rDN1ybR7xEougub9qBndITVnoxWJ_C-UqxkI8iW4byfhQ8Sb6Py/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbztyC9k_FrK7MVdk0djbWsDS_5q-zZ8irVlCCb9uEhQWy6YUwwo27NDpxTkj9acMb8Uig/exec',
     
     // Storage keys
     STORAGE_KEY: 'crushroom_wiki_auth',
