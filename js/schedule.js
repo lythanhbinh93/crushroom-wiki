@@ -1,113 +1,272 @@
 // js/schedule.js
-// Logic đăng ký ca linh hoạt theo giờ cho nhân viên (CS / MO)
+// Trang nhân viên đăng ký lịch rảnh theo giờ
 
 window.SchedulePage = {
   init() {
-    const user = Auth.getCurrentUser();
-    if (!user) return;
+    const weekInput   = document.getElementById('week-start-input');
+    const loadWeekBtn = document.getElementById('load-week-btn');
+    const tbody       = document.getElementById('availability-body');
+    const msgEl       = document.getElementById('schedule-message');
+    const teamLabelEl = document.getElementById('team-label');
 
-    const weekInput  = document.getElementById('week-start-input');
-    const loadBtn    = document.getElementById('load-week-btn');
-    const saveBtn    = document.getElementById('save-availability-btn');
-    const tbody      = document.getElementById('availability-body');
-    const messageEl  = document.getElementById('schedule-message');
-    const teamLabelEl = document.getElementById('team-label'); // optional
+    const editBtn     = document.getElementById('edit-availability-btn');
+    const cancelBtn   = document.getElementById('cancel-edit-availability-btn');
+    const saveBtn     = document.getElementById('save-availability-btn');
 
-    if (!weekInput || !loadBtn || !saveBtn || !tbody) {
-      console.warn('Schedule elements not found, skip init');
+    if (!weekInput || !tbody || !loadWeekBtn || !saveBtn) {
+      console.warn('SchedulePage: missing elements, skip init');
       return;
     }
 
-    // Xác định team dựa vào quyền
-    const team = detectTeam(user); // 'cs' | 'mo' | 'other'
-    const TIME_SLOTS = buildTimeSlots(team);
+    const currentUser = Auth.getCurrentUser && Auth.getCurrentUser();
+    if (!currentUser) {
+      console.warn('SchedulePage: no currentUser');
+      return;
+    }
+
+    // ===== State =====
+    let dates = [];           // 7 ngày trong tuần
+    let timeSlots = [];       // [{key, label}]
+    let selectedSlots = new Set(); // "YYYY-MM-DD|HH-HH"
+    let mode = 'view';        // 'view' | 'edit'
+    let userTeam = 'mo';      // 'cs' | 'mo'
+
+    // Xác định team từ quyền user
+    if (currentUser.permissions && currentUser.permissions.cs) {
+      userTeam = 'cs';
+    } else {
+      userTeam = 'mo';
+    }
 
     if (teamLabelEl) {
-      if (team === 'cs') {
-        teamLabelEl.textContent = 'Bạn đang đăng ký ca theo giờ cho team: Customer Service (CS). Khung giờ: 08:00 - 24:00.';
-      } else if (team === 'mo') {
-        teamLabelEl.textContent = 'Bạn đang đăng ký ca theo giờ cho team: Marketing (MO). Khung giờ: 09:00 - 18:00.';
+      if (userTeam === 'cs') {
+        teamLabelEl.textContent =
+          'Bạn thuộc team Customer Service (CS). Khung giờ đăng ký: 08:00 – 24:00, từng giờ một.';
       } else {
-        teamLabelEl.textContent = 'Bạn đang đăng ký ca theo giờ (khung mặc định).';
+        teamLabelEl.textContent =
+          'Bạn thuộc team Marketing / khác (MO). Khung giờ đăng ký: 09:00 – 18:00, từng giờ một.';
       }
     }
 
-    // --- Khởi tạo tuần mặc định: Thứ 2 tuần sau ---
+    // Tuần mặc định = thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
-    buildGrid(weekInput.value);
 
-    // Tự load đăng ký luôn
-    loadAvailability();
-
-    // Events
-    loadBtn.addEventListener('click', () => {
-      buildGrid(weekInput.value);
-      loadAvailability();
+    // ===== Events =====
+    loadWeekBtn.addEventListener('click', () => {
+      loadWeek();
     });
 
-    saveBtn.addEventListener('click', saveAvailability);
+    weekInput.addEventListener('change', () => {
+      loadWeek();
+    });
 
-    // ========== HÀM CHÍNH ==========
+    editBtn.addEventListener('click', () => {
+      setMode('edit');
+      showMessage('Bạn đang chỉnh sửa lịch rảnh. Nhấn vào ô để bật / tắt.', false);
+    });
 
-    async function loadAvailability() {
+    cancelBtn.addEventListener('click', () => {
+      // Load lại lịch đã lưu từ server
+      loadWeek();
+    });
+
+    saveBtn.addEventListener('click', () => {
+      saveAvailability();
+    });
+
+    // Lần đầu
+    loadWeek();
+
+    // ========= MAIN FLOW =========
+
+    async function loadWeek() {
       clearMessage();
+      selectedSlots.clear();
+
       const weekStart = weekInput.value;
       if (!weekStart) {
         showMessage('Vui lòng chọn tuần bắt đầu.', true);
         return;
       }
 
+      buildDates(weekStart);
+      buildTimeSlotsForUserTeam(userTeam);
+      buildGrid(); // vẽ bảng trống
+
       try {
-        showMessage('Đang tải đăng ký...', false);
+        showMessage('Đang tải lịch rảnh đã đăng ký...', false);
+
         const res = await fetch(Auth.API_URL, {
           method: 'POST',
           redirect: 'follow',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8'
-          },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
             action: 'getAvailability',
-            email: user.email,
+            email: currentUser.email,
             weekStart
           })
         });
 
         const data = await res.json();
-        if (!data.success) {
-          showMessage('Lỗi tải dữ liệu: ' + (data.message || ''), true);
-          return;
+
+        if (data.success && Array.isArray(data.availability)) {
+          data.availability.forEach(item => {
+            const date = String(item.date || '').trim().substring(0, 10);
+            const shift = String(item.shift || '').trim();
+            if (/^\d{2}-\d{2}$/.test(shift)) {
+              selectedSlots.add(`${date}|${shift}`);
+            }
+          });
         }
 
-        applyAvailabilityToGrid(data.availability || []);
-        showMessage('Đã tải đăng ký ca.', false);
+        renderSelectedSlots();
+        setMode('view');
+
+        if (selectedSlots.size > 0) {
+          showMessage(
+            'Đây là lịch rảnh bạn đã lưu. Bấm "Sửa lịch rảnh" nếu muốn thay đổi.',
+            false
+          );
+        } else {
+          showMessage(
+            'Bạn chưa đăng ký lịch rảnh cho tuần này. Bấm "Sửa lịch rảnh" để bắt đầu đăng ký.',
+            false
+          );
+        }
       } catch (err) {
-        console.error('loadAvailability error', err);
+        console.error('loadWeek error', err);
         showMessage('Lỗi kết nối. Vui lòng thử lại.', true);
       }
     }
 
+    // ========= BUILD STRUCTURE =========
+
+    function buildDates(weekStartISO) {
+      dates = [];
+      const d0 = new Date(weekStartISO + 'T00:00:00');
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(d0, i);
+        dates.push(toISODate(d));
+      }
+    }
+
+    function buildTimeSlotsForUserTeam(team) {
+      let startHour, endHour;
+      if (team === 'cs') {
+        startHour = 8;
+        endHour   = 24; // 23-24
+      } else {
+        startHour = 9;
+        endHour   = 18; // 17-18
+      }
+
+      timeSlots = [];
+      for (let h = startHour; h < endHour; h++) {
+        const next = (h + 1) % 24;
+        const key = `${pad2(h)}-${pad2(next)}`; // 09-10
+        const label = `${pad2(h)}:00 - ${pad2(next)}:00`;
+        timeSlots.push({ key, label });
+      }
+    }
+
+    function buildGrid() {
+      tbody.innerHTML = '';
+
+      timeSlots.forEach(slot => {
+        const tr = document.createElement('tr');
+
+        const th = document.createElement('th');
+        th.textContent = slot.label;
+        tr.appendChild(th);
+
+        dates.forEach(dateISO => {
+          const td = document.createElement('td');
+          td.classList.add('schedule-cell');
+          const slotId = `${dateISO}|${slot.key}`;
+          td.dataset.slotId = slotId;
+
+          const inner = document.createElement('div');
+          inner.classList.add('slot-cell-inner');
+          inner.style.cursor = 'pointer';
+          inner.style.fontSize = '12px';
+          inner.textContent = ''; // sẽ được set trong renderSelectedSlots
+
+          td.appendChild(inner);
+
+          td.addEventListener('click', () => {
+            onSlotClick(slotId);
+          });
+
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      renderSelectedSlots();
+    }
+
+    function renderSelectedSlots() {
+      const cells = tbody.querySelectorAll('td.schedule-cell');
+      cells.forEach(td => {
+        const slotId = td.dataset.slotId;
+        const inner = td.querySelector('.slot-cell-inner');
+        if (!inner) return;
+
+        if (selectedSlots.has(slotId)) {
+          td.style.background = '#e3f2fd';
+          if (mode === 'edit') {
+            inner.textContent = 'Đã chọn (bấm để bỏ)';
+          } else {
+            inner.textContent = 'Đã chọn';
+          }
+        } else {
+          td.style.background = '';
+          if (mode === 'edit') {
+            inner.textContent = 'Nhấn để chọn';
+          } else {
+            inner.textContent = '';
+          }
+        }
+      });
+    }
+
+    function onSlotClick(slotId) {
+      if (mode !== 'edit') return; // chỉ cho click khi đang sửa
+
+      if (selectedSlots.has(slotId)) {
+        selectedSlots.delete(slotId);
+      } else {
+        selectedSlots.add(slotId);
+      }
+      renderSelectedSlots();
+    }
+
+    // ========= SAVE =========
+
     async function saveAvailability() {
-      clearMessage();
       const weekStart = weekInput.value;
       if (!weekStart) {
-        showMessage('Vui lòng chọn tuần bắt đầu.', true);
+        showMessage('Vui lòng chọn tuần.', true);
         return;
       }
 
-      const availability = collectAvailabilityFromGrid();
+      const availability = Array.from(selectedSlots).map(slotId => {
+        const [date, shift] = slotId.split('|');
+        return { date, shift };
+      });
 
       try {
-        showMessage('Đang lưu...', false);
+        showMessage('Đang lưu lịch rảnh...', false);
+
         const res = await fetch(Auth.API_URL, {
           method: 'POST',
           redirect: 'follow',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8'
-          },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
             action: 'saveAvailability',
-            email: user.email,
-            name: user.name,
+            email: currentUser.email,
+            name: currentUser.name,
             weekStart,
             availability
           })
@@ -115,9 +274,13 @@ window.SchedulePage = {
 
         const data = await res.json();
         if (data.success) {
-          showMessage('Đã lưu đăng ký ca cho tuần này.', false);
+          showMessage(
+            'Đã lưu lịch rảnh. Bạn có thể quay lại trang này và bấm "Sửa lịch rảnh" để chỉnh sửa bất cứ lúc nào trước deadline.',
+            false
+          );
+          setMode('view');
         } else {
-          showMessage('Lỗi lưu đăng ký: ' + (data.message || ''), true);
+          showMessage('Lỗi lưu lịch: ' + (data.message || ''), true);
         }
       } catch (err) {
         console.error('saveAvailability error', err);
@@ -125,120 +288,30 @@ window.SchedulePage = {
       }
     }
 
-    // ========== GRID ==========
+    // ========= MODE & UTILS =========
 
-    function buildGrid(weekStartISO) {
-      tbody.innerHTML = '';
-      if (!weekStartISO) return;
+    function setMode(newMode) {
+      mode = newMode;
 
-      const weekStart = new Date(weekStartISO + 'T00:00:00');
-      const dates = [];
-      for (let i = 0; i < 7; i++) {
-        const d = addDays(weekStart, i);
-        dates.push(toISODate(d)); // YYYY-MM-DD
-      }
-
-      TIME_SLOTS.forEach(slot => {
-        const tr = document.createElement('tr');
-
-        const th = document.createElement('th');
-        th.textContent = slot.label; // ví dụ: "08:00 - 09:00"
-        tr.appendChild(th);
-
-        dates.forEach(dateISO => {
-          const td = document.createElement('td');
-          td.classList.add('schedule-cell');
-
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.classList.add('availability-checkbox');
-          checkbox.dataset.date = dateISO;
-          checkbox.dataset.shift = slot.key; // ví dụ: "08-09"
-
-          const label = document.createElement('label');
-          label.style.cursor = 'pointer';
-          label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(' Rảnh'));
-
-          td.appendChild(label);
-          tr.appendChild(td);
-        });
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function applyAvailabilityToGrid(availability) {
-      const checkboxes = tbody.querySelectorAll('.availability-checkbox');
-      checkboxes.forEach(cb => cb.checked = false);
-
-      availability.forEach(item => {
-        const date  = item.date;
-        const shift = item.shift; // key: "08-09", "09-10", ...
-        const selector = `.availability-checkbox[data-date="${date}"][data-shift="${shift}"]`;
-        const cb = tbody.querySelector(selector);
-        if (cb) cb.checked = true;
-      });
-    }
-
-    function collectAvailabilityFromGrid() {
-      const checkboxes = tbody.querySelectorAll('.availability-checkbox');
-      const result = [];
-
-      checkboxes.forEach(cb => {
-        if (cb.checked) {
-          result.push({
-            date: cb.dataset.date,
-            shift: cb.dataset.shift
-          });
+      if (editBtn && cancelBtn && saveBtn) {
+        if (mode === 'view') {
+          editBtn.style.display = 'inline-block';
+          cancelBtn.style.display = 'none';
+          saveBtn.style.display = 'none';
+        } else {
+          editBtn.style.display = 'inline-block'; // vẫn cho thấy nút, nhưng optional
+          cancelBtn.style.display = 'inline-block';
+          saveBtn.style.display = 'inline-block';
         }
-      });
-
-      return result;
-    }
-
-    // ========== UTILS ==========
-
-    function detectTeam(user) {
-      // Ưu tiên CS nếu có cả 2 quyền
-      if (user.permissions) {
-        if (user.permissions.cs) return 'cs';
-        if (user.permissions.marketing) return 'mo';
-      }
-      return 'cs'; // fallback
-    }
-
-    function buildTimeSlots(team) {
-      let startHour, endHour;
-
-      if (team === 'cs') {
-        // 08:00 - 24:00 -> slot cuối 23-24
-        startHour = 8;
-        endHour   = 24;
-      } else if (team === 'mo') {
-        // 09:00 - 18:00 -> slot cuối 17-18
-        startHour = 9;
-        endHour   = 18;
-      } else {
-        // fallback: giờ hành chính 08-18
-        startHour = 8;
-        endHour   = 18;
       }
 
-      const slots = [];
-      for (let h = startHour; h < endHour; h++) {
-        const next = (h + 1) % 24;
-        const key   = `${pad2(h)}-${pad2(next)}`;          // "08-09"
-        const label = `${pad2(h)}:00 - ${pad2(next)}:00`;  // "08:00 - 09:00"
-        slots.push({ key, label });
-      }
-      return slots;
+      renderSelectedSlots();
     }
 
     function showMessage(text, isError) {
-      if (!messageEl) return;
-      messageEl.textContent = text || '';
-      messageEl.style.color = isError ? '#d32f2f' : '#388e3c';
+      if (!msgEl) return;
+      msgEl.textContent = text || '';
+      msgEl.style.color = isError ? '#d32f2f' : '#455a64';
     }
 
     function clearMessage() {
@@ -262,10 +335,9 @@ window.SchedulePage = {
       return String(n).padStart(2, '0');
     }
 
-    // Thứ 2 tuần sau (mặc định)
     function getNextMondayISO() {
       const now = new Date();
-      const day = now.getDay(); // 0=CN,1=Th2,...6=Th7
+      const day = now.getDay(); // 0=CN,1=2,...6=7
       const daysToNextMonday = ((8 - day) % 7) || 7;
       const nextMonday = addDays(now, daysToNextMonday);
       return toISODate(nextMonday);
