@@ -1,5 +1,5 @@
 // js/schedule-admin.js
-// Trang leader xem đăng ký & phân ca theo giờ
+// Trang leader xem đăng ký & phân ca theo giờ + chốt lịch (ScheduleMeta)
 
 window.ScheduleAdminPage = {
   init() {
@@ -18,17 +18,32 @@ window.ScheduleAdminPage = {
     const saveWeekBtn       = document.getElementById('save-week-schedule-btn');
     const saveWeekMsgEl     = document.getElementById('save-week-message');
 
+    // Thanh trạng thái & nút chốt/mở
+    const weekStatusTextEl  = document.getElementById('week-status-text');
+    const lockWeekBtn       = document.getElementById('lock-week-btn');
+
+    // Section lịch đã chốt (tóm tắt)
+    const finalStatusEl     = document.getElementById('final-schedule-admin-status');
+    const finalWrapperEl    = document.getElementById('final-schedule-admin-wrapper');
+    const finalBodyEl       = document.getElementById('final-schedule-admin-body');
+    const finalEmptyEl      = document.getElementById('final-schedule-admin-empty');
+
     if (!weekInput || !teamSelect || !loadBtn || !tbody) {
       console.warn('ScheduleAdmin: missing elements, skip init');
       return;
     }
 
-        // ==== STATE ============================================================
+    const currentUser = (window.Auth && typeof Auth.getCurrentUser === 'function')
+      ? Auth.getCurrentUser()
+      : null;
+
+    // ==== STATE ============================================================
     let dates = [];           // 7 ngày trong tuần
     let timeSlots = [];       // [{key, label}]
     let availabilityMap = {}; // slotId -> [{email,name,team}]
     let scheduleMap = {};     // slotId -> [{email,name,team}]
     let currentSlotId = null; // slot đang chỉnh trong editor
+    let currentMeta = null;   // trạng thái tuần (draft/final)
 
     // Màu cho từng nhân viên (mỗi email 1 màu cố định)
     const COLOR_PALETTE = [
@@ -56,6 +71,10 @@ window.ScheduleAdminPage = {
     slotSaveBtn.addEventListener('click', saveCurrentSlot);
     saveWeekBtn.addEventListener('click', saveWeekSchedule);
 
+    if (lockWeekBtn) {
+      lockWeekBtn.addEventListener('click', onToggleLockClick);
+    }
+
     // Lần đầu load
     loadData();
 
@@ -67,9 +86,12 @@ window.ScheduleAdminPage = {
       clearAdminMessage();
       clearSaveWeekMessage();
       resetSlotEditor();
+      currentMeta = null;
+      updateWeekStatusUI();     // reset UI trạng thái
+      renderFinalSchedule([]);  // clear section tóm tắt
 
       const weekStart = weekInput.value;
-      const team = teamSelect.value;
+      const team      = teamSelect.value;
 
       if (!weekStart) {
         showAdminMessage('Vui lòng chọn tuần bắt đầu.', true);
@@ -95,7 +117,13 @@ window.ScheduleAdminPage = {
           team
         });
 
-        const [resAvail, resSched] = await Promise.all([
+        const bodyMeta = JSON.stringify({
+          action: 'getScheduleMeta',
+          weekStart,
+          team
+        });
+
+        const [resAvail, resSched, resMeta] = await Promise.all([
           fetch(Auth.API_URL, {
             method: 'POST',
             redirect: 'follow',
@@ -107,16 +135,27 @@ window.ScheduleAdminPage = {
             redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: bodySchedule
+          }),
+          fetch(Auth.API_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: bodyMeta
           })
         ]);
 
         const dataAvail = await resAvail.json();
         const dataSched = await resSched.json();
+        const dataMeta  = await resMeta.json();
 
         availabilityMap = buildAvailabilityMap(dataAvail);
         scheduleMap     = buildScheduleMap(dataSched);
+        currentMeta     = (dataMeta && dataMeta.meta) || null;
 
         renderGridStats();
+        updateWeekStatusUI();
+        renderFinalSchedule(dataSched);
+
         showAdminMessage('Đã tải dữ liệu đăng ký & lịch hiện tại.', false);
       } catch (err) {
         console.error('ScheduleAdmin loadData error', err);
@@ -209,8 +248,11 @@ window.ScheduleAdminPage = {
       });
     }
 
-    // Cập nhật số lượng & danh sách tên trong từng ô
-        function renderGridStats() {
+    // ======================================================================
+    // CẬP NHẬT GRID (SỐ LƯỢNG + TÊN)
+    // ======================================================================
+
+    function renderGridStats() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
       cells.forEach(td => {
@@ -276,7 +318,6 @@ window.ScheduleAdminPage = {
       });
     }
 
-
     // ======================================================================
     // MAP BUILDERS (từ API)
     // ======================================================================
@@ -325,7 +366,7 @@ window.ScheduleAdminPage = {
     }
 
     // ======================================================================
-    // CLICK TRÊN TÊN (TOGGLE ASSIGN) – KHÔNG CẦN toggleAssignUser RIÊNG
+    // CLICK TRÊN TÊN (TOGGLE ASSIGN)
     // ======================================================================
 
     function onNameClick(evt) {
@@ -541,6 +582,204 @@ window.ScheduleAdminPage = {
         console.error('saveWeekSchedule error', err);
         showSaveWeekMessage('Lỗi kết nối. Vui lòng thử lại.', true);
       }
+    }
+
+    // ======================================================================
+    // TRẠNG THÁI TUẦN (ScheduleMeta) + NÚT CHỐT/MỞ
+    // ======================================================================
+
+    function updateWeekStatusUI() {
+      if (!weekStatusTextEl || !lockWeekBtn) return;
+
+      const weekStart = weekInput.value;
+      const team      = teamSelect.value;
+
+      if (!currentMeta || !currentMeta.status || currentMeta.status === 'draft') {
+        weekStatusTextEl.textContent =
+          `Trạng thái tuần ${weekStart || ''} (${team.toUpperCase()}): ĐANG SOẠN. ` +
+          'Nhân viên chưa thấy lịch chính thức.';
+
+        lockWeekBtn.textContent = '✅ Chốt lịch tuần này';
+        lockWeekBtn.disabled = false;
+        lockWeekBtn.style.opacity = '1';
+      } else {
+        const lockedBy = currentMeta.lockedBy || '';
+        const lockedAt = currentMeta.lockedAt || '';
+        weekStatusTextEl.textContent =
+          `Trạng thái tuần ${weekStart || ''} (${team.toUpperCase()}): ĐÃ CHỐT. ` +
+          (lockedBy ? `Bởi: ${lockedBy}. ` : '') +
+          (lockedAt ? `Lúc: ${lockedAt}.` : '');
+
+        lockWeekBtn.textContent = '🔓 Mở lại để chỉnh sửa';
+        lockWeekBtn.disabled = false;
+        lockWeekBtn.style.opacity = '1';
+      }
+    }
+
+    async function onToggleLockClick() {
+      const weekStart = weekInput.value;
+      const team      = teamSelect.value;
+
+      if (!weekStart) {
+        showAdminMessage('Vui lòng chọn tuần trước khi chốt/mở.', true);
+        return;
+      }
+
+      try {
+        lockWeekBtn.disabled = true;
+        lockWeekBtn.style.opacity = '0.7';
+
+        const isFinal = currentMeta && currentMeta.status === 'final';
+        const action  = isFinal ? 'unlockSchedule' : 'lockSchedule';
+
+        const body = {
+          action,
+          weekStart,
+          team
+        };
+
+        if (action === 'lockSchedule' && currentUser) {
+          body.lockedBy = currentUser.email || currentUser.name || '';
+        }
+
+        const res = await fetch(Auth.API_URL, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          showAdminMessage('Lỗi cập nhật trạng thái lịch: ' + (data.message || ''), true);
+        } else {
+          currentMeta = data.meta || currentMeta || { status: isFinal ? 'draft' : 'final' };
+          updateWeekStatusUI();
+          showAdminMessage(
+            isFinal ? 'Đã mở lại lịch để chỉnh sửa.' : 'Đã chốt lịch tuần này.',
+            false
+          );
+          // render lại tóm tắt theo meta mới
+          // (lịch trong sheet không đổi, chỉ thay trạng thái)
+        }
+      } catch (err) {
+        console.error('onToggleLockClick error', err);
+        showAdminMessage('Lỗi kết nối khi chốt/mở lịch. Vui lòng thử lại.', true);
+      } finally {
+        lockWeekBtn.disabled = false;
+        lockWeekBtn.style.opacity = '1';
+      }
+    }
+
+    // ======================================================================
+    // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT)
+    // ======================================================================
+
+    function renderFinalSchedule(dataSched) {
+      if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl) return;
+
+      const isFinal = currentMeta && currentMeta.status === 'final';
+      const schedule = (dataSched && dataSched.schedule) || [];
+
+      if (!isFinal) {
+        finalWrapperEl.style.display = 'none';
+        finalEmptyEl.style.display   = 'block';
+        finalStatusEl.textContent =
+          'Tuần này chưa chốt lịch chính thức. Nhân viên chỉ xem được lịch tạm thời (nếu có).';
+        finalBodyEl.innerHTML = '';
+        return;
+      }
+
+      if (!schedule.length) {
+        finalWrapperEl.style.display = 'none';
+        finalEmptyEl.style.display   = 'block';
+        finalStatusEl.textContent =
+          'Tuần này đã chốt lịch nhưng chưa có dòng lịch nào trong sheet Schedule.';
+        finalBodyEl.innerHTML = '';
+        return;
+      }
+
+      finalWrapperEl.style.display = 'block';
+      finalEmptyEl.style.display   = 'none';
+      finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
+
+      // build rows
+      const rows = schedule.map(item => {
+        const dateISO = (item.date || '').substring(0, 10);
+        const shiftKey = item.shift || '';
+        const dayLabel = formatDateWithDow(dateISO);
+        const shiftLabel = formatShiftLabel(shiftKey);
+        const teamLabel  = (item.team || '').toUpperCase();
+
+        return {
+          dateISO,
+          dayLabel,
+          shiftKey,
+          shiftLabel,
+          name: item.name || item.email || '',
+          team: teamLabel,
+          note: item.note || ''
+        };
+      });
+
+      // sort: date asc, shift asc, name asc
+      rows.sort((a, b) => {
+        if (a.dateISO !== b.dateISO) return a.dateISO < b.dateISO ? -1 : 1;
+        if (a.shiftKey !== b.shiftKey) return a.shiftKey < b.shiftKey ? -1 : 1;
+        if (a.name !== b.name) return a.name < b.name ? -1 : 1;
+        return 0;
+      });
+
+      finalBodyEl.innerHTML = '';
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+
+        const tdDate = document.createElement('td');
+        tdDate.textContent = r.dayLabel;
+
+        const tdShift = document.createElement('td');
+        tdShift.textContent = r.shiftLabel || r.shiftKey;
+
+        const tdName = document.createElement('td');
+        tdName.textContent = r.name;
+
+        const tdTeam = document.createElement('td');
+        tdTeam.textContent = r.team;
+
+        const tdNote = document.createElement('td');
+        tdNote.textContent = r.note;
+
+        tr.appendChild(tdDate);
+        tr.appendChild(tdShift);
+        tr.appendChild(tdName);
+        tr.appendChild(tdTeam);
+        tr.appendChild(tdNote);
+
+        finalBodyEl.appendChild(tr);
+      });
+    }
+
+    function formatShiftLabel(shiftKey) {
+      // '08-09' -> '08:00 - 09:00'
+      if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
+      const [h1, h2] = shiftKey.split('-');
+      return `${h1}:00 - ${h2}:00`;
+    }
+
+    function formatDateWithDow(dateISO) {
+      if (!dateISO) return '';
+      const d = new Date(dateISO + 'T00:00:00');
+      if (isNaN(d.getTime())) return dateISO;
+
+      const dow = d.getDay(); // 0=CN
+      const dowMap = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+      const labelDow = dowMap[dow] || '';
+
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+
+      return `${dd}/${mm}/${yyyy} (${labelDow})`;
     }
 
     // ======================================================================
