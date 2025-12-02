@@ -566,3 +566,7 @@ a {
         grid-template-columns: 1fr;
     }
 }
+.slot-name-pill {
+  font-size: 11px;
+}
+
