@@ -83,13 +83,12 @@ window.ScheduleAdminPage = {
 
     async function loadData() {
       clearAdminMessage();
-      clearSaveWeekMessage();
-      resetSlotEditor();
+clearSaveWeekMessage();
+resetSlotEditor();
+currentMeta = null;          // chỉ reset state, chưa render vội
+renderFinalSchedule(null);   // ẩn bảng tóm tắt khi đang load
+// KHÔNG gọi updateWeekStatusUI ở đây
 
-      // reset trạng thái tuần + section lịch đã chốt
-      currentMeta = null;
-      updateWeekStatusUI();
-      renderFinalSchedule(null);
 
       const weekStart = weekInput.value;
       const team      = teamSelect.value;
