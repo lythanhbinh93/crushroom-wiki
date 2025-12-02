@@ -94,9 +94,36 @@
         </p>
       </header>
 
-      <!-- 1. Chọn tuần & team + trạng thái -->
+      <!-- 1. Lịch làm đã chốt tuần này (tóm tắt) – ĐƯA LÊN ĐẦU -->
       <section class="content-section">
-        <h2>1. Chọn tuần &amp; team</h2>
+        <h2>1. Lịch làm đã chốt tuần này (tóm tắt)</h2>
+        <p style="font-size:13px; color:#777; margin-bottom:8px;">
+          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là phần tổng hợp lịch chính thức
+          theo ca và nhân viên, trình bày giống bảng ca theo giờ để leader dễ theo dõi.
+        </p>
+        <div id="final-schedule-admin-status" style="font-size:14px; margin-bottom:8px; color:#555;">
+          <!-- JS hiển thị: trạng thái lịch chốt -->
+        </div>
+        <div id="final-schedule-admin-wrapper" style="overflow-x:auto; display:none;">
+          <table class="data-table">
+            <thead>
+              <tr id="final-schedule-admin-head-row">
+                <!-- JS render header: Giờ / Ngày + các ngày trong tuần -->
+              </tr>
+            </thead>
+            <tbody id="final-schedule-admin-body">
+              <!-- JS render tóm tắt lịch chốt dạng bảng giờ x ngày -->
+            </tbody>
+          </table>
+        </div>
+        <div id="final-schedule-admin-empty" style="font-size:13px; color:#777; margin-top:8px; display:none;">
+          Tuần này chưa có lịch chính thức nào được xếp.
+        </div>
+      </section>
+
+      <!-- 2. Chọn tuần & team + trạng thái -->
+      <section class="content-section">
+        <h2>2. Chọn tuần &amp; team</h2>
         <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:8px;">
           <div>
             <label for="week-start-admin">Tuần bắt đầu:</label><br />
@@ -122,7 +149,7 @@
             <!-- JS cập nhật: Trạng thái: ĐANG SOẠN / ĐÃ CHỐT -->
           </span>
 
-          <span id="save-week-message" style="font-size:13px; color:#388e3c;">
+          <span id="save-week-message" style="font-size:13px; margin-left:12px;">
             <!-- JS hiển thị message lưu lịch -->
           </span>
 
@@ -147,33 +174,6 @@
         </p>
       </section>
 
-      <!-- 2. Lịch làm đã chốt tuần này (tóm tắt) – ĐƯA LÊN TRÊN -->
-      <section class="content-section">
-        <h2>2. Lịch làm đã chốt tuần này (tóm tắt)</h2>
-        <p style="font-size:13px; color:#777; margin-bottom:8px;">
-          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là phần tổng hợp lịch chính thức
-          theo ca và nhân viên, trình bày giống bảng ca theo giờ để leader dễ theo dõi.
-        </p>
-        <div id="final-schedule-admin-status" style="font-size:14px; margin-bottom:8px; color:#555;">
-          <!-- JS hiển thị: "Tuần này chưa chốt lịch." / "Lịch đã chốt, xem bảng bên dưới." -->
-        </div>
-        <div id="final-schedule-admin-wrapper" style="overflow-x:auto; display:none;">
-          <table class="data-table">
-            <thead>
-              <tr id="final-schedule-admin-head-row">
-                <!-- JS render header: Giờ / Ngày + các ngày trong tuần -->
-              </tr>
-            </thead>
-            <tbody id="final-schedule-admin-body">
-              <!-- JS render tóm tắt lịch chốt dạng bảng giờ x ngày -->
-            </tbody>
-          </table>
-        </div>
-        <div id="final-schedule-admin-empty" style="font-size:13px; color:#777; margin-top:8px; display:none;">
-          Tuần này chưa có lịch chính thức nào được xếp.
-        </div>
-      </section>
-
       <!-- 3. Bảng ca theo giờ -->
       <section class="content-section">
         <h2>3. Bảng ca theo giờ</h2>
@@ -187,13 +187,41 @@
             <thead>
               <tr>
                 <th>Giờ / Ngày</th>
-                <th>Thứ 2</th>
-                <th>Thứ 3</th>
-                <th>Thứ 4</th>
-                <th>Thứ 5</th>
-                <th>Thứ 6</th>
-                <th>Thứ 7</th>
-                <th>Chủ nhật</th>
+                <th>
+                  Thứ 2
+                  <div id="schedule-main-date-0"
+                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                </th>
+                <th>
+                  Thứ 3
+                  <div id="schedule-main-date-1"
+                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                </th>
+                <th>
+                  Thứ 4
+                  <div id="schedule-main-date-2"
+                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                </th>
+                <th>
+                  Thứ 5
+                  <div id="schedule-main-date-3"
+                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                </th>
+                <th>
+                  Thứ 6
+                  <div id="schedule-main-date-4"
+                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                </th>
+                <th>
+                  Thứ 7
+                  <div id="schedule-main-date-5"
+                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                </th>
+                <th>
+                  Chủ nhật
+                  <div id="schedule-main-date-6"
+                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                </th>
               </tr>
             </thead>
             <tbody id="schedule-admin-body">
@@ -203,7 +231,7 @@
         </div>
       </section>
 
-      <!-- 4. Ẩn hẳn phần Chi tiết slot đang chọn (vẫn giữ DOM cho JS, nhưng không hiện) -->
+      <!-- 4. Ẩn hẳn phần Chi tiết slot đang chọn (DOM vẫn giữ cho JS) -->
       <section class="content-section" id="slot-editor-section" style="display:none;">
         <h2>Chi tiết slot đang chọn</h2>
         <div id="slot-editor-empty" style="font-size:14px; color:#777;">
@@ -225,7 +253,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       if (!Auth.requireAuth()) return;
       const currentUser = Auth.getCurrentUser();
-      // Chỉ cho Admin dùng trang này
       if (!currentUser || currentUser.role !== 'admin') {
         Auth.renderAuthUI();
         if (Auth._showAccessDenied) Auth._showAccessDenied();
