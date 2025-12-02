@@ -619,67 +619,66 @@ renderFinalSchedule(null);   // ẩn bảng tóm tắt khi đang load
       lockWeekBtn.style.opacity = '1';
     }
 
-    async function onToggleLockClick() {
-      const weekStart = weekInput.value;
-      const team      = teamSelect.value;
+async function onToggleLockClick() {
+  const weekStart = weekInput.value;
+  const team      = teamSelect.value;
 
-      if (!weekStart) {
-        showAdminMessage('Vui lòng chọn tuần trước khi chốt/mở.', true);
-        return;
-      }
-
-      try {
-        lockWeekBtn.disabled = true;
-        lockWeekBtn.style.opacity = '0.7';
-
-        const isFinal   = currentMeta && currentMeta.status === 'final';
-        const newStatus = isFinal ? 'draft' : 'final';
-
-        const body = {
-          action: 'setScheduleStatus',
-          weekStart,
-          team,
-          status: newStatus,
-          userEmail: currentUser ? (currentUser.email || '') : '',
-          userName: currentUser ? (currentUser.name || '') : '',
-          note: ''
-        };
-
-        const res = await fetch(Auth.API_URL, {
-          method: 'POST',
-          redirect: 'follow',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(body)
-        });
-
-       const data = await res.json();
-if (!data.success) {
-  showAdminMessage('Lỗi cập nhật trạng thái lịch: ' + (data.message || ''), true);
-} else {
-  // Cập nhật state theo dữ liệu server trả về
-  currentMeta = data.meta || currentMeta || { status: newStatus };
-  updateWeekStatusUI();
-
-  // ✅ Quyết định message theo trạng thái MỚI
-  const effectiveStatus = (currentMeta && currentMeta.status) || 'draft';
-  if (effectiveStatus === 'final') {
-    showAdminMessage('Đã chốt lịch tuần này.', false);
-  } else {
-    showAdminMessage('Đã mở lại lịch để chỉnh sửa.', false);
+  if (!weekStart) {
+    showAdminMessage('Vui lòng chọn tuần trước khi chốt/mở.', true);
+    return;
   }
 
-  // Tải lại để phần "Lịch làm đã chốt tuần này (tóm tắt)" cập nhật
-  loadData();
+  try {
+    lockWeekBtn.disabled = true;
+    lockWeekBtn.style.opacity = '0.7';
+
+    const isFinal   = currentMeta && currentMeta.status === 'final';
+    const newStatus = isFinal ? 'draft' : 'final';
+
+    const body = {
+      action: 'setScheduleStatus',
+      weekStart,
+      team,
+      status: newStatus,
+      userEmail: currentUser ? (currentUser.email || '') : '',
+      userName: currentUser ? (currentUser.name || '') : '',
+      note: ''
+    };
+
+    const res = await fetch(Auth.API_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+    if (!data.success) {
+      showAdminMessage('Lỗi cập nhật trạng thái lịch: ' + (data.message || ''), true);
+    } else {
+      // cập nhật theo dữ liệu MỚI từ server
+      currentMeta = data.meta || { status: newStatus };
+      updateWeekStatusUI();
+
+      const effectiveStatus = (currentMeta && currentMeta.status) || 'draft';
+      if (effectiveStatus === 'final') {
+        showAdminMessage('Đã chốt lịch tuần này.', false);
+      } else {
+        showAdminMessage('Đã mở lại lịch để chỉnh sửa.', false);
+      }
+
+      // load lại để phần tóm tắt + grid đồng bộ
+      await loadData();
+    }
+  } catch (err) {
+    console.error('onToggleLockClick error', err);
+    showAdminMessage('Lỗi kết nối khi chốt/mở lịch. Vui lòng thử lại.', true);
+  } finally {
+    lockWeekBtn.disabled = false;
+    lockWeekBtn.style.opacity = '1';
+  }
 }
 
-      } catch (err) {
-        console.error('onToggleLockClick error', err);
-        showAdminMessage('Lỗi kết nối khi chốt/mở lịch. Vui lòng thử lại.', true);
-      } finally {
-        lockWeekBtn.disabled = false;
-        lockWeekBtn.style.opacity = '1';
-      }
-    }
 
     // ======================================================================
     // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT)
