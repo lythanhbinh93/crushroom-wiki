@@ -24,27 +24,46 @@ window.SchedulePage = {
     const currentUser = Auth.getCurrentUser();
     if (!currentUser) return;
 
+    // employmentType: 'parttime' | 'fulltime' (default = parttime)
+    const employmentType = (currentUser.employmentType || 'parttime').toLowerCase();
+    const isPartTime     = employmentType !== 'fulltime';
+
     // Xác định team: cs hoặc mo
     const isCS  = currentUser.permissions && currentUser.permissions.cs;
     const team  = isCS ? 'cs' : 'mo';
 
+    // Label phía trên bảng
     if (teamLabelEl) {
-      teamLabelEl.textContent = isCS
-        ? 'Bạn thuộc team CS – Chọn ca theo từng tiếng (08:00 - 24:00)'
-        : 'Bạn thuộc team MO – Chọn ca theo từng tiếng (09:00 - 18:00)';
+      if (isPartTime) {
+        teamLabelEl.textContent = isCS
+          ? 'Bạn thuộc team CS – Chọn ca theo từng tiếng (08:00 - 24:00). Đây là đăng ký cho nhân viên PART-TIME.'
+          : 'Bạn thuộc team MO – Chọn ca theo từng tiếng (09:00 - 18:00). Đây là đăng ký cho nhân viên PART-TIME.';
+      } else {
+        teamLabelEl.textContent =
+          'Bạn là nhân viên FULLTIME – không cần đăng ký lịch rảnh. Chỉ cần xem lịch làm đã chốt bên dưới 👇';
+      }
+    }
+
+    // Nếu fulltime: ẩn nút lưu đăng ký (chỉ xem cho vui, không thao tác)
+    if (!isPartTime && saveBtn) {
+      saveBtn.style.display = 'none';
     }
 
     // State
     let dates = [];       // 7 ngày của tuần
     let timeSlots = [];   // [{key, label}]
-    let checkedMap = {};  // slotId -> true/false
+    let checkedMap = {};  // slotId -> true/false (chỉ dùng cho parttime)
 
     // Default tuần: thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
 
     // Events
     loadBtn.addEventListener('click', () => loadWeek());
-    saveBtn.addEventListener('click', () => saveAvailability());
+    // Chỉ parttime mới có nút lưu đăng ký
+    if (isPartTime && saveBtn) {
+      saveBtn.addEventListener('click', () => saveAvailability());
+    }
+
     weekInput.addEventListener('change', () => {
       loadWeek(); // đổi tuần -> load lại cả rảnh + lịch chốt
     });
@@ -69,9 +88,13 @@ window.SchedulePage = {
       buildTimeSlots(team);
       buildGrid(); // vẽ bảng trống
 
-      // load availability đã đăng ký trước đó
       try {
-        showMessage('Đang tải đăng ký rảnh & lịch làm đã chốt...', false);
+        showMessage(
+          isPartTime
+            ? 'Đang tải đăng ký rảnh & lịch làm đã chốt...'
+            : 'Đang tải lịch làm đã chốt...',
+          false
+        );
 
         const bodyAvail = JSON.stringify({
           action: 'getAvailability',
@@ -79,7 +102,6 @@ window.SchedulePage = {
           weekStart
         });
 
-        // song song: load availability + meta + schedule chốt
         const bodyMeta = JSON.stringify({
           action: 'getScheduleMeta',
           weekStart,
@@ -92,48 +114,57 @@ window.SchedulePage = {
           team
         });
 
-        const [resAvail, resMeta, resSched] = await Promise.all([
-          fetch(Auth.API_URL, {
-            method: 'POST',
-            redirect: 'follow',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: bodyAvail
-          }),
+        const requests = [
+          // parttime: load availability
+          isPartTime
+            ? fetch(Auth.API_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: bodyAvail
+              })
+            : Promise.resolve(null),
+          // meta
           fetch(Auth.API_URL, {
             method: 'POST',
             redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: bodyMeta
           }),
+          // schedule
           fetch(Auth.API_URL, {
             method: 'POST',
             redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: bodySchedule
           })
-        ]);
+        ];
 
-        const dataAvail = await resAvail.json();
+        const [resAvail, resMeta, resSched] = await Promise.all(requests);
+
+        // map availability (chỉ với parttime)
+        checkedMap = {};
+        if (isPartTime && resAvail) {
+          const dataAvail = await resAvail.json();
+          if (dataAvail && dataAvail.success && Array.isArray(dataAvail.availability)) {
+            dataAvail.availability.forEach(item => {
+              const date  = String(item.date || '').substring(0, 10);
+              const shift = String(item.shift || '').trim();
+              if (!date || !shift) return;
+              const slotId = `${date}|${shift}`;
+              checkedMap[slotId] = true;
+            });
+          }
+          syncUIFromCheckedMap();
+        }
+
         const dataMeta  = await resMeta.json();
         const dataSched = await resSched.json();
-
-        // map availability
-        checkedMap = {};
-        if (dataAvail && dataAvail.success && Array.isArray(dataAvail.availability)) {
-          dataAvail.availability.forEach(item => {
-            const date = String(item.date || '').substring(0, 10);
-            const shift = String(item.shift || '').trim();
-            if (!date || !shift) return;
-            const slotId = `${date}|${shift}`;
-            checkedMap[slotId] = true;
-          });
-        }
-        syncUIFromCheckedMap();
 
         // render final schedule
         renderFinalSchedule(weekStart, team, dataMeta, dataSched, currentUser.email);
 
-        showMessage('Đã tải dữ liệu.', false);
+        showMessage(isPartTime ? 'Đã tải dữ liệu.' : 'Đã tải lịch làm.', false);
       } catch (err) {
         console.error('loadWeek error', err);
         showMessage('Lỗi kết nối. Vui lòng thử lại.', true);
@@ -193,13 +224,19 @@ window.SchedulePage = {
           cb.type = 'checkbox';
           cb.dataset.slotId = slotId;
 
-          cb.addEventListener('change', () => {
-            if (cb.checked) {
-              checkedMap[slotId] = true;
-            } else {
-              delete checkedMap[slotId];
-            }
-          });
+          if (isPartTime) {
+            // Part-time: cho phép tick / un-tick
+            cb.addEventListener('change', () => {
+              if (cb.checked) {
+                checkedMap[slotId] = true;
+              } else {
+                delete checkedMap[slotId];
+              }
+            });
+          } else {
+            // Full-time: chỉ xem, không cho chỉnh
+            cb.disabled = true;
+          }
 
           td.appendChild(cb);
           tr.appendChild(td);
@@ -218,11 +255,17 @@ window.SchedulePage = {
     }
 
     // =====================================================
-    // SAVE AVAILABILITY
+    // SAVE AVAILABILITY (CHỈ PART-TIME)
     // =====================================================
 
     async function saveAvailability() {
       clearMessage();
+
+      if (!isPartTime) {
+        showMessage('Bạn là nhân viên fulltime, không cần lưu lịch rảnh.', true);
+        return;
+      }
+
       const weekStart = weekInput.value;
       if (!weekStart) {
         showMessage('Vui lòng chọn tuần.', true);
