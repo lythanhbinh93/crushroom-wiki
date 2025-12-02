@@ -1,5 +1,5 @@
 // js/schedule-admin.js
-// Trang leader xem đăng ký & phân ca theo giờ + chốt lịch (ScheduleMeta)
+// Trang leader xem đăng ký & phân ca theo giờ + trạng thái chốt lịch (ScheduleMeta)
 
 window.ScheduleAdminPage = {
   init() {
@@ -18,11 +18,11 @@ window.ScheduleAdminPage = {
     const saveWeekBtn       = document.getElementById('save-week-schedule-btn');
     const saveWeekMsgEl     = document.getElementById('save-week-message');
 
-    // Thanh trạng thái & nút chốt/mở
+    // Thanh trạng thái & nút chốt/mở (có trong HTML đã sửa)
     const weekStatusTextEl  = document.getElementById('week-status-text');
     const lockWeekBtn       = document.getElementById('lock-week-btn');
 
-    // Section lịch đã chốt (tóm tắt)
+    // Section lịch đã chốt (tóm tắt) – có trong HTML đã sửa
     const finalStatusEl     = document.getElementById('final-schedule-admin-status');
     const finalWrapperEl    = document.getElementById('final-schedule-admin-wrapper');
     const finalBodyEl       = document.getElementById('final-schedule-admin-body');
@@ -88,7 +88,7 @@ window.ScheduleAdminPage = {
       resetSlotEditor();
       currentMeta = null;
       updateWeekStatusUI();     // reset UI trạng thái
-      renderFinalSchedule([]);  // clear section tóm tắt
+      renderFinalSchedule(null);  // clear section tóm tắt
 
       const weekStart = weekInput.value;
       const team      = teamSelect.value;
@@ -380,7 +380,9 @@ window.ScheduleAdminPage = {
       const team   = span.dataset.team || '';
 
       let list = scheduleMap[slotId] || [];
-      const idx = list.findIndex(u => (u.email || '').toLowerCase() === (email || '').toLowerCase());
+      const idx = list.findIndex(
+        u => (u.email || '').toLowerCase() === (email || '').toLowerCase()
+      );
 
       let nowAssigned;
       if (idx >= 0) {
@@ -603,11 +605,14 @@ window.ScheduleAdminPage = {
         lockWeekBtn.disabled = false;
         lockWeekBtn.style.opacity = '1';
       } else {
-        const lockedBy = currentMeta.lockedBy || '';
-        const lockedAt = currentMeta.lockedAt || '';
+        const lockedByName  = currentMeta.lockedByName || '';
+        const lockedByEmail = currentMeta.lockedByEmail || '';
+        const lockedAt      = currentMeta.lockedAt || '';
+        const who = lockedByName || lockedByEmail || '';
+
         weekStatusTextEl.textContent =
           `Trạng thái tuần ${weekStart || ''} (${team.toUpperCase()}): ĐÃ CHỐT. ` +
-          (lockedBy ? `Bởi: ${lockedBy}. ` : '') +
+          (who ? `Bởi: ${who}. ` : '') +
           (lockedAt ? `Lúc: ${lockedAt}.` : '');
 
         lockWeekBtn.textContent = '🔓 Mở lại để chỉnh sửa';
@@ -629,18 +634,18 @@ window.ScheduleAdminPage = {
         lockWeekBtn.disabled = true;
         lockWeekBtn.style.opacity = '0.7';
 
-        const isFinal = currentMeta && currentMeta.status === 'final';
-        const action  = isFinal ? 'unlockSchedule' : 'lockSchedule';
+        const isFinal   = currentMeta && currentMeta.status === 'final';
+        const newStatus = isFinal ? 'draft' : 'final';
 
         const body = {
-          action,
+          action: 'setScheduleStatus',
           weekStart,
-          team
+          team,
+          status: newStatus,
+          userEmail: currentUser ? (currentUser.email || '') : '',
+          userName: currentUser ? (currentUser.name || '') : '',
+          note: ''
         };
-
-        if (action === 'lockSchedule' && currentUser) {
-          body.lockedBy = currentUser.email || currentUser.name || '';
-        }
 
         const res = await fetch(Auth.API_URL, {
           method: 'POST',
@@ -653,14 +658,13 @@ window.ScheduleAdminPage = {
         if (!data.success) {
           showAdminMessage('Lỗi cập nhật trạng thái lịch: ' + (data.message || ''), true);
         } else {
-          currentMeta = data.meta || currentMeta || { status: isFinal ? 'draft' : 'final' };
+          currentMeta = data.meta || currentMeta || { status: newStatus };
           updateWeekStatusUI();
           showAdminMessage(
             isFinal ? 'Đã mở lại lịch để chỉnh sửa.' : 'Đã chốt lịch tuần này.',
             false
           );
-          // render lại tóm tắt theo meta mới
-          // (lịch trong sheet không đổi, chỉ thay trạng thái)
+          // Lịch trong sheet không đổi, chỉ đổi trạng thái meta
         }
       } catch (err) {
         console.error('onToggleLockClick error', err);
@@ -705,9 +709,9 @@ window.ScheduleAdminPage = {
 
       // build rows
       const rows = schedule.map(item => {
-        const dateISO = (item.date || '').substring(0, 10);
-        const shiftKey = item.shift || '';
-        const dayLabel = formatDateWithDow(dateISO);
+        const dateISO    = (item.date || '').substring(0, 10);
+        const shiftKey   = item.shift || '';
+        const dayLabel   = formatDateWithDow(dateISO);
         const shiftLabel = formatShiftLabel(shiftKey);
         const teamLabel  = (item.team || '').toUpperCase();
 
