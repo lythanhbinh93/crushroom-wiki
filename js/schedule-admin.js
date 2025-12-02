@@ -44,8 +44,9 @@ window.ScheduleAdminPage = {
     let scheduleMap = {};     // slotId -> [{email,name,team}]
     let currentSlotId = null; // slot đang chỉnh trong editor
     let currentMeta = null;   // trạng thái tuần (draft/final)
+    let lastScheduleRaw = null; // dữ liệu thô từ API getSchedule (dùng cho section tóm tắt)
 
-    // Màu cho từng nhân viên (mỗi email 1 màu cố định)
+    // Màu cho từng nhân viên
     const COLOR_PALETTE = [
       '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0',
       '#F3E5F5', '#E0F7FA', '#F9FBE7', '#FCE4EC'
@@ -70,7 +71,6 @@ window.ScheduleAdminPage = {
     teamSelect.addEventListener('change', () => loadData());
     slotSaveBtn.addEventListener('click', saveCurrentSlot);
     saveWeekBtn.addEventListener('click', saveWeekSchedule);
-
     if (lockWeekBtn) {
       lockWeekBtn.addEventListener('click', onToggleLockClick);
     }
@@ -147,8 +147,9 @@ window.ScheduleAdminPage = {
 
         availabilityMap = buildAvailabilityMap(dataAvail);
         scheduleMap     = buildScheduleMap(dataSched);
+        lastScheduleRaw = dataSched; // lưu lại cho section tóm tắt
 
-        // 🟢 CHỈ ghi đè currentMeta khi API trả về success + meta
+        // chỉ cập nhật currentMeta khi API trả về thành công
         if (dataMeta && dataMeta.success && dataMeta.meta) {
           currentMeta = dataMeta.meta;
         } else if (!currentMeta) {
@@ -166,7 +167,7 @@ window.ScheduleAdminPage = {
 
         renderGridStats();
         updateWeekStatusUI();
-        renderFinalSchedule(dataSched);
+        renderFinalSchedule(lastScheduleRaw);
 
         showAdminMessage('Đã tải dữ liệu đăng ký & lịch hiện tại.', false);
       } catch (err) {
@@ -275,16 +276,13 @@ window.ScheduleAdminPage = {
         const availList    = availabilityMap[slotId] || [];
         const assignedList = scheduleMap[slotId] || [];
 
-        // Đếm UNIQUE theo email để tránh trùng
         const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
         const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
         statsEl.textContent = `${assignedCount}/${availCount} người`;
 
-        // Hiển thị tên
         namesEl.innerHTML = '';
         if (availCount === 0) return;
 
-        // Gom theo email (unique)
         const availByEmail = {};
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
@@ -307,7 +305,6 @@ window.ScheduleAdminPage = {
           span.style.marginBottom = '2px';
           span.style.cursor       = 'pointer';
 
-          // màu riêng cho từng nhân viên
           const baseColor = getColorForEmail(emailKey);
           span.style.background = baseColor;
           span.style.border     = isAssigned ? '1px solid rgba(0,0,0,0.35)'
@@ -322,7 +319,6 @@ window.ScheduleAdminPage = {
 
           span.textContent = (isAssigned ? '✅ ' : '') + (u.name || u.email);
 
-          // Click tên để toggle assign
           span.addEventListener('click', onNameClick);
 
           namesEl.appendChild(span);
@@ -342,10 +338,10 @@ window.ScheduleAdminPage = {
         if (!slot) return;
 
         const rawDate = String(slot.date || '').trim();
-        const date    = rawDate.substring(0, 10); // YYYY-MM-DD
+        const date    = rawDate.substring(0, 10);
 
         const rawShift = String(slot.shift || '').trim();
-        if (!/^\d{2}-\d{2}$/.test(rawShift)) return; // chỉ nhận HH-HH
+        if (!/^\d{2}-\d{2}$/.test(rawShift)) return;
         const shift = rawShift;
 
         const key = `${date}|${shift}`;
@@ -382,7 +378,6 @@ window.ScheduleAdminPage = {
     // ======================================================================
 
     function onNameClick(evt) {
-      // Không cho lan lên td -> tránh mở editor
       evt.stopPropagation();
 
       const span   = evt.currentTarget;
@@ -398,20 +393,16 @@ window.ScheduleAdminPage = {
 
       let nowAssigned;
       if (idx >= 0) {
-        // Đang được xếp ca -> bỏ
         list.splice(idx, 1);
         nowAssigned = false;
       } else {
-        // Chưa xếp -> thêm
         list.push({ email, name, team });
         nowAssigned = true;
       }
       scheduleMap[slotId] = list;
 
-      // Cập nhật lại toàn bộ grid
       renderGridStats();
 
-      // Đồng bộ checkbox trong editor nếu đang mở đúng slot
       if (currentSlotId === slotId) {
         const cbs = slotUsersEl.querySelectorAll('input[type="checkbox"]');
         cbs.forEach(cb => {
@@ -518,7 +509,6 @@ window.ScheduleAdminPage = {
         }
       });
 
-      // Loại trùng email (nếu có)
       const byEmail = {};
       selected.forEach(u => {
         const key = (u.email || '').toLowerCase();
@@ -553,7 +543,6 @@ window.ScheduleAdminPage = {
         const [dateISO, shiftKey] = slotId.split('|');
         const users = scheduleMap[slotId] || [];
 
-        // đảm bảo unique theo email trong 1 slot
         const byEmail = {};
         users.forEach(u => {
           const key = (u.email || '').toLowerCase();
@@ -607,7 +596,6 @@ window.ScheduleAdminPage = {
 
       const weekStart = weekInput.value;
       const team      = teamSelect.value;
-
       const teamLabel = (team || '').toUpperCase();
 
       if (!currentMeta || !currentMeta.status || currentMeta.status === 'draft') {
@@ -672,7 +660,6 @@ window.ScheduleAdminPage = {
         if (!data.success) {
           showAdminMessage('Lỗi cập nhật trạng thái lịch: ' + (data.message || ''), true);
         } else {
-          // cập nhật theo meta mới từ server
           currentMeta = data.meta || { status: newStatus };
           updateWeekStatusUI();
 
@@ -683,8 +670,8 @@ window.ScheduleAdminPage = {
             showAdminMessage('Đã mở lại lịch để chỉnh sửa.', false);
           }
 
-          // load lại để section tóm tắt cập nhật
-          await loadData();
+          // chỉ render lại section tóm tắt, không gọi loadData() nữa để tránh ghi đè currentMeta
+          renderFinalSchedule(lastScheduleRaw);
         }
       } catch (err) {
         console.error('onToggleLockClick error', err);
@@ -745,7 +732,6 @@ window.ScheduleAdminPage = {
         };
       });
 
-      // sort: date asc, shift asc, name asc
       rows.sort((a, b) => {
         if (a.dateISO !== b.dateISO) return a.dateISO < b.dateISO ? -1 : 1;
         if (a.shiftKey !== b.shiftKey) return a.shiftKey < b.shiftKey ? -1 : 1;
