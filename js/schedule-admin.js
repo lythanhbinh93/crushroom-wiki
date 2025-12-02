@@ -652,21 +652,26 @@ renderFinalSchedule(null);   // ẩn bảng tóm tắt khi đang load
           body: JSON.stringify(body)
         });
 
-        const data = await res.json();
-        if (!data.success) {
-          showAdminMessage('Lỗi cập nhật trạng thái lịch: ' + (data.message || ''), true);
-        } else {
-          currentMeta = data.meta || { status: newStatus };
+       const data = await res.json();
+if (!data.success) {
+  showAdminMessage('Lỗi cập nhật trạng thái lịch: ' + (data.message || ''), true);
+} else {
+  // Cập nhật state theo dữ liệu server trả về
+  currentMeta = data.meta || currentMeta || { status: newStatus };
+  updateWeekStatusUI();
 
-          // Load lại để lấy meta + schedule mới nhất từ sheet
-          await loadData();
+  // ✅ Quyết định message theo trạng thái MỚI
+  const effectiveStatus = (currentMeta && currentMeta.status) || 'draft';
+  if (effectiveStatus === 'final') {
+    showAdminMessage('Đã chốt lịch tuần này.', false);
+  } else {
+    showAdminMessage('Đã mở lại lịch để chỉnh sửa.', false);
+  }
 
-          if (currentMeta && currentMeta.status === 'final') {
-            showAdminMessage('Đã chốt lịch tuần này.', false);
-          } else {
-            showAdminMessage('Đã mở lại lịch để chỉnh sửa.', false);
-          }
-        }
+  // Tải lại để phần "Lịch làm đã chốt tuần này (tóm tắt)" cập nhật
+  loadData();
+}
+
       } catch (err) {
         console.error('onToggleLockClick error', err);
         showAdminMessage('Lỗi kết nối khi chốt/mở lịch. Vui lòng thử lại.', true);
