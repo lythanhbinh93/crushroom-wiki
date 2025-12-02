@@ -671,7 +671,7 @@ window.ScheduleAdminPage = {
             showAdminMessage('Đã mở lại lịch để chỉnh sửa.', false);
           }
 
-          // chỉ render lại section tóm tắt, không gọi loadData() nữa để tránh ghi đè currentMeta
+          // render lại section tóm tắt theo meta mới
           renderFinalSchedule(lastScheduleRaw);
         }
       } catch (err) {
@@ -683,16 +683,16 @@ window.ScheduleAdminPage = {
       }
     }
 
-        // ======================================================================
+    // ======================================================================
     // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY, GỘP CA LIÊN TIẾP
     // ======================================================================
+
     function renderFinalSchedule(dataSched) {
       if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl || !finalHeadRowEl) return;
 
       const isFinal  = currentMeta && currentMeta.status === 'final';
       const schedule = (dataSched && dataSched.schedule) || [];
 
-      // Chưa chốt -> ẩn bảng, hiện message
       if (!isFinal) {
         finalWrapperEl.style.display = 'none';
         finalEmptyEl.style.display   = 'block';
@@ -703,7 +703,6 @@ window.ScheduleAdminPage = {
         return;
       }
 
-      // Đã chốt nhưng chưa có dòng lịch
       if (!schedule.length) {
         finalWrapperEl.style.display = 'none';
         finalEmptyEl.style.display   = 'block';
@@ -731,7 +730,7 @@ window.ScheduleAdminPage = {
         const dateISO  = (item.date || '').substring(0, 10);
         const shiftKey = item.shift || '';
         const idx      = slotIndexByKey[shiftKey];
-        if (idx == null) return; // shift ko nằm trong timeSlots -> bỏ
+        if (idx == null) return;
 
         if (!dateSlotPersons[dateISO]) {
           dateSlotPersons[dateISO]  = Array(timeSlots.length).fill(null).map(() => new Set());
@@ -743,7 +742,7 @@ window.ScheduleAdminPage = {
         const name     = item.name || item.email || '';
         const team     = (item.team || '').toUpperCase();
         const note     = item.note || '';
-        const pKey     = email || name; // fallback nếu không có email
+        const pKey     = email || name;
 
         dateSlotPersons[dateISO][idx].add(pKey);
 
@@ -752,14 +751,18 @@ window.ScheduleAdminPage = {
         }
       });
 
-      // ---- 2. Tính block liên tiếp cho từng người trong 1 ngày ----
-      // labelsByDateSlot[dateISO][slotIndex] = [ {name,email,team,note,rangeLabel} ]
-      const labelsByDateSlot = {};
-      dates.forEach(dateISO => {
-        labelsByDateSlot[dateISO] = Array(timeSlots.length).fill(null).map(() => []);
+      // ---- 2. Tính block liên tiếp cho từng người trong 1 ngày,
+      // tạo cấu trúc spanInfoByDate để dùng rowspan
+      const spanInfoByDate = {};
 
+      dates.forEach(dateISO => {
         const slotsArr = dateSlotPersons[dateISO];
-        if (!slotsArr) return;
+        const spanInfo = Array(timeSlots.length).fill(null);
+
+        if (!slotsArr) {
+          spanInfoByDate[dateISO] = spanInfo;
+          return;
+        }
 
         const personMeta = personMetaByDate[dateISO] || {};
         const persons    = Object.keys(personMeta);
@@ -773,7 +776,6 @@ window.ScheduleAdminPage = {
               continue;
             }
 
-            // Bắt đầu một block liên tiếp
             const startIdx = i;
             let j = i + 1;
             while (j < timeSlots.length &&
@@ -783,26 +785,33 @@ window.ScheduleAdminPage = {
             }
             const endIdx = j - 1;
 
-            const startHour = timeSlots[startIdx].key.split('-')[0]; // "08"
-            const endHour   = timeSlots[endIdx].key.split('-')[1];   // "12"
-            const rangeLabel = `${startHour}:00 - ${endHour}:00`;
+            let span = spanInfo[startIdx];
+            if (!span) {
+              const startHour = timeSlots[startIdx].key.split('-')[0];
+              const endHour   = timeSlots[endIdx].key.split('-')[1];
+              span = {
+                rowspan: endIdx - startIdx + 1,
+                persons: [],
+                startIdx,
+                endIdx,
+                rangeLabel: `${startHour}:00 - ${endHour}:00`
+              };
+              spanInfo[startIdx] = span;
 
-            const meta = personMeta[pKey];
-            labelsByDateSlot[dateISO][startIdx].push({
-              name: meta.name,
-              email: meta.email,
-              team: meta.team,
-              note: meta.note,
-              rangeLabel
-            });
+              for (let k = startIdx + 1; k <= endIdx; k++) {
+                spanInfo[k] = 'skip';
+              }
+            }
 
-            // nhảy qua block này
+            span.persons.push(personMeta[pKey]);
             i = j;
           }
         });
+
+        spanInfoByDate[dateISO] = spanInfo;
       });
 
-      // ---- 3. Header: Giờ / Ngày + 7 ngày ----
+      // ---- 3. Header: Giờ / Ngày ----
       finalHeadRowEl.innerHTML = '';
       const thTime = document.createElement('th');
       thTime.textContent = 'Giờ / Ngày';
@@ -814,22 +823,33 @@ window.ScheduleAdminPage = {
         finalHeadRowEl.appendChild(th);
       });
 
-      // ---- 4. Body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày ----
+      // ---- 4. Body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày (dùng rowspan) ----
       finalBodyEl.innerHTML = '';
 
       timeSlots.forEach((slot, slotIndex) => {
         const tr = document.createElement('tr');
 
         const thSlot = document.createElement('th');
-        thSlot.textContent = formatShiftLabel(slot.key); // "08:00 - 09:00"
+        thSlot.textContent = formatShiftLabel(slot.key);
         tr.appendChild(thSlot);
 
         dates.forEach(dateISO => {
-          const td = document.createElement('td');
-          const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
+          const span = (spanInfoByDate[dateISO] && spanInfoByDate[dateISO][slotIndex]) || null;
 
-          if (labels.length) {
-            labels.forEach(info => {
+          if (span === 'skip') {
+            // ô này đã được rowspan từ trên, không vẽ gì
+            return;
+          }
+
+          const td = document.createElement('td');
+          td.style.verticalAlign = 'middle';
+
+          if (span && span.rowspan > 1) {
+            td.rowSpan = span.rowspan;
+          }
+
+          if (span && span.persons && span.persons.length) {
+            span.persons.forEach(info => {
               const pill = document.createElement('span');
               pill.textContent = info.name || '';
               pill.style.display      = 'inline-block';
@@ -844,8 +864,7 @@ window.ScheduleAdminPage = {
               pill.style.background = color;
               pill.style.border     = '1px solid rgba(0,0,0,0.25)';
 
-              // Tooltip hiển thị thêm khoảng giờ + team
-              let tip = info.rangeLabel || '';
+              let tip = span.rangeLabel || '';
               if (info.team) tip += (tip ? ' • ' : '') + info.team;
               if (info.note) tip += (tip ? ' • ' : '') + info.note;
               pill.title = tip;
@@ -860,6 +879,7 @@ window.ScheduleAdminPage = {
         finalBodyEl.appendChild(tr);
       });
     }
+
     function formatShiftLabel(shiftKey) {
       if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
       const [h1, h2] = shiftKey.split('-');
@@ -871,16 +891,8 @@ window.ScheduleAdminPage = {
       const d = new Date(dateISO + 'T00:00:00');
       if (isNaN(d.getTime())) return dateISO;
 
-      const dow = d.getDay(); // 0 = CN
-      const dowMap = [
-        'Chủ nhật',
-        'Thứ 2',
-        'Thứ 3',
-        'Thứ 4',
-        'Thứ 5',
-        'Thứ 6',
-        'Thứ 7'
-      ];
+      const dow = d.getDay(); // 0=CN
+      const dowMap = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
       const labelDow = dowMap[dow] || '';
 
       const dd = String(d.getDate()).padStart(2, '0');
@@ -889,7 +901,6 @@ window.ScheduleAdminPage = {
 
       return `${dd}/${mm}/${yyyy} (${labelDow})`;
     }
-
 
     // ======================================================================
     // UTILS
