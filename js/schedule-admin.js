@@ -29,6 +29,17 @@ window.ScheduleAdminPage = {
     const finalEmptyEl      = document.getElementById('final-schedule-admin-empty');
     const finalHeadRowEl    = document.getElementById('final-schedule-admin-head-row');
 
+    // Các ô hiển thị ngày ở header Bảng ca theo giờ
+    const mainHeaderDateEls = [
+      document.getElementById('schedule-main-date-0'),
+      document.getElementById('schedule-main-date-1'),
+      document.getElementById('schedule-main-date-2'),
+      document.getElementById('schedule-main-date-3'),
+      document.getElementById('schedule-main-date-4'),
+      document.getElementById('schedule-main-date-5'),
+      document.getElementById('schedule-main-date-6')
+    ];
+
     if (!weekInput || !teamSelect || !loadBtn || !tbody) {
       console.warn('ScheduleAdmin: missing elements, skip init');
       return;
@@ -70,8 +81,8 @@ window.ScheduleAdminPage = {
     // Events
     loadBtn.addEventListener('click', () => loadData());
     teamSelect.addEventListener('change', () => loadData());
-    slotSaveBtn.addEventListener('click', saveCurrentSlot);
-    saveWeekBtn.addEventListener('click', saveWeekSchedule);
+    slotSaveBtn && slotSaveBtn.addEventListener('click', saveCurrentSlot);
+    saveWeekBtn && saveWeekBtn.addEventListener('click', saveWeekSchedule);
     if (lockWeekBtn) {
       lockWeekBtn.addEventListener('click', onToggleLockClick);
     }
@@ -98,7 +109,8 @@ window.ScheduleAdminPage = {
 
       buildDates(weekStart);
       buildTimeSlots(team);
-      buildGrid(); // vẽ bảng trống trước
+      updateMainHeaderDates();   // 👈 cập nhật ngày ở header Thứ 2,3,...
+      buildGrid();               // vẽ bảng trống trước
 
       try {
         showAdminMessage('Đang tải dữ liệu...', false);
@@ -208,6 +220,15 @@ window.ScheduleAdminPage = {
       }
     }
 
+    // cập nhật ngày cho header Bảng ca theo giờ
+    function updateMainHeaderDates() {
+      if (!mainHeaderDateEls || !mainHeaderDateEls.length) return;
+      dates.forEach((dateISO, idx) => {
+        if (!mainHeaderDateEls[idx]) return;
+        mainHeaderDateEls[idx].textContent = formatDateShort(dateISO);
+      });
+    }
+
     function buildGrid() {
       tbody.innerHTML = '';
 
@@ -250,7 +271,7 @@ window.ScheduleAdminPage = {
 
           td.appendChild(inner);
 
-          // Click cả ô: mở editor chi tiết
+          // Click cả ô: mở editor chi tiết (dù section editor đang ẩn)
           td.addEventListener('click', () => {
             onSlotClick(slotId, dateISO, slot);
           });
@@ -420,7 +441,7 @@ window.ScheduleAdminPage = {
     }
 
     // ======================================================================
-    // SLOT EDITOR (CHI TIẾT)
+    // SLOT EDITOR (CHI TIẾT) – vẫn giữ logic nhưng section đang ẩn
     // ======================================================================
 
     function onSlotClick(slotId, dateISO, slot) {
@@ -428,7 +449,9 @@ window.ScheduleAdminPage = {
 
       const [y, m, d] = dateISO.split('-');
       const dateLabel = `${d}/${m}/${y}`;
-      slotTitleEl.textContent = `Slot ${slot.label} - Ngày ${dateLabel}`;
+      if (slotTitleEl) {
+        slotTitleEl.textContent = `Slot ${slot.label} - Ngày ${dateLabel}`;
+      }
 
       const availList = availabilityMap[slotId] || [];
       const assignedList = scheduleMap[slotId] || [];
@@ -436,6 +459,7 @@ window.ScheduleAdminPage = {
         assignedList.map(u => (u.email || '').toLowerCase())
       );
 
+      if (!slotUsersEl) return;
       slotUsersEl.innerHTML = '';
 
       if (availList.length === 0) {
@@ -468,8 +492,8 @@ window.ScheduleAdminPage = {
         });
       }
 
-      slotEditorEmpty.style.display = 'none';
-      slotEditor.style.display = 'block';
+      if (slotEditorEmpty) slotEditorEmpty.style.display = 'none';
+      if (slotEditor)      slotEditor.style.display = 'block';
 
       highlightCurrentSlot(slotId);
     }
@@ -487,15 +511,15 @@ window.ScheduleAdminPage = {
 
     function resetSlotEditor() {
       currentSlotId = null;
-      slotEditorEmpty.style.display = 'block';
-      slotEditor.style.display = 'none';
-      slotUsersEl.innerHTML = '';
-      slotTitleEl.textContent = '';
+      if (slotEditorEmpty) slotEditorEmpty.style.display = 'block';
+      if (slotEditor)      slotEditor.style.display = 'none';
+      if (slotUsersEl)     slotUsersEl.innerHTML = '';
+      if (slotTitleEl)     slotTitleEl.textContent = '';
       highlightCurrentSlot(null);
     }
 
     function saveCurrentSlot() {
-      if (!currentSlotId) return;
+      if (!currentSlotId || !slotUsersEl) return;
 
       const checkboxes = slotUsersEl.querySelectorAll('input[type="checkbox"]');
       const selected = [];
@@ -671,7 +695,7 @@ window.ScheduleAdminPage = {
             showAdminMessage('Đã mở lại lịch để chỉnh sửa.', false);
           }
 
-          // render lại section tóm tắt theo meta mới
+          // chỉ render lại section tóm tắt, dùng dữ liệu lịch đang có
           renderFinalSchedule(lastScheduleRaw);
         }
       } catch (err) {
@@ -683,130 +707,145 @@ window.ScheduleAdminPage = {
       }
     }
 
-// ======================================================================
-// RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY, MỖI Ô = TÊN NHÂN VIÊN
-// ======================================================================
+    // ======================================================================
+    // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY
+    // ======================================================================
 
-function renderFinalSchedule(dataSched) {
-  if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl || !finalHeadRowEl) return;
+    function renderFinalSchedule(dataSched) {
+      if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl || !finalHeadRowEl) return;
 
-  const isFinal  = currentMeta && currentMeta.status === 'final';
-  const schedule = (dataSched && dataSched.schedule) || [];
+      const isFinal  = currentMeta && currentMeta.status === 'final';
+      const schedule = (dataSched && dataSched.schedule) || [];
 
-  // Chưa chốt -> ẩn bảng, hiện message
-  if (!isFinal) {
-    finalWrapperEl.style.display = 'none';
-    finalEmptyEl.style.display   = 'block';
-    finalStatusEl.textContent =
-      'Tuần này chưa chốt lịch chính thức. Nhân viên chỉ xem được lịch tạm thời (nếu có).';
-    finalHeadRowEl.innerHTML = '';
-    finalBodyEl.innerHTML    = '';
-    return;
-  }
-
-  // Đã chốt nhưng chưa có dòng lịch
-  if (!schedule.length) {
-    finalWrapperEl.style.display = 'none';
-    finalEmptyEl.style.display   = 'block';
-    finalStatusEl.textContent =
-      'Tuần này đã chốt lịch nhưng chưa có dòng lịch nào trong sheet Schedule.';
-    finalHeadRowEl.innerHTML = '';
-    finalBodyEl.innerHTML    = '';
-    return;
-  }
-
-  finalWrapperEl.style.display = 'block';
-  finalEmptyEl.style.display   = 'none';
-  finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
-
-  // ---- 1. map shiftKey -> index trong timeSlots ----
-  const slotIndexByKey = {};
-  timeSlots.forEach((slot, idx) => {
-    slotIndexByKey[slot.key] = idx;
-  });
-
-  // ---- 2. map dateISO -> slotIndex -> danh sách person ----
-  // personsByDateSlot[dateISO][slotIndex] = [{ email, name, team, note }]
-  const personsByDateSlot = {};
-
-  schedule.forEach(item => {
-    const dateISO  = (item.date || '').substring(0, 10);
-    const shiftKey = item.shift || '';
-    const idx      = slotIndexByKey[shiftKey];
-    if (idx == null) return; // shift không nằm trong timeSlots -> bỏ
-
-    if (!personsByDateSlot[dateISO]) {
-      personsByDateSlot[dateISO] = Array(timeSlots.length).fill(null).map(() => []);
-    }
-
-    const email = (item.email || '').toString().trim().toLowerCase();
-    const name  = item.name || item.email || '';
-    const team  = (item.team || '').toUpperCase();
-    const note  = item.note || '';
-
-    const list = personsByDateSlot[dateISO][idx];
-
-    // tránh trùng email trong cùng 1 slot
-    if (!list.some(p => p.email === email)) {
-      list.push({ email, name, team, note });
-    }
-  });
-
-  // ---- 3. Vẽ header: "Giờ / Ngày" + 7 ngày ----
-  finalHeadRowEl.innerHTML = '';
-  const thTime = document.createElement('th');
-  thTime.textContent = 'Giờ / Ngày';
-  finalHeadRowEl.appendChild(thTime);
-
-  dates.forEach(dateISO => {
-    const th = document.createElement('th');
-    th.textContent = formatDateWithDow(dateISO);
-    finalHeadRowEl.appendChild(th);
-  });
-
-  // ---- 4. Vẽ body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày, trong ô là tên nhân viên ----
-  finalBodyEl.innerHTML = '';
-
-  timeSlots.forEach((slot, slotIndex) => {
-    const tr = document.createElement('tr');
-
-    const thSlot = document.createElement('th');
-    thSlot.textContent = formatShiftLabel(slot.key); // "08:00 - 09:00"
-    tr.appendChild(thSlot);
-
-    dates.forEach(dateISO => {
-      const td   = document.createElement('td');
-      const list = (personsByDateSlot[dateISO] && personsByDateSlot[dateISO][slotIndex]) || [];
-
-      if (list.length) {
-        list.forEach(p => {
-          const pill = document.createElement('span');
-          pill.textContent = p.name; // chỉ hiện tên thôi
-          pill.classList.add('slot-name-pill');
-          pill.style.display      = 'inline-block';
-          pill.style.padding      = '2px 8px';
-          pill.style.borderRadius = '999px';
-          pill.style.marginRight  = '4px';
-          pill.style.marginBottom = '2px';
-          pill.style.fontSize     = '11px';
-
-          // màu cố định theo email giống bảng 2
-          const color = getColorForEmail(p.email);
-          pill.style.background = color;
-          pill.style.border     = '1px solid rgba(0,0,0,0.25)';
-          pill.style.color      = '#333';
-
-          td.appendChild(pill);
-        });
+      // Chưa chốt -> ẩn bảng, hiện message
+      if (!isFinal) {
+        finalWrapperEl.style.display = 'none';
+        finalEmptyEl.style.display   = 'block';
+        finalStatusEl.textContent =
+          'Tuần này chưa chốt lịch chính thức. Nhân viên chỉ xem được lịch tạm thời (nếu có).';
+        finalHeadRowEl.innerHTML = '';
+        finalBodyEl.innerHTML    = '';
+        return;
       }
 
-      tr.appendChild(td);
-    });
+      // Đã chốt nhưng chưa có dòng lịch
+      if (!schedule.length) {
+        finalWrapperEl.style.display = 'none';
+        finalEmptyEl.style.display   = 'block';
+        finalStatusEl.textContent =
+          'Tuần này đã chốt lịch nhưng chưa có dòng lịch nào trong sheet Schedule.';
+        finalHeadRowEl.innerHTML = '';
+        finalBodyEl.innerHTML    = '';
+        return;
+      }
 
-    finalBodyEl.appendChild(tr);
-  });
-}
+      finalWrapperEl.style.display = 'block';
+      finalEmptyEl.style.display   = 'none';
+      finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
 
+      // ---- 1. Chuẩn bị map: date -> slotIndex -> set(personKey) ----
+      const slotIndexByKey = {};
+      timeSlots.forEach((slot, idx) => {
+        slotIndexByKey[slot.key] = idx;
+      });
+
+      const dateSlotPersons   = {}; // dateISO -> Array(timeSlots.length) of Set(personKey)
+      const personMetaByDate  = {}; // dateISO -> { personKey: {name, team, note} }
+
+      schedule.forEach(item => {
+        const dateISO  = (item.date || '').substring(0, 10);
+        const shiftKey = item.shift || '';
+        const idx      = slotIndexByKey[shiftKey];
+        if (idx == null) return; // shift ko nằm trong timeSlots -> bỏ
+
+        if (!dateSlotPersons[dateISO]) {
+          dateSlotPersons[dateISO]  = Array(timeSlots.length).fill(null).map(() => new Set());
+          personMetaByDate[dateISO] = {};
+        }
+
+        const email   = (item.email || '').toString().trim().toLowerCase();
+        const name    = item.name || item.email || '';
+        const team    = (item.team || '').toUpperCase();
+        const note    = item.note || '';
+        const pKey    = email || name; // fallback nếu ko có email
+
+        dateSlotPersons[dateISO][idx].add(pKey);
+
+        if (!personMetaByDate[dateISO][pKey]) {
+          personMetaByDate[dateISO][pKey] = { name, team, note };
+        }
+      });
+
+      // ---- 2. Tính label theo slot cho từng ngày ----
+      const labelsByDateSlot = {};
+      dates.forEach(dateISO => {
+        labelsByDateSlot[dateISO] = Array(timeSlots.length).fill(null).map(() => []);
+
+        const slotsArr   = dateSlotPersons[dateISO];
+        if (!slotsArr) return;
+
+        const personMeta = personMetaByDate[dateISO] || {};
+        const persons    = Object.keys(personMeta);
+
+        persons.forEach(pKey => {
+          for (let i = 0; i < timeSlots.length; i++) {
+            const hasHere = slotsArr[i] && slotsArr[i].has(pKey);
+            if (!hasHere) continue;
+
+            const meta = personMeta[pKey];
+            const text = meta.name; // chỉ hiện tên trong từng ô
+            labelsByDateSlot[dateISO][i].push(text);
+          }
+        });
+      });
+
+      // ---- 3. Header: Giờ / Ngày + 7 ngày trong tuần ----
+      finalHeadRowEl.innerHTML = '';
+      const thTime = document.createElement('th');
+      thTime.textContent = 'Giờ / Ngày';
+      finalHeadRowEl.appendChild(thTime);
+
+      dates.forEach(dateISO => {
+        const th = document.createElement('th');
+        th.textContent = formatDateWithDow(dateISO);
+        finalHeadRowEl.appendChild(th);
+      });
+
+      // ---- 4. Body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày ----
+      finalBodyEl.innerHTML = '';
+
+      timeSlots.forEach((slot, slotIndex) => {
+        const tr = document.createElement('tr');
+
+        const thSlot = document.createElement('th');
+        thSlot.textContent = formatShiftLabel(slot.key); // "09:00 - 10:00"
+        tr.appendChild(thSlot);
+
+        dates.forEach(dateISO => {
+          const td = document.createElement('td');
+          const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
+
+          if (labels.length) {
+            labels.forEach(text => {
+              const span = document.createElement('span');
+              span.textContent = text;
+              span.style.display = 'inline-block';
+              span.style.fontSize = '11px';
+              span.style.padding = '2px 8px';
+              span.style.borderRadius = '999px';
+              span.style.marginRight = '4px';
+              span.style.marginBottom = '2px';
+              span.style.background = getColorForEmail(text); // dùng màu giống bảng ca chính
+              td.appendChild(span);
+            });
+          }
+
+          tr.appendChild(td);
+        });
+
+        finalBodyEl.appendChild(tr);
+      });
+    }
 
     function formatShiftLabel(shiftKey) {
       if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
@@ -828,6 +867,16 @@ function renderFinalSchedule(dataSched) {
       const yyyy = d.getFullYear();
 
       return `${dd}/${mm}/${yyyy} (${labelDow})`;
+    }
+
+    function formatDateShort(dateISO) {
+      if (!dateISO) return '';
+      const d = new Date(dateISO + 'T00:00:00');
+      if (isNaN(d.getTime())) return dateISO;
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
     }
 
     // ======================================================================
