@@ -88,6 +88,35 @@
                 <p class="header-subtitle">Hướng dẫn đăng ký ca làm việc hàng tuần</p>
             </header>
 
+            <!-- ==== LỊCH LÀM ĐÃ CHỐT TUẦN NÀY (ƯU TIÊN HIỂN THỊ ĐẦU) ==== -->
+            <section class="content-section">
+                <h2 style="font-size:1.7rem; font-weight:700; margin-bottom:6px;">
+                    Lịch làm đã chốt tuần này
+                </h2>
+                <p style="font-size:13px; color:#777; margin-bottom:8px;">
+                    Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là lịch làm chính thức của bạn trong tuần đó.
+                </p>
+
+                <div id="final-schedule-status" style="font-size:14px; margin-bottom:8px; color:#555;"></div>
+
+                <div id="final-schedule-wrapper" class="schedule-table-wrapper" style="overflow-x:auto; display:none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Ca làm của bạn</th>
+                            </tr>
+                        </thead>
+                        <tbody id="final-schedule-body">
+                            <!-- JS render -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="final-schedule-summary" style="font-size:13px; margin-top:8px; color:#555; display:none;"></div>
+            </section>
+
+            <!-- ==== QUY TRÌNH ĐĂNG KÝ & ĐĂNG KÝ LỊCH RẢNH ==== -->
             <section class="content-section">
                 <h2>Quy trình đăng ký</h2>
                 
@@ -172,21 +201,20 @@
                 </div>
 
                 <div class="schedule-actions" style="margin-top:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-    <button id="edit-availability-btn" class="btn btn-secondary">
-        ✏️ Sửa lịch rảnh
-    </button>
+                    <button id="edit-availability-btn" class="btn btn-secondary">
+                        ✏️ Sửa lịch rảnh
+                    </button>
 
-    <button id="cancel-edit-availability-btn" class="btn btn-secondary" style="display:none;">
-        Hủy sửa, tải lại lịch đã lưu
-    </button>
+                    <button id="cancel-edit-availability-btn" class="btn btn-secondary" style="display:none;">
+                        Hủy sửa, tải lại lịch đã lưu
+                    </button>
 
-    <button id="save-availability-btn" class="btn btn-primary" style="display:none;">
-        💾 Lưu lịch rảnh
-    </button>
+                    <button id="save-availability-btn" class="btn btn-primary" style="display:none;">
+                        💾 Lưu lịch rảnh
+                    </button>
 
-    <span id="schedule-message" class="schedule-message" style="font-size:14px;"></span>
-</div>
-
+                    <span id="schedule-message" class="schedule-message" style="font-size:14px;"></span>
+                </div>
 
                 <p style="margin-top:12px; font-size:13px; color:#777;">
                     Nếu hệ thống gặp lỗi, tạm thời có thể báo lịch qua quản lý hoặc Google Form như trước.
@@ -218,27 +246,6 @@
                     <li>📱 Zalo: [Số điện thoại quản lý]</li>
                     <li>💬 Nhắn trực tiếp trong group Team</li>
                 </ul>
-            </section>
-                        <!-- ==== 5. LỊCH LÀM ĐÃ CHỐT TUẦN NÀY ==== -->
-            <section class="content-section">
-                <h3>5. Lịch làm đã chốt tuần này</h3>
-                <div id="final-schedule-status" style="font-size:14px; margin-bottom:8px; color:#555;"></div>
-
-                <div id="final-schedule-wrapper" class="schedule-table-wrapper" style="overflow-x:auto; display:none;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Ngày</th>
-                                <th>Ca làm của bạn</th>
-                            </tr>
-                        </thead>
-                        <tbody id="final-schedule-body">
-                            <!-- JS render -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div id="final-schedule-summary" style="font-size:13px; margin-top:8px; color:#555; display:none;"></div>
             </section>
 
         </main>
