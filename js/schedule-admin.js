@@ -683,10 +683,9 @@ window.ScheduleAdminPage = {
       }
     }
 
-       // ======================================================================
-    // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY
+        // ======================================================================
+    // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY, GỘP CA LIÊN TIẾP
     // ======================================================================
-
     function renderFinalSchedule(dataSched) {
       if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl || !finalHeadRowEl) return;
 
@@ -719,15 +718,14 @@ window.ScheduleAdminPage = {
       finalEmptyEl.style.display   = 'none';
       finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
 
-      // ---- 1. Chuẩn bị map: date -> slotIndex -> set(personKey) ----
-      // slotIndex dựa trên mảng timeSlots đang dùng cho bảng chính
+      // ---- 1. Map: date -> slotIndex -> set(personKey) ----
       const slotIndexByKey = {};
       timeSlots.forEach((slot, idx) => {
         slotIndexByKey[slot.key] = idx;
       });
 
-      const dateSlotPersons   = {}; // dateISO -> Array(timeSlots.length) of Set(personKey)
-      const personMetaByDate  = {}; // dateISO -> { personKey: {name, team, note} }
+      const dateSlotPersons  = {}; // dateISO -> Array(timeSlots.length) of Set(personKey)
+      const personMetaByDate = {}; // dateISO -> { personKey: {name, team, note, email} }
 
       schedule.forEach(item => {
         const dateISO  = (item.date || '').substring(0, 10);
@@ -740,26 +738,27 @@ window.ScheduleAdminPage = {
           personMetaByDate[dateISO] = {};
         }
 
-        const email   = (item.email || '').toString().trim().toLowerCase();
-        const name    = item.name || item.email || '';
-        const team    = (item.team || '').toUpperCase();
-        const note    = item.note || '';
-        const pKey    = email || name; // fallback nếu ko có email
+        const emailRaw = (item.email || '').toString().trim().toLowerCase();
+        const email    = emailRaw || (item.email || '');
+        const name     = item.name || item.email || '';
+        const team     = (item.team || '').toUpperCase();
+        const note     = item.note || '';
+        const pKey     = email || name; // fallback nếu không có email
 
         dateSlotPersons[dateISO][idx].add(pKey);
 
         if (!personMetaByDate[dateISO][pKey]) {
-          personMetaByDate[dateISO][pKey] = { name, team, note };
+          personMetaByDate[dateISO][pKey] = { name, team, note, email };
         }
       });
 
-      // ---- 2. Tính khoảng liên tiếp cho từng nhân viên trong 1 ngày ----
-      // labelsByDateSlot[dateISO][slotIndex] = [text1, text2,...]
+      // ---- 2. Tính block liên tiếp cho từng người trong 1 ngày ----
+      // labelsByDateSlot[dateISO][slotIndex] = [ {name,email,team,note,rangeLabel} ]
       const labelsByDateSlot = {};
       dates.forEach(dateISO => {
         labelsByDateSlot[dateISO] = Array(timeSlots.length).fill(null).map(() => []);
 
-        const slotsArr   = dateSlotPersons[dateISO];
+        const slotsArr = dateSlotPersons[dateISO];
         if (!slotsArr) return;
 
         const personMeta = personMetaByDate[dateISO] || {};
@@ -774,7 +773,7 @@ window.ScheduleAdminPage = {
               continue;
             }
 
-            // Bắt đầu 1 block liên tiếp
+            // Bắt đầu một block liên tiếp
             const startIdx = i;
             let j = i + 1;
             while (j < timeSlots.length &&
@@ -784,18 +783,18 @@ window.ScheduleAdminPage = {
             }
             const endIdx = j - 1;
 
-            const startHour = timeSlots[startIdx].key.split('-')[0];        // "09"
-            const endHour   = timeSlots[endIdx].key.split('-')[1];          // "12"
+            const startHour = timeSlots[startIdx].key.split('-')[0]; // "08"
+            const endHour   = timeSlots[endIdx].key.split('-')[1];   // "12"
             const rangeLabel = `${startHour}:00 - ${endHour}:00`;
 
             const meta = personMeta[pKey];
-            let text = meta.name + ` (${rangeLabel}`;
-            if (meta.team) text += `, ${meta.team}`;
-            if (meta.note) text += `, ${meta.note}`;
-            text += ')';
-
-            // Gắn label vào slot BẮT ĐẦU block
-            labelsByDateSlot[dateISO][startIdx].push(text);
+            labelsByDateSlot[dateISO][startIdx].push({
+              name: meta.name,
+              email: meta.email,
+              team: meta.team,
+              note: meta.note,
+              rangeLabel
+            });
 
             // nhảy qua block này
             i = j;
@@ -803,7 +802,7 @@ window.ScheduleAdminPage = {
         });
       });
 
-      // ---- 3. Vẽ header: Giờ / Ngày + 7 ngày trong tuần ----
+      // ---- 3. Header: Giờ / Ngày + 7 ngày ----
       finalHeadRowEl.innerHTML = '';
       const thTime = document.createElement('th');
       thTime.textContent = 'Giờ / Ngày';
@@ -815,14 +814,14 @@ window.ScheduleAdminPage = {
         finalHeadRowEl.appendChild(th);
       });
 
-      // ---- 4. Vẽ body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày ----
+      // ---- 4. Body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày ----
       finalBodyEl.innerHTML = '';
 
       timeSlots.forEach((slot, slotIndex) => {
         const tr = document.createElement('tr');
 
         const thSlot = document.createElement('th');
-        thSlot.textContent = formatShiftLabel(slot.key); // "09:00 - 10:00"
+        thSlot.textContent = formatShiftLabel(slot.key); // "08:00 - 09:00"
         tr.appendChild(thSlot);
 
         dates.forEach(dateISO => {
@@ -830,12 +829,28 @@ window.ScheduleAdminPage = {
           const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
 
           if (labels.length) {
-            labels.forEach(text => {
-              const div = document.createElement('div');
-              div.textContent = text;
-              div.style.fontSize = '11px';
-              div.style.marginBottom = '2px';
-              td.appendChild(div);
+            labels.forEach(info => {
+              const pill = document.createElement('span');
+              pill.textContent = info.name || '';
+              pill.style.display      = 'inline-block';
+              pill.style.padding      = '2px 8px';
+              pill.style.borderRadius = '999px';
+              pill.style.marginRight  = '4px';
+              pill.style.marginBottom = '2px';
+              pill.style.fontSize     = '12px';
+              pill.style.fontWeight   = '500';
+
+              const color = getColorForEmail(info.email || info.name || '');
+              pill.style.background = color;
+              pill.style.border     = '1px solid rgba(0,0,0,0.25)';
+
+              // Tooltip hiển thị thêm khoảng giờ + team
+              let tip = info.rangeLabel || '';
+              if (info.team) tip += (tip ? ' • ' : '') + info.team;
+              if (info.note) tip += (tip ? ' • ' : '') + info.note;
+              pill.title = tip;
+
+              td.appendChild(pill);
             });
           }
 
@@ -844,35 +859,6 @@ window.ScheduleAdminPage = {
 
         finalBodyEl.appendChild(tr);
       });
-    }
-      function formatShiftLabel(shiftKey) {
-      if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
-      const [h1, h2] = shiftKey.split('-');
-      return `${h1}:00 - ${h2}:00`;
-    }
-
-    function formatDateWithDow(dateISO) {
-      if (!dateISO) return '';
-      const d = new Date(dateISO + 'T00:00:00');
-      if (isNaN(d.getTime())) return dateISO;
-
-      const dow = d.getDay(); // 0 = CN
-      const dowMap = [
-        'Chủ nhật',
-        'Thứ 2',
-        'Thứ 3',
-        'Thứ 4',
-        'Thứ 5',
-        'Thứ 6',
-        'Thứ 7'
-      ];
-      const labelDow = dowMap[dow] || '';
-
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yyyy = d.getFullYear();
-
-      return `${dd}/${mm}/${yyyy} (${labelDow})`;
     }
 
 
