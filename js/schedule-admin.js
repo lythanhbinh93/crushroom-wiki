@@ -27,6 +27,7 @@ window.ScheduleAdminPage = {
     const finalWrapperEl    = document.getElementById('final-schedule-admin-wrapper');
     const finalBodyEl       = document.getElementById('final-schedule-admin-body');
     const finalEmptyEl      = document.getElementById('final-schedule-admin-empty');
+    const finalHeadRowEl    = document.getElementById('final-schedule-admin-head-row');
 
     if (!weekInput || !teamSelect || !loadBtn || !tbody) {
       console.warn('ScheduleAdmin: missing elements, skip init');
@@ -682,31 +683,35 @@ window.ScheduleAdminPage = {
       }
     }
 
-    // ======================================================================
-    // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT)
+       // ======================================================================
+    // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY
     // ======================================================================
 
     function renderFinalSchedule(dataSched) {
-      if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl) return;
+      if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl || !finalHeadRowEl) return;
 
       const isFinal  = currentMeta && currentMeta.status === 'final';
       const schedule = (dataSched && dataSched.schedule) || [];
 
+      // Chưa chốt -> ẩn bảng, hiện message
       if (!isFinal) {
         finalWrapperEl.style.display = 'none';
         finalEmptyEl.style.display   = 'block';
         finalStatusEl.textContent =
           'Tuần này chưa chốt lịch chính thức. Nhân viên chỉ xem được lịch tạm thời (nếu có).';
-        finalBodyEl.innerHTML = '';
+        finalHeadRowEl.innerHTML = '';
+        finalBodyEl.innerHTML    = '';
         return;
       }
 
+      // Đã chốt nhưng chưa có dòng lịch
       if (!schedule.length) {
         finalWrapperEl.style.display = 'none';
         finalEmptyEl.style.display   = 'block';
         finalStatusEl.textContent =
           'Tuần này đã chốt lịch nhưng chưa có dòng lịch nào trong sheet Schedule.';
-        finalBodyEl.innerHTML = '';
+        finalHeadRowEl.innerHTML = '';
+        finalBodyEl.innerHTML    = '';
         return;
       }
 
@@ -714,81 +719,133 @@ window.ScheduleAdminPage = {
       finalEmptyEl.style.display   = 'none';
       finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
 
-      const rows = schedule.map(item => {
-        const dateISO    = (item.date || '').substring(0, 10);
-        const shiftKey   = item.shift || '';
-        const dayLabel   = formatDateWithDow(dateISO);
-        const shiftLabel = formatShiftLabel(shiftKey);
-        const teamLabel  = (item.team || '').toUpperCase();
-
-        return {
-          dateISO,
-          dayLabel,
-          shiftKey,
-          shiftLabel,
-          name: item.name || item.email || '',
-          team: teamLabel,
-          note: item.note || ''
-        };
+      // ---- 1. Chuẩn bị map: date -> slotIndex -> set(personKey) ----
+      // slotIndex dựa trên mảng timeSlots đang dùng cho bảng chính
+      const slotIndexByKey = {};
+      timeSlots.forEach((slot, idx) => {
+        slotIndexByKey[slot.key] = idx;
       });
 
-      rows.sort((a, b) => {
-        if (a.dateISO !== b.dateISO) return a.dateISO < b.dateISO ? -1 : 1;
-        if (a.shiftKey !== b.shiftKey) return a.shiftKey < b.shiftKey ? -1 : 1;
-        if (a.name !== b.name) return a.name < b.name ? -1 : 1;
-        return 0;
+      const dateSlotPersons   = {}; // dateISO -> Array(timeSlots.length) of Set(personKey)
+      const personMetaByDate  = {}; // dateISO -> { personKey: {name, team, note} }
+
+      schedule.forEach(item => {
+        const dateISO  = (item.date || '').substring(0, 10);
+        const shiftKey = item.shift || '';
+        const idx      = slotIndexByKey[shiftKey];
+        if (idx == null) return; // shift ko nằm trong timeSlots -> bỏ
+
+        if (!dateSlotPersons[dateISO]) {
+          dateSlotPersons[dateISO]  = Array(timeSlots.length).fill(null).map(() => new Set());
+          personMetaByDate[dateISO] = {};
+        }
+
+        const email   = (item.email || '').toString().trim().toLowerCase();
+        const name    = item.name || item.email || '';
+        const team    = (item.team || '').toUpperCase();
+        const note    = item.note || '';
+        const pKey    = email || name; // fallback nếu ko có email
+
+        dateSlotPersons[dateISO][idx].add(pKey);
+
+        if (!personMetaByDate[dateISO][pKey]) {
+          personMetaByDate[dateISO][pKey] = { name, team, note };
+        }
       });
 
+      // ---- 2. Tính khoảng liên tiếp cho từng nhân viên trong 1 ngày ----
+      // labelsByDateSlot[dateISO][slotIndex] = [text1, text2,...]
+      const labelsByDateSlot = {};
+      dates.forEach(dateISO => {
+        labelsByDateSlot[dateISO] = Array(timeSlots.length).fill(null).map(() => []);
+
+        const slotsArr   = dateSlotPersons[dateISO];
+        if (!slotsArr) return;
+
+        const personMeta = personMetaByDate[dateISO] || {};
+        const persons    = Object.keys(personMeta);
+
+        persons.forEach(pKey => {
+          let i = 0;
+          while (i < timeSlots.length) {
+            const hasHere = slotsArr[i] && slotsArr[i].has(pKey);
+            if (!hasHere) {
+              i++;
+              continue;
+            }
+
+            // Bắt đầu 1 block liên tiếp
+            const startIdx = i;
+            let j = i + 1;
+            while (j < timeSlots.length &&
+                   slotsArr[j] &&
+                   slotsArr[j].has(pKey)) {
+              j++;
+            }
+            const endIdx = j - 1;
+
+            const startHour = timeSlots[startIdx].key.split('-')[0];        // "09"
+            const endHour   = timeSlots[endIdx].key.split('-')[1];          // "12"
+            const rangeLabel = `${startHour}:00 - ${endHour}:00`;
+
+            const meta = personMeta[pKey];
+            let text = meta.name + ` (${rangeLabel}`;
+            if (meta.team) text += `, ${meta.team}`;
+            if (meta.note) text += `, ${meta.note}`;
+            text += ')';
+
+            // Gắn label vào slot BẮT ĐẦU block
+            labelsByDateSlot[dateISO][startIdx].push(text);
+
+            // nhảy qua block này
+            i = j;
+          }
+        });
+      });
+
+      // ---- 3. Vẽ header: Giờ / Ngày + 7 ngày trong tuần ----
+      finalHeadRowEl.innerHTML = '';
+      const thTime = document.createElement('th');
+      thTime.textContent = 'Giờ / Ngày';
+      finalHeadRowEl.appendChild(thTime);
+
+      dates.forEach(dateISO => {
+        const th = document.createElement('th');
+        th.textContent = formatDateWithDow(dateISO);
+        finalHeadRowEl.appendChild(th);
+      });
+
+      // ---- 4. Vẽ body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày ----
       finalBodyEl.innerHTML = '';
-      rows.forEach(r => {
+
+      timeSlots.forEach((slot, slotIndex) => {
         const tr = document.createElement('tr');
 
-        const tdDate = document.createElement('td');
-        tdDate.textContent = r.dayLabel;
+        const thSlot = document.createElement('th');
+        thSlot.textContent = formatShiftLabel(slot.key); // "09:00 - 10:00"
+        tr.appendChild(thSlot);
 
-        const tdShift = document.createElement('td');
-        tdShift.textContent = r.shiftLabel || r.shiftKey;
+        dates.forEach(dateISO => {
+          const td = document.createElement('td');
+          const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
 
-        const tdName = document.createElement('td');
-        tdName.textContent = r.name;
+          if (labels.length) {
+            labels.forEach(text => {
+              const div = document.createElement('div');
+              div.textContent = text;
+              div.style.fontSize = '11px';
+              div.style.marginBottom = '2px';
+              td.appendChild(div);
+            });
+          }
 
-        const tdTeam = document.createElement('td');
-        tdTeam.textContent = r.team;
-
-        const tdNote = document.createElement('td');
-        tdNote.textContent = r.note;
-
-        tr.appendChild(tdDate);
-        tr.appendChild(tdShift);
-        tr.appendChild(tdName);
-        tr.appendChild(tdTeam);
-        tr.appendChild(tdNote);
+          tr.appendChild(td);
+        });
 
         finalBodyEl.appendChild(tr);
       });
     }
 
-    function formatShiftLabel(shiftKey) {
-      if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
-      const [h1, h2] = shiftKey.split('-');
-      return `${h1}:00 - ${h2}:00`;
-    }
-
-    function formatDateWithDow(dateISO) {
-      if (!dateISO) return '';
-      const d = new Date(dateISO + 'T00:00:00');
-      if (isNaN(d.getTime())) return dateISO;
-
-      const dow = d.getDay(); // 0=CN
-      const dowMap = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-      const labelDow = dowMap[dow] || '';
-
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yyyy = d.getFullYear();
-
-      return `${dd}/${mm}/${yyyy} (${labelDow})`;
-    }
 
     // ======================================================================
     // UTILS
