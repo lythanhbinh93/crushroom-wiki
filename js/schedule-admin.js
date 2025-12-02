@@ -845,6 +845,35 @@ window.ScheduleAdminPage = {
         finalBodyEl.appendChild(tr);
       });
     }
+      function formatShiftLabel(shiftKey) {
+      if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
+      const [h1, h2] = shiftKey.split('-');
+      return `${h1}:00 - ${h2}:00`;
+    }
+
+    function formatDateWithDow(dateISO) {
+      if (!dateISO) return '';
+      const d = new Date(dateISO + 'T00:00:00');
+      if (isNaN(d.getTime())) return dateISO;
+
+      const dow = d.getDay(); // 0 = CN
+      const dowMap = [
+        'Chủ nhật',
+        'Thứ 2',
+        'Thứ 3',
+        'Thứ 4',
+        'Thứ 5',
+        'Thứ 6',
+        'Thứ 7'
+      ];
+      const labelDow = dowMap[dow] || '';
+
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+
+      return `${dd}/${mm}/${yyyy} (${labelDow})`;
+    }
 
 
     // ======================================================================
