@@ -34,15 +34,9 @@ window.ScheduleAdminPage = {
     // Tuần mặc định: thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
 
-    // Setup events
-    loadBtn.addEventListener('click', () => {
-      loadData();
-    });
-
-    teamSelect.addEventListener('change', () => {
-      loadData(); // đổi team là load lại
-    });
-
+    // Events
+    loadBtn.addEventListener('click', () => loadData());
+    teamSelect.addEventListener('change', () => loadData());
     slotSaveBtn.addEventListener('click', saveCurrentSlot);
     saveWeekBtn.addEventListener('click', saveWeekSchedule);
 
@@ -164,15 +158,22 @@ window.ScheduleAdminPage = {
 
           const statsEl = document.createElement('div');
           statsEl.classList.add('slot-stats');
-          statsEl.textContent = '-';
+          statsEl.textContent = '0/0 người';
 
           const hintEl = document.createElement('div');
           hintEl.classList.add('slot-hint');
           hintEl.style.opacity = '0.7';
           hintEl.textContent = 'Click để phân ca';
 
+          const namesEl = document.createElement('div');
+          namesEl.classList.add('slot-names');
+          namesEl.style.fontSize = '11px';
+          namesEl.style.marginTop = '2px';
+          namesEl.style.color = '#555';
+
           inner.appendChild(statsEl);
           inner.appendChild(hintEl);
+          inner.appendChild(namesEl);
 
           td.appendChild(inner);
 
@@ -189,43 +190,60 @@ window.ScheduleAdminPage = {
 
     function renderGridStats() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
+
       cells.forEach(td => {
         const slotId = td.dataset.slotId;
         const statsEl = td.querySelector('.slot-stats');
+        const namesEl = td.querySelector('.slot-names');
 
-        const avail = (availabilityMap[slotId] || []).length;
-        const assigned = (scheduleMap[slotId] || []).length;
+        const availUsers    = availabilityMap[slotId] || [];
+        const assignedUsers = scheduleMap[slotId] || [];
+
+        const avail = availUsers.length;
+        const assigned = assignedUsers.length;
 
         statsEl.textContent = `${assigned}/${avail} người`;
+
+        if (avail === 0) {
+          namesEl.textContent = '';
+          return;
+        }
+
+        // hiển thị tên: người đã được xếp ca có icon ✅
+        const parts = availUsers.map(u => {
+          const isAssigned = assignedUsers.some(a => a.email === u.email);
+          return (isAssigned ? '✅ ' : '') + (u.name || u.email);
+        });
+
+        // nếu quá dài có thể rút gọn, ở đây join đơn giản
+        namesEl.textContent = parts.join(', ');
       });
     }
 
-function buildAvailabilityMap(dataAvail) {
-  const map = {};
-  if (!dataAvail || !dataAvail.success || !dataAvail.slots) return map;
+    // ========== MAP BUILDERS ==========
 
-  dataAvail.slots.forEach(slot => {
-    if (!slot) return;
+    function buildAvailabilityMap(dataAvail) {
+      const map = {};
+      if (!dataAvail || !dataAvail.success || !dataAvail.slots) return map;
 
-    // Chuẩn hoá date về YYYY-MM-DD cho chắc
-    const rawDate = String(slot.date || '').trim();
-    const date = rawDate.substring(0, 10); // "2025-12-11"
+      dataAvail.slots.forEach(slot => {
+        if (!slot) return;
 
-    // Chuẩn hoá shift: chỉ lấy dạng HH-HH (09-10, 13-14, ...)
-    const rawShift = String(slot.shift || '').trim();
-    if (!/^\d{2}-\d{2}$/.test(rawShift)) {
-      // Những slot cũ kiểu "Sat Aug 09 2025..." sẽ bị bỏ qua
-      return;
+        // Chuẩn hoá date về YYYY-MM-DD
+        const rawDate = String(slot.date || '').trim();
+        const date = rawDate.substring(0, 10);
+
+        // Chỉ nhận ca dạng HH-HH
+        const rawShift = String(slot.shift || '').trim();
+        if (!/^\d{2}-\d{2}$/.test(rawShift)) return;
+
+        const shift = rawShift;
+        const key = `${date}|${shift}`;
+        map[key] = slot.users || [];
+      });
+
+      return map;
     }
-    const shift = rawShift;
-
-    const key = `${date}|${shift}`;
-    map[key] = slot.users || [];
-  });
-
-  return map;
-}
-
 
     function buildScheduleMap(dataSched) {
       const map = {};
@@ -333,7 +351,10 @@ function buildAvailabilityMap(dataAvail) {
 
       scheduleMap[currentSlotId] = selected;
       renderGridStats();
-      showAdminMessage('Đã lưu slot tạm thời (chưa ghi xuống Google Sheet). Nhớ bấm "Lưu lịch tuần này".', false);
+      showAdminMessage(
+        'Đã lưu slot tạm thời (chưa ghi xuống Google Sheet). Nhớ bấm "Lưu lịch tuần này".',
+        false
+      );
     }
 
     async function saveWeekSchedule() {
