@@ -187,35 +187,38 @@
         <span id="save-week-message" style="margin-left:8px; font-size:14px;"></span>
       </section>
 
-      <!-- 5. Lịch làm đã chốt tuần này (tóm tắt cho leader) -->
+           <!-- 5. Lịch làm đã chốt tuần này (tóm tắt cho leader) -->
       <section class="content-section">
         <h2>5. Lịch làm đã chốt tuần này (tóm tắt)</h2>
         <p style="font-size:13px; color:#777; margin-bottom:8px;">
-          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là phần tổng hợp lịch chính thức theo ca và nhân viên.
+          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là phần tổng hợp lịch chính thức theo ca và nhân viên,
+          trình bày giống bảng ca theo giờ để leader dễ theo dõi.
         </p>
-        <div id="final-schedule-admin-status" style="font-size:14px; margin-bottom:8px; color:#555;">
-          <!-- JS hiển thị: "Tuần này chưa chốt lịch." / "Lịch đã chốt, xem bảng bên dưới." -->
+        <div id="final-schedule-admin-status"
+             style="font-size:14px; margin-bottom:8px; color:#555;">
+          <!-- JS hiển thị: trạng thái -->
         </div>
-        <div id="final-schedule-admin-wrapper" style="overflow-x:auto; display:none;">
+
+        <div id="final-schedule-admin-wrapper"
+             style="overflow-x:auto; display:none;">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Ngày</th>
-                <th>Giờ</th>
-                <th>Nhân viên</th>
-                <th>Team</th>
-                <th>Ghi chú</th>
+              <tr id="final-schedule-admin-head-row">
+                <!-- JS render: Giờ / Ngày + 7 cột thứ 2..CN -->
               </tr>
             </thead>
             <tbody id="final-schedule-admin-body">
-              <!-- JS render tóm tắt lịch chốt -->
+              <!-- JS render grid tóm tắt -->
             </tbody>
           </table>
         </div>
-        <div id="final-schedule-admin-empty" style="font-size:13px; color:#777; margin-top:8px; display:none;">
+
+        <div id="final-schedule-admin-empty"
+             style="font-size:13px; color:#777; margin-top:8px; display:none;">
           Tuần này chưa có lịch chính thức nào được xếp.
         </div>
       </section>
+
     </main>
   </div>
 
