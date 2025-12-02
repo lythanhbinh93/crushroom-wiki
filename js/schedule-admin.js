@@ -9,7 +9,6 @@ window.ScheduleAdminPage = {
     const tbody       = document.getElementById('schedule-admin-body');
     const adminMsgEl  = document.getElementById('admin-message');
 
-    const slotEditorSection = document.getElementById('slot-editor-section');
     const slotEditorEmpty   = document.getElementById('slot-editor-empty');
     const slotEditor        = document.getElementById('slot-editor');
     const slotTitleEl       = document.getElementById('slot-title');
@@ -29,7 +28,7 @@ window.ScheduleAdminPage = {
     let timeSlots = [];       // [{key, label}]
     let availabilityMap = {}; // slotId -> [{email,name,team}]
     let scheduleMap = {};     // slotId -> [{email,name,team}]
-    let currentSlotId = null; // slot đang chỉnh
+    let currentSlotId = null; // slot đang chỉnh trong editor
 
     // Tuần mặc định: thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
@@ -129,7 +128,7 @@ window.ScheduleAdminPage = {
       timeSlots = [];
       for (let h = startHour; h < endHour; h++) {
         const next = (h + 1) % 24;
-        const key = `${pad2(h)}-${pad2(next)}`; // 08-09
+        const key = `${pad2(h)}-${pad2(next)}`;
         const label = `${pad2(h)}:00 - ${pad2(next)}:00`;
         timeSlots.push({ key, label });
       }
@@ -177,6 +176,7 @@ window.ScheduleAdminPage = {
 
           td.appendChild(inner);
 
+          // Click cả ô: mở editor chi tiết
           td.addEventListener('click', () => {
             onSlotClick(slotId, dateISO, slot);
           });
@@ -188,6 +188,7 @@ window.ScheduleAdminPage = {
       });
     }
 
+    // cập nhật số lượng và danh sách tên trong từng ô
     function renderGridStats() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
@@ -204,19 +205,35 @@ window.ScheduleAdminPage = {
 
         statsEl.textContent = `${assigned}/${avail} người`;
 
-        if (avail === 0) {
-          namesEl.textContent = '';
-          return;
-        }
+        namesEl.innerHTML = '';
+        if (avail === 0) return;
 
-        // hiển thị tên: người đã được xếp ca có icon ✅
-        const parts = availUsers.map(u => {
+        availUsers.forEach(u => {
           const isAssigned = assignedUsers.some(a => a.email === u.email);
-          return (isAssigned ? '✅ ' : '') + (u.name || u.email);
-        });
 
-        // nếu quá dài có thể rút gọn, ở đây join đơn giản
-        namesEl.textContent = parts.join(', ');
+          const span = document.createElement('span');
+          span.classList.add('slot-name-pill');
+          span.style.display = 'inline-block';
+          span.style.padding = '1px 6px';
+          span.style.borderRadius = '999px';
+          span.style.background = isAssigned ? '#e8f5e9' : '#f1f3f4';
+          span.style.marginRight = '4px';
+          span.style.marginBottom = '2px';
+          span.style.cursor = 'pointer';
+
+          span.dataset.slotId = slotId;
+          span.dataset.email  = u.email;
+          span.dataset.name   = u.name || '';
+          span.dataset.team   = u.team || '';
+
+          span.textContent =
+            (isAssigned ? '✅ ' : '') + (u.name || u.email);
+
+          // CLICK VÀO TÊN => TOGGLE ASSIGN
+          span.addEventListener('click', onNameClick);
+
+          namesEl.appendChild(span);
+        });
       });
     }
 
@@ -229,15 +246,13 @@ window.ScheduleAdminPage = {
       dataAvail.slots.forEach(slot => {
         if (!slot) return;
 
-        // Chuẩn hoá date về YYYY-MM-DD
         const rawDate = String(slot.date || '').trim();
-        const date = rawDate.substring(0, 10);
+        const date = rawDate.substring(0, 10); // YYYY-MM-DD
 
-        // Chỉ nhận ca dạng HH-HH
         const rawShift = String(slot.shift || '').trim();
         if (!/^\d{2}-\d{2}$/.test(rawShift)) return;
-
         const shift = rawShift;
+
         const key = `${date}|${shift}`;
         map[key] = slot.users || [];
       });
@@ -262,13 +277,59 @@ window.ScheduleAdminPage = {
       return map;
     }
 
-    // ========== SLOT EDITOR ==========
+    // ========== CLICK TRÊN TÊN (TOGGLE ASSIGN) ==========
+
+    function onNameClick(evt) {
+      // Không cho lan lên td -> tránh mở editor
+      evt.stopPropagation();
+
+      const span   = evt.currentTarget;
+      const slotId = span.dataset.slotId;
+      const email  = span.dataset.email;
+      const name   = span.dataset.name;
+      const team   = span.dataset.team || '';
+
+      let list = scheduleMap[slotId] || [];
+      const idx = list.findIndex(u => u.email === email);
+
+      let nowAssigned;
+      if (idx >= 0) {
+        // Đang được xếp ca -> bỏ
+        list.splice(idx, 1);
+        nowAssigned = false;
+      } else {
+        // Chưa xếp -> thêm
+        list.push({ email, name, team });
+        nowAssigned = true;
+      }
+      scheduleMap[slotId] = list;
+
+      // Cập nhật lại toàn bộ grid
+      renderGridStats();
+
+      // Đồng bộ checkbox trong editor nếu đang mở đúng slot
+      if (currentSlotId === slotId) {
+        const cbs = slotUsersEl.querySelectorAll('input[type="checkbox"]');
+        cbs.forEach(cb => {
+          if (cb.dataset.email === email) {
+            cb.checked = nowAssigned;
+          }
+        });
+      }
+
+      showAdminMessage(
+        'Đã cập nhật phân ca tạm thời. Nhớ bấm "Lưu lịch tuần này" để ghi xuống Google Sheet.',
+        false
+      );
+    }
+
+    // ========== SLOT EDITOR (CHI TIẾT) ==========
 
     function onSlotClick(slotId, dateISO, slot) {
       currentSlotId = slotId;
 
-      const [dYear, dMonth, dDay] = dateISO.split('-');
-      const dateLabel = `${dDay}/${dMonth}/${dYear}`;
+      const [y, m, d] = dateISO.split('-');
+      const dateLabel = `${d}/${m}/${y}`;
       slotTitleEl.textContent = `Slot ${slot.label} - Ngày ${dateLabel}`;
 
       const availList = availabilityMap[slotId] || [];
@@ -292,9 +353,7 @@ window.ScheduleAdminPage = {
           cb.dataset.email = u.email;
           cb.dataset.name = u.name;
           cb.dataset.team = u.team || '';
-          if (assignedEmails.has(u.email)) {
-            cb.checked = true;
-          }
+          if (assignedEmails.has(u.email)) cb.checked = true;
 
           const label = document.createElement('label');
           label.style.cursor = 'pointer';
@@ -368,7 +427,6 @@ window.ScheduleAdminPage = {
         return;
       }
 
-      // Flatten scheduleMap thành array
       const schedule = [];
       Object.keys(scheduleMap).forEach(slotId => {
         const [dateISO, shiftKey] = slotId.split('|');
