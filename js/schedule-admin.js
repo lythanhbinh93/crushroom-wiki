@@ -23,7 +23,7 @@ window.ScheduleAdminPage = {
       return;
     }
 
-    // State
+    // ==== STATE ============================================================
     let dates = [];           // 7 ngày trong tuần
     let timeSlots = [];       // [{key, label}]
     let availabilityMap = {}; // slotId -> [{email,name,team}]
@@ -42,7 +42,9 @@ window.ScheduleAdminPage = {
     // Lần đầu load
     loadData();
 
-    // ========== MAIN FLOW ==========
+    // ======================================================================
+    // MAIN FLOW
+    // ======================================================================
 
     async function loadData() {
       clearAdminMessage();
@@ -95,7 +97,7 @@ window.ScheduleAdminPage = {
         const dataSched = await resSched.json();
 
         availabilityMap = buildAvailabilityMap(dataAvail);
-        scheduleMap = buildScheduleMap(dataSched);
+        scheduleMap     = buildScheduleMap(dataSched);
 
         renderGridStats();
         showAdminMessage('Đã tải dữ liệu đăng ký & lịch hiện tại.', false);
@@ -105,7 +107,9 @@ window.ScheduleAdminPage = {
       }
     }
 
-    // ========== BUILD STRUCTURE ==========
+    // ======================================================================
+    // BUILD STRUCTURE
+    // ======================================================================
 
     function buildDates(weekStartISO) {
       dates = [];
@@ -188,29 +192,40 @@ window.ScheduleAdminPage = {
       });
     }
 
-    // cập nhật số lượng và danh sách tên trong từng ô
-   function renderGridStats() {
-  const cells = tbody.querySelectorAll('td.schedule-cell');
+    // Cập nhật số lượng & danh sách tên trong từng ô
+    function renderGridStats() {
+      const cells = tbody.querySelectorAll('td.schedule-cell');
 
-  cells.forEach(td => {
-    const slotId = td.dataset.slotId;
-    const statsEl = td.querySelector('.slot-stats');
+      cells.forEach(td => {
+        const slotId  = td.dataset.slotId;
+        const statsEl = td.querySelector('.slot-stats');
+        const namesEl = td.querySelector('.slot-names');
 
-    const availList    = availabilityMap[slotId] || [];
-    const assignedList = scheduleMap[slotId] || [];
+        const availList    = availabilityMap[slotId] || [];
+        const assignedList = scheduleMap[slotId] || [];
 
-    // Đếm UNIQUE theo email để tránh trùng
-    const availCount = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
-    const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
+        // Đếm UNIQUE theo email để tránh trùng
+        const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
+        const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
+        statsEl.textContent = `${assignedCount}/${availCount} người`;
 
-    statsEl.textContent = `${assignedCount}/${availCount} người`;
-  });
-}
+        // Hiển thị tên
         namesEl.innerHTML = '';
-        if (avail === 0) return;
+        if (availCount === 0) return;
 
-        availUsers.forEach(u => {
-          const isAssigned = assignedUsers.some(a => a.email === u.email);
+        // Map theo email để tránh trùng tên
+        const availByEmail = {};
+        availList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!availByEmail[key]) availByEmail[key] = u;
+        });
+
+        Object.values(availByEmail).forEach(u => {
+          const email = (u.email || '').toLowerCase();
+          const isAssigned = assignedList.some(
+            a => (a.email || '').toLowerCase() === email
+          );
 
           const span = document.createElement('span');
           span.classList.add('slot-name-pill');
@@ -227,10 +242,9 @@ window.ScheduleAdminPage = {
           span.dataset.name   = u.name || '';
           span.dataset.team   = u.team || '';
 
-          span.textContent =
-            (isAssigned ? '✅ ' : '') + (u.name || u.email);
+          span.textContent = (isAssigned ? '✅ ' : '') + (u.name || u.email);
 
-          // CLICK VÀO TÊN => TOGGLE ASSIGN
+          // Click vào tên => toggle assign
           span.addEventListener('click', onNameClick);
 
           namesEl.appendChild(span);
@@ -238,7 +252,9 @@ window.ScheduleAdminPage = {
       });
     }
 
-    // ========== MAP BUILDERS ==========
+    // ======================================================================
+    // MAP BUILDERS (từ API)
+    // ======================================================================
 
     function buildAvailabilityMap(dataAvail) {
       const map = {};
@@ -248,10 +264,10 @@ window.ScheduleAdminPage = {
         if (!slot) return;
 
         const rawDate = String(slot.date || '').trim();
-        const date = rawDate.substring(0, 10); // YYYY-MM-DD
+        const date    = rawDate.substring(0, 10); // YYYY-MM-DD
 
         const rawShift = String(slot.shift || '').trim();
-        if (!/^\d{2}-\d{2}$/.test(rawShift)) return;
+        if (!/^\d{2}-\d{2}$/.test(rawShift)) return; // chỉ nhận HH-HH
         const shift = rawShift;
 
         const key = `${date}|${shift}`;
@@ -268,17 +284,24 @@ window.ScheduleAdminPage = {
       dataSched.schedule.forEach(item => {
         const key = `${item.date}|${item.shift}`;
         if (!map[key]) map[key] = [];
-        map[key].push({
-          email: item.email,
-          name: item.name,
-          team: item.team
-        });
+
+        const email = (item.email || '').toLowerCase();
+        const exists = map[key].some(u => (u.email || '').toLowerCase() === email);
+        if (!exists) {
+          map[key].push({
+            email: item.email,
+            name: item.name,
+            team: item.team
+          });
+        }
       });
 
       return map;
     }
 
-    // ========== CLICK TRÊN TÊN (TOGGLE ASSIGN) ==========
+    // ======================================================================
+    // CLICK TRÊN TÊN (TOGGLE ASSIGN) – KHÔNG CẦN toggleAssignUser RIÊNG
+    // ======================================================================
 
     function onNameClick(evt) {
       // Không cho lan lên td -> tránh mở editor
@@ -291,7 +314,7 @@ window.ScheduleAdminPage = {
       const team   = span.dataset.team || '';
 
       let list = scheduleMap[slotId] || [];
-      const idx = list.findIndex(u => u.email === email);
+      const idx = list.findIndex(u => (u.email || '').toLowerCase() === (email || '').toLowerCase());
 
       let nowAssigned;
       if (idx >= 0) {
@@ -324,7 +347,9 @@ window.ScheduleAdminPage = {
       );
     }
 
-    // ========== SLOT EDITOR (CHI TIẾT) ==========
+    // ======================================================================
+    // SLOT EDITOR (CHI TIẾT)
+    // ======================================================================
 
     function onSlotClick(slotId, dateISO, slot) {
       currentSlotId = slotId;
@@ -335,7 +360,9 @@ window.ScheduleAdminPage = {
 
       const availList = availabilityMap[slotId] || [];
       const assignedList = scheduleMap[slotId] || [];
-      const assignedEmails = new Set(assignedList.map(u => u.email));
+      const assignedEmails = new Set(
+        assignedList.map(u => (u.email || '').toLowerCase())
+      );
 
       slotUsersEl.innerHTML = '';
 
@@ -346,15 +373,17 @@ window.ScheduleAdminPage = {
         slotUsersEl.appendChild(p);
       } else {
         availList.forEach(u => {
+          const emailKey = (u.email || '').toLowerCase();
+
           const wrapper = document.createElement('div');
           wrapper.style.marginBottom = '4px';
 
           const cb = document.createElement('input');
           cb.type = 'checkbox';
           cb.dataset.email = u.email;
-          cb.dataset.name = u.name;
-          cb.dataset.team = u.team || '';
-          if (assignedEmails.has(u.email)) cb.checked = true;
+          cb.dataset.name  = u.name;
+          cb.dataset.team  = u.team || '';
+          if (assignedEmails.has(emailKey)) cb.checked = true;
 
           const label = document.createElement('label');
           label.style.cursor = 'pointer';
@@ -409,7 +438,14 @@ window.ScheduleAdminPage = {
         }
       });
 
-      scheduleMap[currentSlotId] = selected;
+      // Loại trùng email (nếu có)
+      const byEmail = {};
+      selected.forEach(u => {
+        const key = (u.email || '').toLowerCase();
+        if (!byEmail[key]) byEmail[key] = u;
+      });
+
+      scheduleMap[currentSlotId] = Object.values(byEmail);
       renderGridStats();
       showAdminMessage(
         'Đã lưu slot tạm thời (chưa ghi xuống Google Sheet). Nhớ bấm "Lưu lịch tuần này".',
@@ -417,11 +453,15 @@ window.ScheduleAdminPage = {
       );
     }
 
+    // ======================================================================
+    // LƯU CẢ TUẦN
+    // ======================================================================
+
     async function saveWeekSchedule() {
       clearSaveWeekMessage();
 
       const weekStart = weekInput.value;
-      const team = teamSelect.value;
+      const team      = teamSelect.value;
 
       if (!weekStart) {
         showSaveWeekMessage('Vui lòng chọn tuần.', true);
@@ -432,7 +472,15 @@ window.ScheduleAdminPage = {
       Object.keys(scheduleMap).forEach(slotId => {
         const [dateISO, shiftKey] = slotId.split('|');
         const users = scheduleMap[slotId] || [];
+
+        // đảm bảo unique theo email trong 1 slot
+        const byEmail = {};
         users.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!byEmail[key]) byEmail[key] = u;
+        });
+
+        Object.values(byEmail).forEach(u => {
           schedule.push({
             date: dateISO,
             shift: shiftKey,
@@ -470,7 +518,9 @@ window.ScheduleAdminPage = {
       }
     }
 
-    // ========== UTILS ==========
+    // ======================================================================
+    // UTILS
+    // ======================================================================
 
     function showAdminMessage(text, isError) {
       if (!adminMsgEl) return;
