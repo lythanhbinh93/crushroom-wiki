@@ -89,12 +89,15 @@
 
       <header class="page-header">
         <h1>🧩 Quản lý lịch làm (Leader)</h1>
-        <p class="header-subtitle">Xem đăng ký ca linh hoạt và phân ca theo giờ cho team.</p>
+        <p class="header-subtitle">
+          Xem đăng ký ca linh hoạt, phân ca theo giờ và chốt lịch làm chính thức cho team.
+        </p>
       </header>
 
+      <!-- 1. Chọn tuần & team + trạng thái -->
       <section class="content-section">
-        <h2>1. Chọn tuần & team</h2>
-        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:12px;">
+        <h2>1. Chọn tuần &amp; team</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:8px;">
           <div>
             <label for="week-start-admin">Tuần bắt đầu:</label><br />
             <input type="date" id="week-start-admin" />
@@ -111,11 +114,30 @@
           </div>
           <span id="admin-message" style="font-size:14px; margin-left:8px;"></span>
         </div>
-        <p style="font-size:13px; color:#777;">
-          Ô trong bảng hiển thị: <strong>Đã phân / Số người đăng ký</strong>. Click vào 1 ô để chọn người cho ca đó.
+
+        <!-- Thanh trạng thái tuần + nút chốt/mở -->
+        <div class="schedule-admin-status-bar"
+             style="margin-top:4px; padding:8px 12px; border-radius:8px; background:#f5f5f5; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+          <span id="week-status-text" style="font-size:14px; color:#555;">
+            <!-- JS cập nhật: Trạng thái: ĐANG SOẠN / ĐÃ CHỐT -->
+          </span>
+          <button id="lock-week-btn"
+                  class="btn btn-secondary"
+                  style="margin-left:auto; font-size:13px; padding:6px 10px;">
+            <!-- JS: "✅ Chốt lịch tuần này" hoặc "🔓 Mở lại để chỉnh sửa" -->
+          </button>
+        </div>
+
+        <p style="font-size:13px; color:#777; margin-top:8px;">
+          Mỗi ô trong bảng thể hiện: <strong>Đã phân / Số người đăng ký</strong>.
+          <br />
+          • Tên nhân viên sẽ hiển thị trực tiếp trong ô (mỗi người một màu).  
+          • <strong>Click vào tên</strong> để bật/tắt phân ca cho người đó.  
+          • <strong>Click vào cả ô</strong> để mở panel chi tiết bên dưới và chỉnh bằng checkbox.
         </p>
       </section>
 
+      <!-- 2. Bảng ca theo giờ -->
       <section class="content-section">
         <h2>2. Bảng ca theo giờ</h2>
         <div style="overflow-x:auto;">
@@ -139,10 +161,11 @@
         </div>
       </section>
 
+      <!-- 3. Chi tiết slot đang chọn -->
       <section class="content-section" id="slot-editor-section">
         <h2>3. Chi tiết slot đang chọn</h2>
         <div id="slot-editor-empty" style="font-size:14px; color:#777;">
-          Click vào một ô trong bảng để xem và chọn nhân viên cho slot đó.
+          Click vào một ô trong bảng để xem danh sách người đăng ký rảnh và chọn nhân viên cho slot đó.
         </div>
         <div id="slot-editor" style="display:none;">
           <p id="slot-title" style="font-weight:600; margin-bottom:8px;"></p>
@@ -151,12 +174,47 @@
         </div>
       </section>
 
+      <!-- 4. Lưu lịch tuần này -->
       <section class="content-section">
         <h2>4. Lưu lịch tuần này</h2>
+        <p style="font-size:13px; color:#777; margin-bottom:8px;">
+          Nút này sẽ lưu toàn bộ phân ca hiện tại xuống Google Sheet (sheet <strong>Schedule</strong>).
+          Để nhân viên thấy lịch chính thức, hãy bấm nút <strong>"Chốt lịch tuần này"</strong> ở thanh trạng thái phía trên.
+        </p>
         <button id="save-week-schedule-btn" class="btn btn-primary">
           💾 Lưu lịch làm cho tuần này
         </button>
         <span id="save-week-message" style="margin-left:8px; font-size:14px;"></span>
+      </section>
+
+      <!-- 5. Lịch làm đã chốt tuần này (tóm tắt cho leader) -->
+      <section class="content-section">
+        <h2>5. Lịch làm đã chốt tuần này (tóm tắt)</h2>
+        <p style="font-size:13px; color:#777; margin-bottom:8px;">
+          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là phần tổng hợp lịch chính thức theo ca và nhân viên.
+        </p>
+        <div id="final-schedule-admin-status" style="font-size:14px; margin-bottom:8px; color:#555;">
+          <!-- JS hiển thị: "Tuần này chưa chốt lịch." / "Lịch đã chốt, xem bảng bên dưới." -->
+        </div>
+        <div id="final-schedule-admin-wrapper" style="overflow-x:auto; display:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Ngày</th>
+                <th>Giờ</th>
+                <th>Nhân viên</th>
+                <th>Team</th>
+                <th>Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody id="final-schedule-admin-body">
+              <!-- JS render tóm tắt lịch chốt -->
+            </tbody>
+          </table>
+        </div>
+        <div id="final-schedule-admin-empty" style="font-size:13px; color:#777; margin-top:8px; display:none;">
+          Tuần này chưa có lịch chính thức nào được xếp.
+        </div>
       </section>
     </main>
   </div>
