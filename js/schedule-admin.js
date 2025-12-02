@@ -211,13 +211,15 @@ window.ScheduleAdminPage = {
         startHour = 9;
         endHour   = 18; // slot cuối 17-18
       }
-      timeSlots = [];
-      for (let h = startHour; h < endHour; h++) {
-        const next = (h + 1) % 24;
-        const key = `${pad2(h)}-${pad2(next)}`;
-        const label = `${pad2(h)}:00 - ${pad2(next)}:00`;
-        timeSlots.push({ key, label });
-      }
+  timeSlots = [];
+  for (let h = startHour; h < endHour; h++) {
+    const next = (h + 1) % 24;
+    const key = `${pad2(h)}-${pad2(next)}`;
+    // label chỉ là giờ bắt đầu ca, ví dụ "08:00"
+    const label = `${pad2(h)}:00`;
+    timeSlots.push({ key, label });
+  }
+
     }
 
     // cập nhật ngày cho header Bảng ca theo giờ
@@ -847,11 +849,13 @@ window.ScheduleAdminPage = {
       });
     }
 
-    function formatShiftLabel(shiftKey) {
-      if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
-      const [h1, h2] = shiftKey.split('-');
-      return `${h1}:00 - ${h2}:00`;
-    }
+function formatShiftLabel(shiftKey) {
+  if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
+  const [h1] = shiftKey.split('-');
+  // chỉ giờ bắt đầu, ví dụ "08:00"
+  return `${h1}:00`;
+}
+
 
     function formatDateWithDow(dateISO) {
       if (!dateISO) return '';
