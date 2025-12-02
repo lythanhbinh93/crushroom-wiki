@@ -683,8 +683,8 @@ window.ScheduleAdminPage = {
       }
     }
 
-    // ======================================================================
-// RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY, MỖI GIỜ 1 Ô
+// ======================================================================
+// RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY, MỖI Ô = TÊN NHÂN VIÊN
 // ======================================================================
 
 function renderFinalSchedule(dataSched) {
@@ -719,41 +719,40 @@ function renderFinalSchedule(dataSched) {
   finalEmptyEl.style.display   = 'none';
   finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
 
-  // ---- 1. Map: shiftKey -> index trong mảng timeSlots ----
+  // ---- 1. map shiftKey -> index trong timeSlots ----
   const slotIndexByKey = {};
   timeSlots.forEach((slot, idx) => {
     slotIndexByKey[slot.key] = idx;
   });
 
-  // ---- 2. Map: date -> slotIndex -> { personKey -> meta } ----
-  // để mỗi ô giờ chỉ chứa list unique nhân viên
-  const dateSlotPersons = {}; // dateISO -> Array(timeSlots.length) of Object(personKey -> meta)
+  // ---- 2. map dateISO -> slotIndex -> danh sách person ----
+  // personsByDateSlot[dateISO][slotIndex] = [{ email, name, team, note }]
+  const personsByDateSlot = {};
 
   schedule.forEach(item => {
     const dateISO  = (item.date || '').substring(0, 10);
     const shiftKey = item.shift || '';
     const idx      = slotIndexByKey[shiftKey];
-    if (idx == null) return; // shift không nằm trong mảng timeSlots -> bỏ qua
+    if (idx == null) return; // shift không nằm trong timeSlots -> bỏ
 
-    if (!dateSlotPersons[dateISO]) {
-      // mỗi slotIndex là 1 object: { personKey -> {name, email, team, note} }
-      dateSlotPersons[dateISO] = Array(timeSlots.length).fill(null).map(() => ({}));
+    if (!personsByDateSlot[dateISO]) {
+      personsByDateSlot[dateISO] = Array(timeSlots.length).fill(null).map(() => []);
     }
 
-    const emailRaw = (item.email || '').toString().trim().toLowerCase();
-    const email    = emailRaw || (item.email || '');
-    const name     = item.name || item.email || '';
-    const team     = (item.team || '').toUpperCase();
-    const note     = item.note || '';
-    const pKey     = email || name; // key để unique hoá
+    const email = (item.email || '').toString().trim().toLowerCase();
+    const name  = item.name || item.email || '';
+    const team  = (item.team || '').toUpperCase();
+    const note  = item.note || '';
 
-    const slotMap = dateSlotPersons[dateISO][idx];
-    if (!slotMap[pKey]) {
-      slotMap[pKey] = { name, email, team, note };
+    const list = personsByDateSlot[dateISO][idx];
+
+    // tránh trùng email trong cùng 1 slot
+    if (!list.some(p => p.email === email)) {
+      list.push({ email, name, team, note });
     }
   });
 
-  // ---- 3. Header: Giờ / Ngày ----
+  // ---- 3. Vẽ header: "Giờ / Ngày" + 7 ngày ----
   finalHeadRowEl.innerHTML = '';
   const thTime = document.createElement('th');
   thTime.textContent = 'Giờ / Ngày';
@@ -765,7 +764,7 @@ function renderFinalSchedule(dataSched) {
     finalHeadRowEl.appendChild(th);
   });
 
-  // ---- 4. Body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày ----
+  // ---- 4. Vẽ body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày, trong ô là tên nhân viên ----
   finalBodyEl.innerHTML = '';
 
   timeSlots.forEach((slot, slotIndex) => {
@@ -776,37 +775,26 @@ function renderFinalSchedule(dataSched) {
     tr.appendChild(thSlot);
 
     dates.forEach(dateISO => {
-      const td = document.createElement('td');
-      td.style.verticalAlign = 'middle';
+      const td   = document.createElement('td');
+      const list = (personsByDateSlot[dateISO] && personsByDateSlot[dateISO][slotIndex]) || [];
 
-      const daySlots = dateSlotPersons[dateISO];
-      const slotMap  = daySlots ? daySlots[slotIndex] : null;
-
-      if (slotMap && Object.keys(slotMap).length) {
-        const persons = Object.values(slotMap).sort((a, b) =>
-          (a.name || '').localeCompare(b.name || '')
-        );
-
-        persons.forEach(info => {
+      if (list.length) {
+        list.forEach(p => {
           const pill = document.createElement('span');
-          pill.textContent = info.name || '';
+          pill.textContent = p.name; // chỉ hiện tên thôi
+          pill.classList.add('slot-name-pill');
           pill.style.display      = 'inline-block';
           pill.style.padding      = '2px 8px';
           pill.style.borderRadius = '999px';
           pill.style.marginRight  = '4px';
           pill.style.marginBottom = '2px';
-          pill.style.fontSize     = '12px';
-          pill.style.fontWeight   = '500';
+          pill.style.fontSize     = '11px';
 
-          const color = getColorForEmail(info.email || info.name || '');
+          // màu cố định theo email giống bảng 2
+          const color = getColorForEmail(p.email);
           pill.style.background = color;
           pill.style.border     = '1px solid rgba(0,0,0,0.25)';
-
-          // Tooltip thêm team/note nếu muốn
-          let tip = '';
-          if (info.team) tip += info.team;
-          if (info.note) tip += (tip ? ' • ' : '') + info.note;
-          pill.title = tip;
+          pill.style.color      = '#333';
 
           td.appendChild(pill);
         });
@@ -818,6 +806,7 @@ function renderFinalSchedule(dataSched) {
     finalBodyEl.appendChild(tr);
   });
 }
+
 
     function formatShiftLabel(shiftKey) {
       if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
