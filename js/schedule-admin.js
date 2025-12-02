@@ -684,201 +684,140 @@ window.ScheduleAdminPage = {
     }
 
     // ======================================================================
-    // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY, GỘP CA LIÊN TIẾP
-    // ======================================================================
+// RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY, MỖI GIỜ 1 Ô
+// ======================================================================
 
-    function renderFinalSchedule(dataSched) {
-      if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl || !finalHeadRowEl) return;
+function renderFinalSchedule(dataSched) {
+  if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl || !finalHeadRowEl) return;
 
-      const isFinal  = currentMeta && currentMeta.status === 'final';
-      const schedule = (dataSched && dataSched.schedule) || [];
+  const isFinal  = currentMeta && currentMeta.status === 'final';
+  const schedule = (dataSched && dataSched.schedule) || [];
 
-      if (!isFinal) {
-        finalWrapperEl.style.display = 'none';
-        finalEmptyEl.style.display   = 'block';
-        finalStatusEl.textContent =
-          'Tuần này chưa chốt lịch chính thức. Nhân viên chỉ xem được lịch tạm thời (nếu có).';
-        finalHeadRowEl.innerHTML = '';
-        finalBodyEl.innerHTML    = '';
-        return;
-      }
+  // Chưa chốt -> ẩn bảng, hiện message
+  if (!isFinal) {
+    finalWrapperEl.style.display = 'none';
+    finalEmptyEl.style.display   = 'block';
+    finalStatusEl.textContent =
+      'Tuần này chưa chốt lịch chính thức. Nhân viên chỉ xem được lịch tạm thời (nếu có).';
+    finalHeadRowEl.innerHTML = '';
+    finalBodyEl.innerHTML    = '';
+    return;
+  }
 
-      if (!schedule.length) {
-        finalWrapperEl.style.display = 'none';
-        finalEmptyEl.style.display   = 'block';
-        finalStatusEl.textContent =
-          'Tuần này đã chốt lịch nhưng chưa có dòng lịch nào trong sheet Schedule.';
-        finalHeadRowEl.innerHTML = '';
-        finalBodyEl.innerHTML    = '';
-        return;
-      }
+  // Đã chốt nhưng chưa có dòng lịch
+  if (!schedule.length) {
+    finalWrapperEl.style.display = 'none';
+    finalEmptyEl.style.display   = 'block';
+    finalStatusEl.textContent =
+      'Tuần này đã chốt lịch nhưng chưa có dòng lịch nào trong sheet Schedule.';
+    finalHeadRowEl.innerHTML = '';
+    finalBodyEl.innerHTML    = '';
+    return;
+  }
 
-      finalWrapperEl.style.display = 'block';
-      finalEmptyEl.style.display   = 'none';
-      finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
+  finalWrapperEl.style.display = 'block';
+  finalEmptyEl.style.display   = 'none';
+  finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
 
-      // ---- 1. Map: date -> slotIndex -> set(personKey) ----
-      const slotIndexByKey = {};
-      timeSlots.forEach((slot, idx) => {
-        slotIndexByKey[slot.key] = idx;
-      });
+  // ---- 1. Map: shiftKey -> index trong mảng timeSlots ----
+  const slotIndexByKey = {};
+  timeSlots.forEach((slot, idx) => {
+    slotIndexByKey[slot.key] = idx;
+  });
 
-      const dateSlotPersons  = {}; // dateISO -> Array(timeSlots.length) of Set(personKey)
-      const personMetaByDate = {}; // dateISO -> { personKey: {name, team, note, email} }
+  // ---- 2. Map: date -> slotIndex -> { personKey -> meta } ----
+  // để mỗi ô giờ chỉ chứa list unique nhân viên
+  const dateSlotPersons = {}; // dateISO -> Array(timeSlots.length) of Object(personKey -> meta)
 
-      schedule.forEach(item => {
-        const dateISO  = (item.date || '').substring(0, 10);
-        const shiftKey = item.shift || '';
-        const idx      = slotIndexByKey[shiftKey];
-        if (idx == null) return;
+  schedule.forEach(item => {
+    const dateISO  = (item.date || '').substring(0, 10);
+    const shiftKey = item.shift || '';
+    const idx      = slotIndexByKey[shiftKey];
+    if (idx == null) return; // shift không nằm trong mảng timeSlots -> bỏ qua
 
-        if (!dateSlotPersons[dateISO]) {
-          dateSlotPersons[dateISO]  = Array(timeSlots.length).fill(null).map(() => new Set());
-          personMetaByDate[dateISO] = {};
-        }
-
-        const emailRaw = (item.email || '').toString().trim().toLowerCase();
-        const email    = emailRaw || (item.email || '');
-        const name     = item.name || item.email || '';
-        const team     = (item.team || '').toUpperCase();
-        const note     = item.note || '';
-        const pKey     = email || name;
-
-        dateSlotPersons[dateISO][idx].add(pKey);
-
-        if (!personMetaByDate[dateISO][pKey]) {
-          personMetaByDate[dateISO][pKey] = { name, team, note, email };
-        }
-      });
-
-      // ---- 2. Tính block liên tiếp cho từng người trong 1 ngày,
-      // tạo cấu trúc spanInfoByDate để dùng rowspan
-      const spanInfoByDate = {};
-
-      dates.forEach(dateISO => {
-        const slotsArr = dateSlotPersons[dateISO];
-        const spanInfo = Array(timeSlots.length).fill(null);
-
-        if (!slotsArr) {
-          spanInfoByDate[dateISO] = spanInfo;
-          return;
-        }
-
-        const personMeta = personMetaByDate[dateISO] || {};
-        const persons    = Object.keys(personMeta);
-
-        persons.forEach(pKey => {
-          let i = 0;
-          while (i < timeSlots.length) {
-            const hasHere = slotsArr[i] && slotsArr[i].has(pKey);
-            if (!hasHere) {
-              i++;
-              continue;
-            }
-
-            const startIdx = i;
-            let j = i + 1;
-            while (j < timeSlots.length &&
-                   slotsArr[j] &&
-                   slotsArr[j].has(pKey)) {
-              j++;
-            }
-            const endIdx = j - 1;
-
-            let span = spanInfo[startIdx];
-            if (!span) {
-              const startHour = timeSlots[startIdx].key.split('-')[0];
-              const endHour   = timeSlots[endIdx].key.split('-')[1];
-              span = {
-                rowspan: endIdx - startIdx + 1,
-                persons: [],
-                startIdx,
-                endIdx,
-                rangeLabel: `${startHour}:00 - ${endHour}:00`
-              };
-              spanInfo[startIdx] = span;
-
-              for (let k = startIdx + 1; k <= endIdx; k++) {
-                spanInfo[k] = 'skip';
-              }
-            }
-
-            span.persons.push(personMeta[pKey]);
-            i = j;
-          }
-        });
-
-        spanInfoByDate[dateISO] = spanInfo;
-      });
-
-      // ---- 3. Header: Giờ / Ngày ----
-      finalHeadRowEl.innerHTML = '';
-      const thTime = document.createElement('th');
-      thTime.textContent = 'Giờ / Ngày';
-      finalHeadRowEl.appendChild(thTime);
-
-      dates.forEach(dateISO => {
-        const th = document.createElement('th');
-        th.textContent = formatDateWithDow(dateISO);
-        finalHeadRowEl.appendChild(th);
-      });
-
-      // ---- 4. Body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày (dùng rowspan) ----
-      finalBodyEl.innerHTML = '';
-
-      timeSlots.forEach((slot, slotIndex) => {
-        const tr = document.createElement('tr');
-
-        const thSlot = document.createElement('th');
-        thSlot.textContent = formatShiftLabel(slot.key);
-        tr.appendChild(thSlot);
-
-        dates.forEach(dateISO => {
-          const span = (spanInfoByDate[dateISO] && spanInfoByDate[dateISO][slotIndex]) || null;
-
-          if (span === 'skip') {
-            // ô này đã được rowspan từ trên, không vẽ gì
-            return;
-          }
-
-          const td = document.createElement('td');
-          td.style.verticalAlign = 'middle';
-
-          if (span && span.rowspan > 1) {
-            td.rowSpan = span.rowspan;
-          }
-
-          if (span && span.persons && span.persons.length) {
-            span.persons.forEach(info => {
-              const pill = document.createElement('span');
-              pill.textContent = info.name || '';
-              pill.style.display      = 'inline-block';
-              pill.style.padding      = '2px 8px';
-              pill.style.borderRadius = '999px';
-              pill.style.marginRight  = '4px';
-              pill.style.marginBottom = '2px';
-              pill.style.fontSize     = '12px';
-              pill.style.fontWeight   = '500';
-
-              const color = getColorForEmail(info.email || info.name || '');
-              pill.style.background = color;
-              pill.style.border     = '1px solid rgba(0,0,0,0.25)';
-
-              let tip = span.rangeLabel || '';
-              if (info.team) tip += (tip ? ' • ' : '') + info.team;
-              if (info.note) tip += (tip ? ' • ' : '') + info.note;
-              pill.title = tip;
-
-              td.appendChild(pill);
-            });
-          }
-
-          tr.appendChild(td);
-        });
-
-        finalBodyEl.appendChild(tr);
-      });
+    if (!dateSlotPersons[dateISO]) {
+      // mỗi slotIndex là 1 object: { personKey -> {name, email, team, note} }
+      dateSlotPersons[dateISO] = Array(timeSlots.length).fill(null).map(() => ({}));
     }
+
+    const emailRaw = (item.email || '').toString().trim().toLowerCase();
+    const email    = emailRaw || (item.email || '');
+    const name     = item.name || item.email || '';
+    const team     = (item.team || '').toUpperCase();
+    const note     = item.note || '';
+    const pKey     = email || name; // key để unique hoá
+
+    const slotMap = dateSlotPersons[dateISO][idx];
+    if (!slotMap[pKey]) {
+      slotMap[pKey] = { name, email, team, note };
+    }
+  });
+
+  // ---- 3. Header: Giờ / Ngày ----
+  finalHeadRowEl.innerHTML = '';
+  const thTime = document.createElement('th');
+  thTime.textContent = 'Giờ / Ngày';
+  finalHeadRowEl.appendChild(thTime);
+
+  dates.forEach(dateISO => {
+    const th = document.createElement('th');
+    th.textContent = formatDateWithDow(dateISO);
+    finalHeadRowEl.appendChild(th);
+  });
+
+  // ---- 4. Body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày ----
+  finalBodyEl.innerHTML = '';
+
+  timeSlots.forEach((slot, slotIndex) => {
+    const tr = document.createElement('tr');
+
+    const thSlot = document.createElement('th');
+    thSlot.textContent = formatShiftLabel(slot.key); // "08:00 - 09:00"
+    tr.appendChild(thSlot);
+
+    dates.forEach(dateISO => {
+      const td = document.createElement('td');
+      td.style.verticalAlign = 'middle';
+
+      const daySlots = dateSlotPersons[dateISO];
+      const slotMap  = daySlots ? daySlots[slotIndex] : null;
+
+      if (slotMap && Object.keys(slotMap).length) {
+        const persons = Object.values(slotMap).sort((a, b) =>
+          (a.name || '').localeCompare(b.name || '')
+        );
+
+        persons.forEach(info => {
+          const pill = document.createElement('span');
+          pill.textContent = info.name || '';
+          pill.style.display      = 'inline-block';
+          pill.style.padding      = '2px 8px';
+          pill.style.borderRadius = '999px';
+          pill.style.marginRight  = '4px';
+          pill.style.marginBottom = '2px';
+          pill.style.fontSize     = '12px';
+          pill.style.fontWeight   = '500';
+
+          const color = getColorForEmail(info.email || info.name || '');
+          pill.style.background = color;
+          pill.style.border     = '1px solid rgba(0,0,0,0.25)';
+
+          // Tooltip thêm team/note nếu muốn
+          let tip = '';
+          if (info.team) tip += info.team;
+          if (info.note) tip += (tip ? ' • ' : '') + info.note;
+          pill.title = tip;
+
+          td.appendChild(pill);
+        });
+      }
+
+      tr.appendChild(td);
+    });
+
+    finalBodyEl.appendChild(tr);
+  });
+}
 
     function formatShiftLabel(shiftKey) {
       if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
