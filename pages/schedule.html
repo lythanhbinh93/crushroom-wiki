@@ -25,7 +25,8 @@
                     <span>Trang chủ</span>
                 </a>
                 
-                <a href="schedule.html" class="nav-item active">
+                <!-- THÊM class nav-schedule-link để còn ẩn bằng JS -->
+                <a href="schedule.html" class="nav-item active nav-schedule-link">
                     <span class="nav-icon">📅</span>
                     <span>Đăng ký lịch làm</span>
                 </a>
@@ -203,7 +204,7 @@
                 </div>
 
                 <div class="schedule-actions" style="margin-top:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                    <!-- Chỉ part-time mới dùng nút này; fulltime sẽ bị ẩn bằng JS -->
+                    <!-- Chỉ part-time / fulltime CS mới dùng nút này; fulltime MO sẽ bị ẩn bằng JS khác -->
                     <button id="save-availability-btn" class="btn btn-primary">
                         💾 Lưu lịch rảnh
                     </button>
@@ -250,9 +251,31 @@
     <script src="../js/main.js"></script>
     <script src="../js/schedule.js"></script>
     <script>
+        // Ẩn menu "Đăng ký lịch làm" cho nhân viên fulltime không thuộc team CS
+        function hideScheduleNavForFulltimeNonCS() {
+            const user = Auth.getCurrentUser();
+            if (!user) return;
+
+            const employmentType = (user.employmentType || 'parttime').toLowerCase();
+            const isFulltime = employmentType === 'fulltime';
+            const isCS = user.permissions && user.permissions.cs;
+
+            // Fulltime và KHÔNG có quyền CS -> ẩn menu
+            if (isFulltime && !isCS) {
+                const links = document.querySelectorAll('.nav-schedule-link');
+                links.forEach(link => {
+                    link.style.display = 'none';
+                });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             if (!Auth.requireAuth()) return;
             Auth.renderAuthUI();
+
+            // Gọi hàm ẩn menu cho fulltime không thuộc team CS
+            hideScheduleNavForFulltimeNonCS();
+
             if (window.SchedulePage && typeof SchedulePage.init === 'function') {
                 SchedulePage.init();
             }
