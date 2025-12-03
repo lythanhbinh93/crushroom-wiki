@@ -31,7 +31,8 @@
                     <span>Admin</span>
                 </a>
                 
-                <a href="pages/schedule.html" class="nav-item">
+                <!-- Menu đăng ký lịch làm: sẽ bị ẩn bằng JS cho fulltime không thuộc team CS -->
+                <a href="pages/schedule.html" class="nav-item" data-schedule-link>
                     <span class="nav-icon">📅</span>
                     <span>Đăng ký lịch làm</span>
                 </a>
@@ -91,8 +92,8 @@
             <section class="quick-access">
                 <h2 class="section-title">Truy cập nhanh</h2>
                 <div class="card-grid">
-                    <!-- Đăng ký lịch làm -->
-                    <a href="pages/schedule.html" class="card card-schedule">
+                    <!-- Đăng ký lịch làm (sẽ ẩn với fulltime MO bằng JS) -->
+                    <a href="pages/schedule.html" class="card card-schedule" data-schedule-card>
                         <div class="card-icon">📅</div>
                         <h3 class="card-title">Đăng ký lịch làm</h3>
                         <p class="card-desc">Đăng ký ca làm việc hàng tuần</p>
@@ -156,13 +157,45 @@
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script>
-        // Require authentication
-        if (!Auth.requireAuth()) {
-            // Will redirect to login
-        } else {
-            // Render auth UI (user info, lock modules)
+        document.addEventListener('DOMContentLoaded', function () {
+            // Require authentication
+            if (!Auth.requireAuth()) {
+                return; // sẽ tự redirect trong Auth
+            }
+
+            // Render auth UI (user info, ẩn nhóm module không có quyền, v.v.)
             Auth.renderAuthUI();
-        }
+
+            const currentUser = Auth.getCurrentUser();
+            if (!currentUser) return;
+
+            const employmentType = (currentUser.employmentType || 'parttime').toLowerCase();
+            const permissions   = currentUser.permissions || {};
+            const isCS          = !!permissions.cs;
+            const isPartTime    = employmentType !== 'fulltime';
+
+            // Rule:
+            // - Part-time (mọi team): xem & đăng ký bình thường
+            // - Fulltime team CS: vẫn xem & đăng ký lịch làm
+            // - Fulltime không thuộc CS (MO): ẩn menu + thẻ đăng ký lịch làm
+            const canUseSchedule =
+                isPartTime ||
+                (employmentType === 'fulltime' && isCS);
+
+            if (!canUseSchedule) {
+                // Ẩn menu sidebar
+                const scheduleNav = document.querySelector('a.nav-item[data-schedule-link]');
+                if (scheduleNav) {
+                    scheduleNav.style.display = 'none';
+                }
+
+                // Ẩn card truy cập nhanh
+                const scheduleCard = document.querySelector('.card-schedule[data-schedule-card]');
+                if (scheduleCard) {
+                    scheduleCard.style.display = 'none';
+                }
+            }
+        });
     </script>
 </body>
 </html>
