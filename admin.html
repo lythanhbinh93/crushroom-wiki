@@ -125,6 +125,25 @@
             background: #e3f2fd;
             color: #1565c0;
         }
+
+        /* Employment type badge */
+        .employment-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .employment-badge.fulltime {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .employment-badge.parttime {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
         
         /* Action buttons */
         .btn-action {
@@ -602,6 +621,14 @@
                         <option value="admin">Admin</option>
                     </select>
                 </div>
+
+                <div class="form-group">
+                    <label for="userEmploymentType">Loại nhân viên *</label>
+                    <select id="userEmploymentType" required>
+                        <option value="parttime">Part-time (đăng ký lịch)</option>
+                        <option value="fulltime">Fulltime (không cần đăng ký lịch)</option>
+                    </select>
+                </div>
                 
                 <div class="form-group">
                     <label>Quyền truy cập</label>
@@ -662,12 +689,11 @@
                         <a href="index.html" style="margin-top: 20px; color: #e91e63;">← Về trang chủ</a>
                     </div>
                 `;
-} else {
-    Auth.renderAuthUI();
-    // Gọi initAdmin sau khi script chạy xong (lúc này AdminAPI đã khởi tạo)
-    setTimeout(initAdmin, 0);
-}
-
+            } else {
+                Auth.renderAuthUI();
+                // Gọi initAdmin sau khi script chạy xong (lúc này AdminAPI đã khởi tạo)
+                setTimeout(initAdmin, 0);
+            }
         }
         
         // Tab switching
@@ -728,6 +754,7 @@
                             <th>Email</th>
                             <th>Tên</th>
                             <th>Vai trò</th>
+                            <th>Loại nhân viên</th>
                             <th>Quyền</th>
                             <th>Thao tác</th>
                         </tr>
@@ -743,12 +770,17 @@
                 else permissions.push('<span class="permission-badge inactive">MKT</span>');
                 if (user.laser) permissions.push('<span class="permission-badge active">Laser</span>');
                 else permissions.push('<span class="permission-badge inactive">Laser</span>');
+
+                const typeRaw = (user.employmentType || 'parttime').toLowerCase();
+                const typeLabel = typeRaw === 'fulltime' ? 'Fulltime' : 'Part-time';
+                const typeClass = typeRaw === 'fulltime' ? 'fulltime' : 'parttime';
                 
                 html += `
                     <tr>
                         <td>${user.email}</td>
                         <td>${user.name}</td>
                         <td><span class="role-badge ${user.role}">${user.role === 'admin' ? 'Admin' : 'Staff'}</span></td>
+                        <td><span class="employment-badge ${typeClass}">${typeLabel}</span></td>
                         <td>${permissions.join('')}</td>
                         <td>
                             <button class="btn-action btn-edit" onclick="editUser(${user.row})">Sửa</button>
@@ -767,6 +799,9 @@
             document.getElementById('modalTitle').textContent = 'Thêm User';
             document.getElementById('userForm').reset();
             document.getElementById('editingRow').value = '';
+            // default: parttime
+            const typeSelect = document.getElementById('userEmploymentType');
+            if (typeSelect) typeSelect.value = 'parttime';
             document.getElementById('userModal').classList.add('show');
         }
         
@@ -784,6 +819,12 @@
             document.getElementById('permCS').checked = user.cs;
             document.getElementById('permMarketing').checked = user.marketing;
             document.getElementById('permLaser').checked = user.laser;
+
+            const typeSelect = document.getElementById('userEmploymentType');
+            if (typeSelect) {
+                const typeRaw = (user.employmentType || 'parttime').toLowerCase();
+                typeSelect.value = typeRaw === 'fulltime' ? 'fulltime' : 'parttime';
+            }
             
             document.getElementById('userModal').classList.add('show');
         }
@@ -830,7 +871,8 @@
                 role: document.getElementById('userRole').value,
                 cs: document.getElementById('permCS').checked,
                 marketing: document.getElementById('permMarketing').checked,
-                laser: document.getElementById('permLaser').checked
+                laser: document.getElementById('permLaser').checked,
+                employmentType: document.getElementById('userEmploymentType').value || 'parttime'
             };
             
             try {
@@ -999,11 +1041,11 @@
                 
                 // Default users
                 const defaultUsers = [
-                    { row: 2, email: 'admin@crushroom.vn', password: 'admin123', name: 'Admin', role: 'admin', cs: true, marketing: true, laser: true },
-                    { row: 3, email: 'cs@crushroom.vn', password: 'cs123', name: 'CS Team', role: 'staff', cs: true, marketing: false, laser: false },
-                    { row: 4, email: 'marketing@crushroom.vn', password: 'mkt123', name: 'Marketing Team', role: 'staff', cs: false, marketing: true, laser: false },
-                    { row: 5, email: 'laser@crushroom.vn', password: 'laser123', name: 'Laser Team', role: 'staff', cs: false, marketing: false, laser: true },
-                    { row: 6, email: 'test@test.com', password: 'test123', name: 'Test User', role: 'staff', cs: true, marketing: true, laser: true }
+                    { row: 2, email: 'admin@crushroom.vn', password: 'admin123', name: 'Admin', role: 'admin', cs: true, marketing: true, laser: true, employmentType: 'fulltime' },
+                    { row: 3, email: 'cs@crushroom.vn', password: 'cs123', name: 'CS Team', role: 'staff', cs: true, marketing: false, laser: false, employmentType: 'parttime' },
+                    { row: 4, email: 'marketing@crushroom.vn', password: 'mkt123', name: 'Marketing Team', role: 'staff', cs: false, marketing: true, laser: false, employmentType: 'parttime' },
+                    { row: 5, email: 'laser@crushroom.vn', password: 'laser123', name: 'Laser Team', role: 'staff', cs: false, marketing: false, laser: true, employmentType: 'fulltime' },
+                    { row: 6, email: 'test@test.com', password: 'test123', name: 'Test User', role: 'staff', cs: true, marketing: true, laser: true, employmentType: 'parttime' }
                 ];
                 localStorage.setItem('crushroom_mock_users', JSON.stringify(defaultUsers));
                 return defaultUsers;
