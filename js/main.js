@@ -15,7 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const navItems = document.querySelectorAll('.nav-item, .nav-subitem');
     
     navItems.forEach(item => {
-        if (item.getAttribute('href') && currentPath.includes(item.getAttribute('href').replace('../', '').replace('./', ''))) {
+        if (
+            item.getAttribute('href') &&
+            currentPath.includes(item.getAttribute('href').replace('../', '').replace('./', ''))
+        ) {
             item.classList.add('active');
             
             // Expand parent group if subitem is active
@@ -26,21 +29,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ===== Ẩn menu "Đăng ký lịch làm" cho fulltime KHÔNG thuộc team CS =====
+    // ===== Ẩn "Đăng ký lịch làm" cho fulltime KHÔNG thuộc team CS =====
     if (window.Auth && typeof Auth.getCurrentUser === 'function') {
         const user = Auth.getCurrentUser();
         if (user) {
-            const employmentType = (user.employmentType || '').toLowerCase();
-            const isCS = user.permissions && user.permissions.cs;
+            const employmentType = (user.employmentType || 'parttime').toLowerCase();
+            const permissions   = user.permissions || {};
+            const isCS          = !!permissions.cs;
+            const isPartTime    = employmentType !== 'fulltime';
 
-            // Fulltime + không có quyền cs => team MO fulltime => ẩn menu
-            if (employmentType === 'fulltime' && !isCS) {
-                // Tất cả link trỏ tới schedule.html (ở index có thể là pages/schedule.html)
-                const scheduleLinks = document.querySelectorAll(
-                    'a.nav-item[href$="schedule.html"], a.nav-item[href*="schedule.html"]'
+            // Rule:
+            // - Part-time (mọi team): vẫn dùng schedule
+            // - Fulltime team CS: vẫn dùng schedule
+            // - Fulltime không thuộc CS (MO): ẩn luôn schedule
+            const canUseSchedule =
+                isPartTime ||
+                (employmentType === 'fulltime' && isCS);
+
+            if (!canUseSchedule) {
+                // Ẩn tất cả link menu trỏ tới schedule
+                const scheduleNavs = document.querySelectorAll(
+                    'a.nav-item[href$="schedule.html"], ' +
+                    'a.nav-item[href*="schedule.html"], ' +
+                    'a.nav-item[data-schedule-link]'
                 );
-                scheduleLinks.forEach(function(link) {
+                scheduleNavs.forEach(function(link) {
                     link.style.display = 'none';
+                });
+
+                // Ẩn card truy cập nhanh "Đăng ký lịch làm" (ở index)
+                const scheduleCards = document.querySelectorAll(
+                    '[data-schedule-card], .card-schedule'
+                );
+                scheduleCards.forEach(function(card) {
+                    card.style.display = 'none';
                 });
             }
         }
