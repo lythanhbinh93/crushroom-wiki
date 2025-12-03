@@ -3,12 +3,12 @@
 
 window.SchedulePage = {
   init() {
-    const weekInput   = document.getElementById('week-start-input');
-    const loadBtn     = document.getElementById('load-week-btn');
-    const tbody       = document.getElementById('availability-body');
-    const msgEl       = document.getElementById('schedule-message');
-    const teamLabelEl = document.getElementById('team-label');
-    const saveBtn     = document.getElementById('save-availability-btn');
+    const weekInput    = document.getElementById('week-start-input');
+    const loadBtn      = document.getElementById('load-week-btn');
+    const tbody        = document.getElementById('availability-body');
+    const msgEl        = document.getElementById('schedule-message');
+    const teamLabelEl  = document.getElementById('team-label');
+    const saveBtn      = document.getElementById('save-availability-btn');
     const availSection = document.getElementById('availability-section');
 
     // Final schedule elements
@@ -27,13 +27,20 @@ window.SchedulePage = {
 
     // employmentType: 'parttime' | 'fulltime' (default = parttime)
     const employmentType = (currentUser.employmentType || 'parttime').toLowerCase();
-    const isCS  = currentUser.permissions && currentUser.permissions.cs;
-    const team  = isCS ? 'cs' : 'mo';
+    const isCS           = currentUser.permissions && currentUser.permissions.cs;
+    const team           = isCS ? 'cs' : 'mo';
+
+    // ❌ Rule: Full-time MO không được truy cập trang đăng ký lịch làm
+    // -> Nếu lách URL vào pages/schedule.html thì redirect về trang chủ
+    if (employmentType === 'fulltime' && !isCS) {
+      window.location.href = '../index.html';
+      return;
+    }
 
     // Quy ước:
     // - Part-time: luôn được đăng ký
     // - Fulltime CS: vẫn được đăng ký
-    // - Fulltime không CS (MO): KHÔNG được đăng ký
+    // - Fulltime không CS (MO): KHÔNG được đăng ký (đã redirect ở trên)
     const canUseAvailability =
       employmentType === 'parttime' ||
       (employmentType === 'fulltime' && isCS);
@@ -44,6 +51,7 @@ window.SchedulePage = {
     // Label phía trên bảng
     if (teamLabelEl) {
       if (!canUseAvailability && isFulltimeMO) {
+        // trường hợp này thực tế không xảy ra vì đã redirect, nhưng để phòng hờ
         teamLabelEl.textContent =
           'Bạn là nhân viên FULLTIME team Marketing/Operations – không cần đăng ký lịch rảnh trong hệ thống. Vui lòng xem lịch làm đã chốt ở trên 👇';
       } else if (employmentType === 'fulltime' && isCS) {
@@ -57,7 +65,7 @@ window.SchedulePage = {
       }
     }
 
-    // Nếu fulltime MO: ẩn luôn cả khối đăng ký
+    // Nếu fulltime MO: ẩn luôn cả khối đăng ký (phòng trường hợp load script ở trang khác)
     if (isFulltimeMO && availSection) {
       availSection.style.display = 'none';
     }
@@ -304,7 +312,7 @@ window.SchedulePage = {
     async function saveAvailability() {
       clearMessage();
 
-      // Chặn fulltime MO hoặc các loại không được dùng form
+      // Chặn tất cả đối tượng không được dùng form (bao gồm fulltime MO)
       if (!canUseAvailability) {
         showMessage('Bạn không cần đăng ký lịch rảnh trong hệ thống.', true);
         return;
