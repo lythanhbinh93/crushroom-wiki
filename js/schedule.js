@@ -26,41 +26,84 @@ window.SchedulePage = {
 
     // employmentType: 'parttime' | 'fulltime' (default = parttime)
     const employmentType = (currentUser.employmentType || 'parttime').toLowerCase();
-    const isPartTime     = employmentType !== 'fulltime';
+    const isFulltime     = employmentType === 'fulltime';
 
     // Xác định team: cs hoặc mo
     const isCS  = currentUser.permissions && currentUser.permissions.cs;
     const team  = isCS ? 'cs' : 'mo';
 
+    // Quy ước:
+    // - Part-time (mọi team): được đăng ký lịch rảnh
+    // - Fulltime CS: vẫn được đăng ký lịch rảnh
+    // - Fulltime MO: KHÔNG đăng ký lịch rảnh (leader xếp trực tiếp)
+    const canUseAvailability = !isFulltime || isCS; // true nếu được xài phần Đăng ký ca
+
+    // Tìm các phần tử của block "Đăng ký ca linh hoạt" để có thể ẩn cho fulltime MO
+    // Có 2 .schedule-table-wrapper: 1 của lịch đã chốt (id=final-schedule-wrapper),
+    // 1 của bảng đăng ký ca linh hoạt → lấy cái KHÔNG phải final-schedule-wrapper.
+    const allTableWrappers = document.querySelectorAll('.schedule-table-wrapper');
+    let availTableWrapperEl = null;
+    allTableWrappers.forEach(el => {
+      if (el.id !== 'final-schedule-wrapper') {
+        availTableWrapperEl = el;
+      }
+    });
+
+    const scheduleActionsEl = document.querySelector('.schedule-actions');
+    let scheduleNoteEl = null;
+    if (scheduleActionsEl) {
+      scheduleNoteEl = scheduleActionsEl.nextElementSibling; // <p> note dưới actions
+    }
+    const flexibleHeadingEl =
+      teamLabelEl && teamLabelEl.previousElementSibling && teamLabelEl.previousElementSibling.tagName === 'H3'
+        ? teamLabelEl.previousElementSibling
+        : null;
+
     // Label phía trên bảng
     if (teamLabelEl) {
-      if (isPartTime) {
-        teamLabelEl.textContent = isCS
-          ? 'Bạn thuộc team CS – Chọn ca theo từng tiếng (08:00 - 24:00). Đây là đăng ký cho nhân viên PART-TIME.'
-          : 'Bạn thuộc team MO – Chọn ca theo từng tiếng (09:00 - 18:00). Đây là đăng ký cho nhân viên PART-TIME.';
+      if (canUseAvailability) {
+        if (!isFulltime) {
+          // PART-TIME
+          teamLabelEl.textContent = isCS
+            ? 'Bạn thuộc team CS – Chọn ca theo từng tiếng (08:00 - 24:00). Đây là đăng ký cho nhân viên PART-TIME.'
+            : 'Bạn thuộc team MO – Chọn ca theo từng tiếng (09:00 - 18:00). Đây là đăng ký cho nhân viên PART-TIME.';
+        } else {
+          // FULLTIME team CS
+          teamLabelEl.textContent =
+            'Bạn là nhân viên FULLTIME team CS – vui lòng đăng ký lịch rảnh để leader xếp ca chính thức.';
+        }
       } else {
+        // FULLTIME team MO
         teamLabelEl.textContent =
-          'Bạn là nhân viên FULLTIME – không cần đăng ký lịch rảnh. Chỉ cần xem lịch làm đã chốt bên dưới 👇';
+          'Bạn là nhân viên FULLTIME team MO – không cần đăng ký lịch rảnh trong hệ thống. Lịch làm sẽ được leader sắp xếp trực tiếp.';
       }
     }
 
-    // Nếu fulltime: ẩn nút lưu đăng ký (chỉ xem cho vui, không thao tác)
-    if (!isPartTime && saveBtn) {
+    // Nếu FULLTIME team MO: ẩn luôn block "Đăng ký ca linh hoạt"
+    if (!canUseAvailability) {
+      if (flexibleHeadingEl) flexibleHeadingEl.style.display = 'none';
+      if (teamLabelEl) teamLabelEl.style.display = 'none';
+      if (availTableWrapperEl) availTableWrapperEl.style.display = 'none';
+      if (scheduleActionsEl) scheduleActionsEl.style.display = 'none';
+      if (scheduleNoteEl) scheduleNoteEl.style.display = 'none';
+    }
+
+    // Nếu không được dùng phần đăng ký (fulltime MO): ẩn nút lưu luôn cho chắc
+    if (!canUseAvailability && saveBtn) {
       saveBtn.style.display = 'none';
     }
 
     // State
     let dates = [];       // 7 ngày của tuần
     let timeSlots = [];   // [{key, label}]
-    let checkedMap = {};  // slotId -> true/false (chỉ dùng cho parttime)
-    let canEditAvailability = isPartTime; // sẽ cập nhật lại theo trạng thái chốt lịch
+    let checkedMap = {};  // slotId -> true/false
+    let canEditAvailability = canUseAvailability; // sẽ cập nhật lại theo trạng thái chốt lịch
 
     // Default tuần: thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
 
     // Events
     loadBtn.addEventListener('click', () => loadWeek());
-    // Chỉ parttime mới có nút lưu đăng ký (và chỉ khi chưa chốt tuần)
     if (saveBtn) {
       saveBtn.addEventListener('click', () => saveAvailability());
     }
@@ -90,7 +133,7 @@ window.SchedulePage = {
 
       try {
         showMessage(
-          isPartTime
+          canUseAvailability
             ? 'Đang tải đăng ký rảnh & lịch làm đã chốt...'
             : 'Đang tải lịch làm đã chốt...',
           false
@@ -115,8 +158,8 @@ window.SchedulePage = {
         });
 
         const requests = [
-          // parttime: load availability
-          isPartTime
+          // chỉ những người được dùng phần đăng ký mới gọi getAvailability
+          canUseAvailability
             ? fetch(Auth.API_URL, {
                 method: 'POST',
                 redirect: 'follow',
@@ -142,9 +185,9 @@ window.SchedulePage = {
 
         const [resAvail, resMeta, resSched] = await Promise.all(requests);
 
-        // map availability (chỉ với parttime)
+        // map availability (chỉ với user được đăng ký)
         checkedMap = {};
-        if (isPartTime && resAvail) {
+        if (canUseAvailability && resAvail) {
           const dataAvail = await resAvail.json();
           if (dataAvail && dataAvail.success && Array.isArray(dataAvail.availability)) {
             dataAvail.availability.forEach(item => {
@@ -164,19 +207,20 @@ window.SchedulePage = {
         const meta   = (dataMeta && dataMeta.meta) || {};
         const status = (meta.status || 'draft').toLowerCase();
 
-        // Part-time chỉ được sửa nếu tuần CHƯA chốt
-        canEditAvailability = isPartTime && status !== 'final';
+        // Chỉ được sửa nếu được dùng phần đăng ký & tuần CHƯA chốt
+        canEditAvailability = canUseAvailability && status !== 'final';
 
         // Vẽ bảng với trạng thái enable/disable đúng
         buildGrid();
         // Sau khi render cell xong mới sync checked
         syncUIFromCheckedMap();
 
-        // Ẩn/hiện nút lưu theo trạng thái
+        // Ẩn/hiện nút lưu theo trạng thái (chỉ meaningful nếu canUseAvailability)
         if (saveBtn) {
           if (canEditAvailability) {
             saveBtn.style.display = 'inline-flex';
           } else {
+            // hoặc tuần đã chốt, hoặc fulltime MO
             saveBtn.style.display = 'none';
           }
         }
@@ -184,13 +228,13 @@ window.SchedulePage = {
         // render final schedule (bảng lịch chốt)
         renderFinalSchedule(weekStart, team, dataMeta, dataSched, currentUser.email);
 
-        if (!canEditAvailability && isPartTime) {
+        if (!canEditAvailability && canUseAvailability) {
           // Tuần đã chốt, nhân viên không sửa lịch rảnh được nữa
           showMessage(
             'Tuần này đã được leader CHỐT LỊCH. Nếu cần đổi ca, vui lòng trao đổi với leader và các bạn trong team để sắp xếp lại.',
             false
           );
-        } else if (!isPartTime) {
+        } else if (!canUseAvailability) {
           showMessage('Đã tải lịch làm.', false);
         } else {
           showMessage('Đã tải dữ liệu.', false);
@@ -255,7 +299,7 @@ window.SchedulePage = {
           cb.dataset.slotId = slotId;
 
           if (canEditAvailability) {
-            // Part-time & tuần chưa chốt: cho phép tick / un-tick
+            // Được phép chỉnh (part-time + fulltime CS, và tuần chưa chốt)
             cb.addEventListener('change', () => {
               if (cb.checked) {
                 checkedMap[slotId] = true;
@@ -264,7 +308,7 @@ window.SchedulePage = {
               }
             });
           } else {
-            // Full-time hoặc tuần đã chốt: chỉ xem, không cho chỉnh
+            // Không được chỉnh: fulltime MO hoặc tuần đã chốt
             cb.disabled = true;
           }
 
@@ -291,9 +335,12 @@ window.SchedulePage = {
     async function saveAvailability() {
       clearMessage();
 
-      // Chặn luôn ở đây: fulltime hoặc tuần đã chốt
-      if (!isPartTime) {
-        showMessage('Bạn là nhân viên fulltime, không cần lưu lịch rảnh.', true);
+      // Chặn luôn: FULLTIME team MO không được lưu
+      if (!canUseAvailability) {
+        showMessage(
+          'Bạn là nhân viên FULLTIME team MO, không cần đăng ký lịch rảnh. Lịch làm sẽ do leader sắp trực tiếp.',
+          true
+        );
         return;
       }
 
@@ -359,7 +406,6 @@ window.SchedulePage = {
       finalWrapperEl.style.display  = 'none';
       finalSummaryEl.style.display  = 'none';
       finalBodyEl.innerHTML         = '';
-      // finalStatusEl.textContent  = '';   // không clear vì loadWeek đã set message riêng
       finalStatusEl.style.color     = '#555';
 
       const status = (meta.status || 'draft').toLowerCase();
