@@ -53,14 +53,15 @@ window.SchedulePage = {
     let dates = [];       // 7 ngày của tuần
     let timeSlots = [];   // [{key, label}]
     let checkedMap = {};  // slotId -> true/false (chỉ dùng cho parttime)
+    let canEditAvailability = isPartTime; // sẽ cập nhật lại theo trạng thái chốt lịch
 
     // Default tuần: thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
 
     // Events
     loadBtn.addEventListener('click', () => loadWeek());
-    // Chỉ parttime mới có nút lưu đăng ký
-    if (isPartTime && saveBtn) {
+    // Chỉ parttime mới có nút lưu đăng ký (và chỉ khi chưa chốt tuần)
+    if (saveBtn) {
       saveBtn.addEventListener('click', () => saveAvailability());
     }
 
@@ -83,10 +84,9 @@ window.SchedulePage = {
         return;
       }
 
-      // build dates & slots
+      // build dates & slots (bảng trống sẽ được vẽ SAU khi biết meta.status)
       buildDates(weekStart);
       buildTimeSlots(team);
-      buildGrid(); // vẽ bảng trống
 
       try {
         showMessage(
@@ -155,16 +155,46 @@ window.SchedulePage = {
               checkedMap[slotId] = true;
             });
           }
-          syncUIFromCheckedMap();
         }
 
         const dataMeta  = await resMeta.json();
         const dataSched = await resSched.json();
 
-        // render final schedule
+        // Xác định trạng thái chốt lịch
+        const meta   = (dataMeta && dataMeta.meta) || {};
+        const status = (meta.status || 'draft').toLowerCase();
+
+        // Part-time chỉ được sửa nếu tuần CHƯA chốt
+        canEditAvailability = isPartTime && status !== 'final';
+
+        // Vẽ bảng với trạng thái enable/disable đúng
+        buildGrid();
+        // Sau khi render cell xong mới sync checked
+        syncUIFromCheckedMap();
+
+        // Ẩn/hiện nút lưu theo trạng thái
+        if (saveBtn) {
+          if (canEditAvailability) {
+            saveBtn.style.display = 'inline-flex';
+          } else {
+            saveBtn.style.display = 'none';
+          }
+        }
+
+        // render final schedule (bảng lịch chốt)
         renderFinalSchedule(weekStart, team, dataMeta, dataSched, currentUser.email);
 
-        showMessage(isPartTime ? 'Đã tải dữ liệu.' : 'Đã tải lịch làm.', false);
+        if (!canEditAvailability && isPartTime) {
+          // Tuần đã chốt, nhân viên không sửa lịch rảnh được nữa
+          showMessage(
+            'Tuần này đã được leader CHỐT LỊCH. Nếu cần đổi ca, vui lòng trao đổi với leader và các bạn trong team để sắp xếp lại.',
+            false
+          );
+        } else if (!isPartTime) {
+          showMessage('Đã tải lịch làm.', false);
+        } else {
+          showMessage('Đã tải dữ liệu.', false);
+        }
       } catch (err) {
         console.error('loadWeek error', err);
         showMessage('Lỗi kết nối. Vui lòng thử lại.', true);
@@ -224,8 +254,8 @@ window.SchedulePage = {
           cb.type = 'checkbox';
           cb.dataset.slotId = slotId;
 
-          if (isPartTime) {
-            // Part-time: cho phép tick / un-tick
+          if (canEditAvailability) {
+            // Part-time & tuần chưa chốt: cho phép tick / un-tick
             cb.addEventListener('change', () => {
               if (cb.checked) {
                 checkedMap[slotId] = true;
@@ -234,7 +264,7 @@ window.SchedulePage = {
               }
             });
           } else {
-            // Full-time: chỉ xem, không cho chỉnh
+            // Full-time hoặc tuần đã chốt: chỉ xem, không cho chỉnh
             cb.disabled = true;
           }
 
@@ -255,14 +285,23 @@ window.SchedulePage = {
     }
 
     // =====================================================
-    // SAVE AVAILABILITY (CHỈ PART-TIME)
+    // SAVE AVAILABILITY
     // =====================================================
 
     async function saveAvailability() {
       clearMessage();
 
+      // Chặn luôn ở đây: fulltime hoặc tuần đã chốt
       if (!isPartTime) {
         showMessage('Bạn là nhân viên fulltime, không cần lưu lịch rảnh.', true);
+        return;
+      }
+
+      if (!canEditAvailability) {
+        showMessage(
+          'Tuần này đã được leader CHỐT LỊCH. Bạn không thể chỉnh sửa lịch rảnh nữa. Nếu cần đổi ca, hãy trao đổi với leader và các bạn trong team.',
+          true
+        );
         return;
       }
 
@@ -320,7 +359,7 @@ window.SchedulePage = {
       finalWrapperEl.style.display  = 'none';
       finalSummaryEl.style.display  = 'none';
       finalBodyEl.innerHTML         = '';
-      finalStatusEl.textContent     = '';
+      // finalStatusEl.textContent  = '';   // không clear vì loadWeek đã set message riêng
       finalStatusEl.style.color     = '#555';
 
       const status = (meta.status || 'draft').toLowerCase();
