@@ -170,7 +170,9 @@
 
                 <!-- ==== 4. ĐĂNG KÝ CA LINH HOẠT (TRONG HỆ THỐNG) ==== -->
                 <h3>4. Đăng ký ca linh hoạt</h3>
-                <p id="team-label" class="text-muted" style="margin-bottom:8px;"></p>
+                <p id="team-label" class="text-muted" style="margin-bottom:8px;">
+                    (Phần này dành cho nhân viên PART-TIME. Nhân viên FULLTIME chỉ cần xem lịch làm đã chốt ở trên.)
+                </p>
 
                 <p>Chọn tuần và tick những ca bạn có thể làm. Leader sẽ phân ca dựa trên đăng ký này.</p>
 
@@ -201,15 +203,8 @@
                 </div>
 
                 <div class="schedule-actions" style="margin-top:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                    <button id="edit-availability-btn" class="btn btn-secondary">
-                        ✏️ Sửa lịch rảnh
-                    </button>
-
-                    <button id="cancel-edit-availability-btn" class="btn btn-secondary" style="display:none;">
-                        Hủy sửa, tải lại lịch đã lưu
-                    </button>
-
-                    <button id="save-availability-btn" class="btn btn-primary" style="display:none;">
+                    <!-- Chỉ part-time mới dùng nút này; fulltime sẽ bị ẩn bằng JS -->
+                    <button id="save-availability-btn" class="btn btn-primary">
                         💾 Lưu lịch rảnh
                     </button>
 
