@@ -25,6 +25,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // ===== Ẩn menu "Đăng ký lịch làm" cho fulltime KHÔNG thuộc team CS =====
+    if (window.Auth && typeof Auth.getCurrentUser === 'function') {
+        const user = Auth.getCurrentUser();
+        if (user) {
+            const employmentType = (user.employmentType || '').toLowerCase();
+            const isCS = user.permissions && user.permissions.cs;
+
+            // Fulltime + không có quyền cs => team MO fulltime => ẩn menu
+            if (employmentType === 'fulltime' && !isCS) {
+                // Tất cả link trỏ tới schedule.html (ở index có thể là pages/schedule.html)
+                const scheduleLinks = document.querySelectorAll(
+                    'a.nav-item[href$="schedule.html"], a.nav-item[href*="schedule.html"]'
+                );
+                scheduleLinks.forEach(function(link) {
+                    link.style.display = 'none';
+                });
+            }
+        }
+    }
     
     // Mobile menu toggle
     const menuToggle = document.querySelector('.menu-toggle');
@@ -44,7 +64,9 @@ function selectOption(questionId, optionIndex) {
     options.forEach(opt => opt.classList.remove('selected'));
     
     // Add selected class to clicked option
-    const selectedOption = document.querySelector(`#question-${questionId} .quiz-option:nth-child(${optionIndex + 1})`);
+    const selectedOption = document.querySelector(
+        `#question-${questionId} .quiz-option:nth-child(${optionIndex + 1})`
+    );
     if (selectedOption) {
         selectedOption.classList.add('selected');
     }
@@ -81,7 +103,13 @@ function submitQuiz(correctAnswers) {
                 <h3>Kết quả bài kiểm tra</h3>
                 <div class="quiz-score">${score}/${totalQuestions}</div>
                 <div class="quiz-percentage">${percentage}%</div>
-                <p>${percentage >= 80 ? '🎉 Xuất sắc! Bạn đã pass bài test!' : percentage >= 60 ? '👍 Khá tốt! Cần ôn lại một số nội dung.' : '📚 Cần học lại và làm bài test lần nữa.'}</p>
+                <p>${
+                    percentage >= 80
+                        ? '🎉 Xuất sắc! Bạn đã pass bài test!'
+                        : percentage >= 60
+                        ? '👍 Khá tốt! Cần ôn lại một số nội dung.'
+                        : '📚 Cần học lại và làm bài test lần nữa.'
+                }</p>
             </div>
         `;
         resultDiv.style.display = 'block';
