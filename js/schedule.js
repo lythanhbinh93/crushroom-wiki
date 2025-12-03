@@ -9,6 +9,7 @@ window.SchedulePage = {
     const msgEl       = document.getElementById('schedule-message');
     const teamLabelEl = document.getElementById('team-label');
     const saveBtn     = document.getElementById('save-availability-btn');
+    const availSection = document.getElementById('availability-section');
 
     // Final schedule elements
     const finalStatusEl   = document.getElementById('final-schedule-status');
@@ -26,69 +27,42 @@ window.SchedulePage = {
 
     // employmentType: 'parttime' | 'fulltime' (default = parttime)
     const employmentType = (currentUser.employmentType || 'parttime').toLowerCase();
-    const isFulltime     = employmentType === 'fulltime';
-
-    // Xác định team: cs hoặc mo
     const isCS  = currentUser.permissions && currentUser.permissions.cs;
     const team  = isCS ? 'cs' : 'mo';
 
     // Quy ước:
-    // - Part-time (mọi team): được đăng ký lịch rảnh
-    // - Fulltime CS: vẫn được đăng ký lịch rảnh
-    // - Fulltime MO: KHÔNG đăng ký lịch rảnh (leader xếp trực tiếp)
-    const canUseAvailability = !isFulltime || isCS; // true nếu được xài phần Đăng ký ca
+    // - Part-time: luôn được đăng ký
+    // - Fulltime CS: vẫn được đăng ký
+    // - Fulltime không CS (MO): KHÔNG được đăng ký
+    const canUseAvailability =
+      employmentType === 'parttime' ||
+      (employmentType === 'fulltime' && isCS);
 
-    // Tìm các phần tử của block "Đăng ký ca linh hoạt" để có thể ẩn cho fulltime MO
-    // Có 2 .schedule-table-wrapper: 1 của lịch đã chốt (id=final-schedule-wrapper),
-    // 1 của bảng đăng ký ca linh hoạt → lấy cái KHÔNG phải final-schedule-wrapper.
-    const allTableWrappers = document.querySelectorAll('.schedule-table-wrapper');
-    let availTableWrapperEl = null;
-    allTableWrappers.forEach(el => {
-      if (el.id !== 'final-schedule-wrapper') {
-        availTableWrapperEl = el;
-      }
-    });
-
-    const scheduleActionsEl = document.querySelector('.schedule-actions');
-    let scheduleNoteEl = null;
-    if (scheduleActionsEl) {
-      scheduleNoteEl = scheduleActionsEl.nextElementSibling; // <p> note dưới actions
-    }
-    const flexibleHeadingEl =
-      teamLabelEl && teamLabelEl.previousElementSibling && teamLabelEl.previousElementSibling.tagName === 'H3'
-        ? teamLabelEl.previousElementSibling
-        : null;
+    const isFulltimeMO =
+      employmentType === 'fulltime' && !isCS;
 
     // Label phía trên bảng
     if (teamLabelEl) {
-      if (canUseAvailability) {
-        if (!isFulltime) {
-          // PART-TIME
-          teamLabelEl.textContent = isCS
-            ? 'Bạn thuộc team CS – Chọn ca theo từng tiếng (08:00 - 24:00). Đây là đăng ký cho nhân viên PART-TIME.'
-            : 'Bạn thuộc team MO – Chọn ca theo từng tiếng (09:00 - 18:00). Đây là đăng ký cho nhân viên PART-TIME.';
-        } else {
-          // FULLTIME team CS
-          teamLabelEl.textContent =
-            'Bạn là nhân viên FULLTIME team CS – vui lòng đăng ký lịch rảnh để leader xếp ca chính thức.';
-        }
-      } else {
-        // FULLTIME team MO
+      if (!canUseAvailability && isFulltimeMO) {
         teamLabelEl.textContent =
-          'Bạn là nhân viên FULLTIME team MO – không cần đăng ký lịch rảnh trong hệ thống. Lịch làm sẽ được leader sắp xếp trực tiếp.';
+          'Bạn là nhân viên FULLTIME team Marketing/Operations – không cần đăng ký lịch rảnh trong hệ thống. Vui lòng xem lịch làm đã chốt ở trên 👇';
+      } else if (employmentType === 'fulltime' && isCS) {
+        teamLabelEl.textContent =
+          'Bạn là nhân viên FULLTIME team CS – vui lòng đăng ký lịch rảnh theo từng tiếng (08:00 - 24:00).';
+      } else {
+        // part-time
+        teamLabelEl.textContent = isCS
+          ? 'Bạn thuộc team CS – Chọn ca theo từng tiếng (08:00 - 24:00). Đây là đăng ký cho nhân viên PART-TIME.'
+          : 'Bạn thuộc team MO – Chọn ca theo từng tiếng (09:00 - 18:00). Đây là đăng ký cho nhân viên PART-TIME.';
       }
     }
 
-    // Nếu FULLTIME team MO: ẩn luôn block "Đăng ký ca linh hoạt"
-    if (!canUseAvailability) {
-      if (flexibleHeadingEl) flexibleHeadingEl.style.display = 'none';
-      if (teamLabelEl) teamLabelEl.style.display = 'none';
-      if (availTableWrapperEl) availTableWrapperEl.style.display = 'none';
-      if (scheduleActionsEl) scheduleActionsEl.style.display = 'none';
-      if (scheduleNoteEl) scheduleNoteEl.style.display = 'none';
+    // Nếu fulltime MO: ẩn luôn cả khối đăng ký
+    if (isFulltimeMO && availSection) {
+      availSection.style.display = 'none';
     }
 
-    // Nếu không được dùng phần đăng ký (fulltime MO): ẩn nút lưu luôn cho chắc
+    // Nếu không được dùng form: ẩn nút lưu
     if (!canUseAvailability && saveBtn) {
       saveBtn.style.display = 'none';
     }
@@ -109,7 +83,7 @@ window.SchedulePage = {
     }
 
     weekInput.addEventListener('change', () => {
-      loadWeek(); // đổi tuần -> load lại cả rảnh + lịch chốt
+      loadWeek();
     });
 
     // Lần đầu
@@ -127,7 +101,7 @@ window.SchedulePage = {
         return;
       }
 
-      // build dates & slots (bảng trống sẽ được vẽ SAU khi biết meta.status)
+      // build dates & slots
       buildDates(weekStart);
       buildTimeSlots(team);
 
@@ -158,7 +132,6 @@ window.SchedulePage = {
         });
 
         const requests = [
-          // chỉ những người được dùng phần đăng ký mới gọi getAvailability
           canUseAvailability
             ? fetch(Auth.API_URL, {
                 method: 'POST',
@@ -167,14 +140,12 @@ window.SchedulePage = {
                 body: bodyAvail
               })
             : Promise.resolve(null),
-          // meta
           fetch(Auth.API_URL, {
             method: 'POST',
             redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: bodyMeta
           }),
-          // schedule
           fetch(Auth.API_URL, {
             method: 'POST',
             redirect: 'follow',
@@ -185,7 +156,7 @@ window.SchedulePage = {
 
         const [resAvail, resMeta, resSched] = await Promise.all(requests);
 
-        // map availability (chỉ với user được đăng ký)
+        // map availability (nếu được dùng form)
         checkedMap = {};
         if (canUseAvailability && resAvail) {
           const dataAvail = await resAvail.json();
@@ -207,25 +178,25 @@ window.SchedulePage = {
         const meta   = (dataMeta && dataMeta.meta) || {};
         const status = (meta.status || 'draft').toLowerCase();
 
-        // Chỉ được sửa nếu được dùng phần đăng ký & tuần CHƯA chốt
+        // Chỉ được sửa nếu:
+        // - Được phép dùng form, VÀ
+        // - Tuần chưa chốt
         canEditAvailability = canUseAvailability && status !== 'final';
 
         // Vẽ bảng với trạng thái enable/disable đúng
         buildGrid();
-        // Sau khi render cell xong mới sync checked
         syncUIFromCheckedMap();
 
-        // Ẩn/hiện nút lưu theo trạng thái (chỉ meaningful nếu canUseAvailability)
+        // Ẩn/hiện nút lưu theo trạng thái
         if (saveBtn) {
           if (canEditAvailability) {
             saveBtn.style.display = 'inline-flex';
           } else {
-            // hoặc tuần đã chốt, hoặc fulltime MO
             saveBtn.style.display = 'none';
           }
         }
 
-        // render final schedule (bảng lịch chốt)
+        // render final schedule
         renderFinalSchedule(weekStart, team, dataMeta, dataSched, currentUser.email);
 
         if (!canEditAvailability && canUseAvailability) {
@@ -299,7 +270,6 @@ window.SchedulePage = {
           cb.dataset.slotId = slotId;
 
           if (canEditAvailability) {
-            // Được phép chỉnh (part-time + fulltime CS, và tuần chưa chốt)
             cb.addEventListener('change', () => {
               if (cb.checked) {
                 checkedMap[slotId] = true;
@@ -308,7 +278,6 @@ window.SchedulePage = {
               }
             });
           } else {
-            // Không được chỉnh: fulltime MO hoặc tuần đã chốt
             cb.disabled = true;
           }
 
@@ -335,12 +304,9 @@ window.SchedulePage = {
     async function saveAvailability() {
       clearMessage();
 
-      // Chặn luôn: FULLTIME team MO không được lưu
+      // Chặn fulltime MO hoặc các loại không được dùng form
       if (!canUseAvailability) {
-        showMessage(
-          'Bạn là nhân viên FULLTIME team MO, không cần đăng ký lịch rảnh. Lịch làm sẽ do leader sắp trực tiếp.',
-          true
-        );
+        showMessage('Bạn không cần đăng ký lịch rảnh trong hệ thống.', true);
         return;
       }
 
@@ -358,7 +324,6 @@ window.SchedulePage = {
         return;
       }
 
-      // convert checkedMap -> array
       const availability = [];
       Object.keys(checkedMap).forEach(slotId => {
         const [date, shift] = slotId.split('|');
@@ -394,7 +359,7 @@ window.SchedulePage = {
     }
 
     // =====================================================
-    // FINAL SCHEDULE (CHỐT) – RENDER CHO NHÂN VIÊN
+    // FINAL SCHEDULE (CHỐT)
     // =====================================================
 
     function renderFinalSchedule(weekStart, team, dataMeta, dataSched, userEmail) {
@@ -402,7 +367,6 @@ window.SchedulePage = {
 
       const meta = (dataMeta && dataMeta.meta) || { status: 'draft' };
 
-      // reset UI
       finalWrapperEl.style.display  = 'none';
       finalSummaryEl.style.display  = 'none';
       finalBodyEl.innerHTML         = '';
@@ -410,14 +374,12 @@ window.SchedulePage = {
 
       const status = (meta.status || 'draft').toLowerCase();
 
-      // Nếu chưa chốt
       if (status !== 'final') {
         finalStatusEl.textContent = '⏳ Lịch làm tuần này chưa được chốt. Leader đang xếp lịch, vui lòng xem lại sau.';
         finalStatusEl.style.color = '#757575';
         return;
       }
 
-      // Đã chốt: lọc lịch theo nhân viên hiện tại
       const schedArr = (dataSched && dataSched.schedule) || [];
       const emailKey = (userEmail || '').toLowerCase();
 
@@ -431,7 +393,6 @@ window.SchedulePage = {
         return;
       }
 
-      // Có lịch: build map date -> [shift]
       const byDate = {};
       userSlots.forEach(item => {
         const date = String(item.date || '').substring(0, 10);
@@ -443,7 +404,6 @@ window.SchedulePage = {
         }
       });
 
-      // Sort & merge ca liên tiếp
       const rows = [];
       let totalHours = 0;
       let daysCount  = 0;
@@ -464,7 +424,6 @@ window.SchedulePage = {
           continue;
         }
 
-        // sort shift theo giờ bắt đầu
         shifts.sort((a, b) => {
           const ah = parseInt(a.split('-')[0], 10);
           const bh = parseInt(b.split('-')[0], 10);
@@ -487,7 +446,6 @@ window.SchedulePage = {
         });
       }
 
-      // render table
       rows.forEach(row => {
         const tr = document.createElement('tr');
         const tdDate = document.createElement('td');
@@ -512,7 +470,6 @@ window.SchedulePage = {
     }
 
     function mergeShiftRanges(shifts) {
-      // shifts: array ['09-10','10-11',...], đã sorted
       const result = [];
       if (shifts.length === 0) return result;
 
@@ -526,7 +483,6 @@ window.SchedulePage = {
         if (!current) {
           current = { start, end };
         } else {
-          // Nếu ca mới nối tiếp ca cũ (VD: 09-10 & 10-11)
           if (start === current.end) {
             current.end = end;
           } else {
