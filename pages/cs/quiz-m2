@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài kiểm tra Module 2: Sản phẩm - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .quiz-header {
+            background: linear-gradient(135deg, #e91e63, #f48fb1);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+        .quiz-header h1 { margin: 0 0 8px 0; }
+        .quiz-header p { margin: 0; opacity: 0.9; }
+        
+        .quiz-info {
+            background: #fce4ec;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+        .quiz-info ul { margin: 8px 0; padding-left: 24px; }
+        
+        .section-divider {
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin: 32px 0;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .quiz-question {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .quiz-question-number {
+            color: #e91e63;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .quiz-question-text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .quiz-option {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .quiz-option:hover {
+            border-color: #e91e63;
+            background: #fce4ec;
+        }
+        .quiz-option.selected {
+            border-color: #e91e63;
+            background: #fce4ec;
+        }
+        .quiz-option-marker {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #bdbdbd;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .quiz-option.selected .quiz-option-marker {
+            border-color: #e91e63;
+            background: #e91e63;
+            position: relative;
+        }
+        .quiz-option.selected .quiz-option-marker::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .essay-question {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .essay-answer {
+            width: 100%;
+            min-height: 150px;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        .essay-answer:focus {
+            outline: none;
+            border-color: #e91e63;
+        }
+        .word-count {
+            text-align: right;
+            color: #757575;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        
+        .submit-button {
+            background: #e91e63;
+            color: white;
+            padding: 16px 48px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: block;
+            margin: 32px auto;
+        }
+        .submit-button:hover {
+            background: #c2185b;
+            transform: translateY(-2px);
+        }
+        
+        .quiz-result {
+            display: none;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 24px;
+        }
+        .quiz-score {
+            font-size: 48px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">💎</span>
+                    <span class="logo-text">Crush Room</span>
+                </div>
+                <span class="wiki-badge">Wiki</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="../../index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span>Trang chủ</span>
+                </a>
+                
+                <div class="nav-group">
+                    <div class="nav-group-header">
+                        <span class="nav-icon">💬</span>
+                        <span>Customer Service</span>
+                        <span class="nav-arrow">▼</span>
+                    </div>
+                    <div class="nav-group-items">
+                        <a href="library.html" class="nav-subitem">Thư viện học tập</a>
+                        <a href="quiz.html" class="nav-subitem active">Bài kiểm tra</a>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="user-info"></div>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 Crush Room</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../index.html">Trang chủ</a>
+                <span>/</span>
+                <a href="library.html">CS Training</a>
+                <span>/</span>
+                <span>Bài kiểm tra Module 2</span>
+            </div>
+
+            <div class="quiz-header">
+                <h1>💍 Bài kiểm tra Module 2: Kiến thức sản phẩm</h1>
+                <p>Kiểm tra hiểu biết về COUPLECOUPLEPIX, Engraved, WarmLove, Sổ ký ức và khả năng tư vấn sản phẩm</p>
+            </div>
+
+            <div class="quiz-info">
+                <h3>📋 Thông tin bài kiểm tra</h3>
+                <ul>
+                    <li><strong>Thời gian:</strong> 60 phút</li>
+                    <li><strong>Số câu hỏi:</strong> 50 câu (40 trắc nghiệm + 10 tự luận)</li>
+                    <li><strong>Điểm đạt:</strong> ≥ 7.0/10</li>
+                    <li><strong>Lưu ý:</strong> Cần nắm vững giá, chất liệu, thời gian sản xuất của TẤT CẢ sản phẩm</li>
+                </ul>
+            </div>
+
+            <!-- Timer Section -->
+            <div id="startSection" class="quiz-info" style="text-align: center; background: linear-gradient(135deg, #fff3e0, #ffe0b2);">
+                <h3>⏱️ Chuẩn bị làm bài</h3>
+                <p>Nhấn nút bên dưới để bắt đầu làm bài. Thời gian 60 phút sẽ bắt đầu đếm ngược.</p>
+                <button onclick="startQuiz()" class="submit-button" style="margin: 16px auto;">BẮT ĐẦU LÀM BÀI</button>
+            </div>
+
+            <div id="timerSection" style="display: none; position: sticky; top: 0; z-index: 100; background: linear-gradient(135deg, #e91e63, #f48fb1); color: white; padding: 16px; text-align: center; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div style="font-size: 14px; margin-bottom: 4px;">⏱️ Thời gian còn lại</div>
+                <div id="timerDisplay" style="font-size: 32px; font-weight: 700;">60:00</div>
+                <div id="timerWarning" style="font-size: 13px; margin-top: 4px; display: none;">⚠️ Sắp hết giờ!</div>
+            </div>
+
+            <form id="quizForm" style="display: none;">
+                <!-- PHẦN A: TRẮC NGHIỆM (40 câu - 8 điểm) -->
+                <div class="section-divider">
+                    PHẦN A: TRẮC NGHIỆM (40 câu - 8 điểm)
+                </div>
+
+                <!-- Chủ đề 1: Giá sản phẩm & Combo (8 câu) -->
+                
+                <!-- Câu 1 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 1/40 - Giá sản phẩm & Combo</div>
+                    <div class="quiz-question-text">Vòng tay thép chiếu ảnh COUPLECOUPLEPIX có giá bao nhiêu khi mua lẻ?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(1, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 299k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(1, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 349k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(1, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 399k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(1, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 449k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 2 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 2/40</div>
+                    <div class="quiz-question-text">Khách mua 1 đôi vòng tay thép COUPLECOUPLEPIX sẽ trả bao nhiêu tiền?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(2, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 698k (349k x 2, không giảm)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(2, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 599k (giảm 99k khi mua đôi)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(2, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 649k (giảm 49k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(2, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 549k (giảm 149k)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 3 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 3/40</div>
+                    <div class="quiz-question-text">Vòng tay bạc nữ CherishPix có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(3, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 699k lẻ, 1.298k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(3, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 799k lẻ, 1.498k đôi (giảm 100k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(3, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 899k lẻ, 1.698k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(3, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 999k lẻ, 1.898k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 4 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 4/40</div>
+                    <div class="quiz-question-text">Set Cỏ Bốn Lá (vòng bạc nữ + vòng thép nam) có tổng giá là:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(4, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 998k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(4, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 1.048k (799k + 349k, giảm 100k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(4, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 1.148k (giá gốc không giảm)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(4, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 1.248k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 5 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 5/40</div>
+                    <div class="quiz-question-text">Nhẫn bạc chiếu ảnh có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(5, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 499k lẻ, 899k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(5, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 599k lẻ, 1.099k đôi (giảm 100k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(5, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 699k lẻ, 1.299k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(5, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 799k lẻ, 1.499k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 6 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 6/40</div>
+                    <div class="quiz-question-text">Dây chuyền thép chiếu ảnh có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(6, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 299k lẻ, 499k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(6, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 349k lẻ, 599k đôi (giảm 99k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(6, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 399k lẻ, 699k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(6, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 449k lẻ, 799k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 7 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 7/40</div>
+                    <div class="quiz-question-text">Dây chuyền bạc nữ chiếu ảnh có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(7, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 599k lẻ, 1.098k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(7, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 699k lẻ, 1.298k đôi (giảm 100k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(7, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 799k lẻ, 1.498k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(7, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 899k lẻ, 1.698k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 8 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 8/40</div>
+                    <div class="quiz-question-text">Vòng tay nam bạc chiếu ảnh có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(8, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 1.399k lẻ</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(8, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 1.199k lẻ</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(8, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 999k lẻ</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(8, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 1.599k lẻ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chủ đề 2: COUPLECOUPLEPIX Collection (10 câu) -->
+                
+                <!-- Câu 9 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 9/40 - COUPLEPIX Collection</div>
+                    <div class="quiz-question-text">Giá vòng tay thép chiếu ảnh COUPLEPIX là bao nhiêu?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(9, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 299k/chiếc</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(9, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 349k/chiếc</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(9, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 399k/chiếc</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(9, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 449k/chiếc</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 10 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 10/40</div>
+                    <div class="quiz-question-text">Khi mua 1 đôi vòng tay thép COUPLEPIX, khách trả bao nhiêu?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(10, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 698k (349k x 2)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(10, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 599k (giảm 99k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(10, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 649k (giảm 49k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(10, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 549k (giảm 149k)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 11 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 11/40</div>
+                    <div class="quiz-question-text">Set Cỏ Bốn Lá bao gồm những gì?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(11, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 2 vòng bạc nữ</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(11, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Vòng bạc nữ (799k) + Vòng thép nam (349k) = 1.048k (giảm 100k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(11, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 2 vòng thép</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(11, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Vòng + dây chuyền</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 12 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 12/40</div>
+                    <div class="quiz-question-text">Tại sao Set Cỏ Bốn Lá là best seller?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(12, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Giá rẻ nhất</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(12, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Nữ được vòng bạc sang, nam được vòng thép bền, giảm 100k, ý nghĩa may mắn</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(12, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Dễ đeo nhất</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(12, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Thiết kế đơn giản</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 13 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 13/40</div>
+                    <div class="quiz-question-text">Vòng tay bạc nữ CherishPix có giá bao nhiêu?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(13, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 699k lẻ, 1.298k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(13, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 799k lẻ, 1.498k đôi (giảm 100k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(13, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 899k lẻ, 1.698k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(13, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 999k lẻ, 1.898k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 14 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 14/40</div>
+                    <div class="quiz-question-text">Nhẫn bạc chiếu ảnh có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(14, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 499k lẻ, 899k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(14, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 599k lẻ, 1.099k đôi (giảm 100k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(14, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 699k lẻ, 1.299k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(14, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 799k lẻ, 1.499k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 15 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 15/40</div>
+                    <div class="quiz-question-text">Dây chuyền thép chiếu ảnh có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(15, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 299k lẻ, 499k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(15, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 349k lẻ, 599k đôi (giảm 99k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(15, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 399k lẻ, 699k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(15, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 449k lẻ, 799k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 16 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 16/40</div>
+                    <div class="quiz-question-text">Khi nào CS NÊN recommend dòng COUPLEPIX?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(16, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Khách cần gấp dưới 7 ngày</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(16, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Khách muốn quà có ảnh cá nhân, có thời gian 12-18 ngày, budget 350k-1.5tr</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(16, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Budget dưới 250k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(16, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Khách không có ảnh</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 17 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 17/40</div>
+                    <div class="quiz-question-text">Chất liệu của vòng tay nam bạc chiếu ảnh là gì và giá bao nhiêu?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(17, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Bạc S925, 1.399k lẻ</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(17, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Bạc S999, 1.599k lẻ</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(17, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Bạc S925, 1.199k lẻ</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(17, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Vàng 10K, 2.000k lẻ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 18 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 18/40</div>
+                    <div class="quiz-question-text">Dây chuyền bạc nữ chiếu ảnh có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(18, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 599k lẻ, 1.098k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(18, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 699k lẻ, 1.298k đôi (giảm 100k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(18, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 799k lẻ, 1.498k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(18, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 899k lẻ, 1.698k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chủ đề 3: Engraved Collection (8 câu) -->
+                
+                <!-- Câu 19 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 19/40 - Engraved Collection</div>
+                    <div class="quiz-question-text">Vòng khắc mắt CoupleYes có giá bao nhiêu?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(19, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 249k lẻ, 399k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(19, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 299k lẻ, 499k đôi (giảm 99k)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(19, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 349k lẻ, 599k đôi</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(19, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 399k lẻ, 699k đôi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 20 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 20/40</div>
+                    <div class="quiz-question-text">Thời gian sản xuất vòng khắc mắt CoupleYes là:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(20, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 3-5 ngày</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(20, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 5-7 ngày (nhanh hơn COUPLEPIX)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(20, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 10-14 ngày</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(20, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 15-20 ngày</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 21 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 21/40</div>
+                    <div class="quiz-question-text">Khắc chữ đánh máy có giá bao nhiêu?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(21, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 25k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(21, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 45k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(21, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 65k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(21, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 85k/mặt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 22 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 22/40</div>
+                    <div class="quiz-question-text">Khắc chữ viết tay có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(22, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 45k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(22, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 65k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(22, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 85k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(22, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 105k/mặt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 23 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 23/40</div>
+                    <div class="quiz-question-text">Mã nhạc Spotify có giá bao nhiêu?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(23, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 35k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(23, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 55k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(23, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 75k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(23, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 95k/mặt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 24 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 24/40</div>
+                    <div class="quiz-question-text">QR ghi âm có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(24, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 50k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(24, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 80k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(24, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 100k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(24, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 120k/mặt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 25 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 25/40</div>
+                    <div class="quiz-question-text">QR Counter Love (ghi âm + đếm ngày yêu) có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(25, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 100k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(25, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 120k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(25, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 150k/mặt</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(25, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 180k/mặt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 26 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 26/40</div>
+                    <div class="quiz-question-text">Khắc dấu môi có giá bao nhiêu?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(26, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 50k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(26, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Miễn phí khi mua kèm vòng</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(26, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 30k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(26, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Không có dịch vụ này</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chủ đề 4: WarmLove & Sổ ký ức (6 câu) -->
+                
+                <!-- Câu 27 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 27/40 - WarmLove & Sổ ký ức</div>
+                    <div class="quiz-question-text">Trang sức WarmLove đổi màu dựa trên yếu tố gì?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(27, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Ánh sáng môi trường</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(27, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Nhiệt độ cơ thể (body heat)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(27, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Độ ẩm không khí</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(27, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Tâm trạng người đeo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 28 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 28/40</div>
+                    <div class="quiz-question-text">Giá của WarmLove hiện tại là:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(28, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 349k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(28, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 399k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(28, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 449k (đang sale)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(28, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 499k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 29 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 29/40</div>
+                    <div class="quiz-question-text">Khi nào CS nên recommend WarmLove?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(29, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Khách muốn quà có ảnh</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(29, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Khách thích độc đáo, hiệu ứng magic</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(29, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Khách budget cao</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(29, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Khách cần gấp</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 30 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 30/40</div>
+                    <div class="quiz-question-text">Sổ ký ức có giá:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(30, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 299k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(30, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 349k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(30, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 399k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(30, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 449k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 31 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 31/40</div>
+                    <div class="quiz-question-text">Thời gian sản xuất Sổ ký ức là:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(31, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. 3-5 ngày</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(31, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. 5-7 ngày</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(31, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. 7-12 ngày</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(31, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. 10-14 ngày</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 32 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 32/40</div>
+                    <div class="quiz-question-text">Điểm mạnh của Sổ ký ức là:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(32, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Giá rẻ nhất</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(32, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Lưu được NHIỀU ảnh, chữ, QR, không giới hạn như vòng</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(32, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Làm nhanh nhất</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(32, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Đeo được như trang sức</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chủ đề 5: Chất liệu & Ma trận recommend (8 câu) -->
+                
+                <!-- Câu 33 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 33/40 - Chất liệu & Recommend</div>
+                    <div class="quiz-question-text">Thép không gỉ 316L có ưu điểm gì so với hợp kim thường?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(33, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Rẻ hơn</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(33, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Không đen, không gỉ sét, bền lâu dù đeo thường xuyên</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(33, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Sang trọng hơn</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(33, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Nhẹ hơn</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 34 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 34/40</div>
+                    <div class="quiz-question-text">Bạc S925 khác với thép 316L ở điểm nào?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(34, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Bạc rẻ hơn thép</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(34, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Bạc sang trọng hơn, có giám định, giá cao hơn</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(34, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Bạc bền hơn thép</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(34, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Không có sự khác biệt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 35 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 35/40</div>
+                    <div class="quiz-question-text">Khách budget thấp (dưới 350k), cần gấp 7 ngày. CS nên recommend:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(35, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Vòng tay thép COUPLEPIX 349k (10-14 ngày)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(35, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Vòng khắc mắt 299k (5-7 ngày) - Phù hợp cả budget và thời gian</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(35, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Set Cỏ Bốn Lá 1.048k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(35, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Không có sản phẩm nào phù hợp</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 36 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 36/40</div>
+                    <div class="quiz-question-text">Khách muốn quà sang trọng, budget 1 triệu, có thời gian. CS nên recommend:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(36, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Vòng thép 349k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(36, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Set Cỏ Bốn Lá 1.048k (vòng bạc nữ + vòng thép nam)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(36, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Vòng khắc mắt 299k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(36, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Sổ ký ức 399k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 37 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 37/40</div>
+                    <div class="quiz-question-text">Khách muốn quà độc đáo, khác người, có hiệu ứng đặc biệt. CS nên recommend:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(37, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Vòng thép COUPLEPIX thông thường</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(37, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. WarmLove 449k (đổi màu theo nhiệt độ - magic effect)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(37, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Vòng khắc mắt đơn giản</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(37, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Dây chuyền thép</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 38 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 38/40</div>
+                    <div class="quiz-question-text">Khách muốn lưu NHIỀU kỷ niệm (nhiều ảnh, nhiều lời nhắn). CS nên recommend:</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(38, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Vòng COUPLEPIX (chỉ 1 ảnh)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(38, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Sổ ký ức 399k (lưu được nhiều ảnh, chữ, QR)</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(38, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Nhẫn bạc</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(38, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. WarmLove</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 39 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 39/40</div>
+                    <div class="quiz-question-text">Tình huống nào cho thấy CS recommend sản phẩm ĐÚNG?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(39, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. Khách cần 5 ngày → Recommend COUPLEPIX 10-14 ngày</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(39, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. Khách budget 300k → Recommend Set 1.048k</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(39, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. Khách muốn sang trọng + budget 1tr → Recommend Set Cỏ Bốn Lá</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(39, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. Khách không có ảnh → Recommend vòng chiếu ảnh</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Câu 40 -->
+                <div class="quiz-question">
+                    <div class="quiz-question-number">Câu 40/40</div>
+                    <div class="quiz-question-text">Câu nào cho thấy CS hiểu rõ điểm mạnh của từng dòng sản phẩm?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectOption(40, 'A')">
+                            <div class="quiz-option-marker"></div>
+                            <span>A. "Tất cả sản phẩm đều tốt như nhau"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(40, 'B')">
+                            <div class="quiz-option-marker"></div>
+                            <span>B. "COUPLEPIX cho hiệu ứng wow, Engraved cho minimalist, WarmLove cho độc đáo, Sổ cho nhiều kỷ niệm"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(40, 'C')">
+                            <div class="quiz-option-marker"></div>
+                            <span>C. "Chọn cái nào cũng được"</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectOption(40, 'D')">
+                            <div class="quiz-option-marker"></div>
+                            <span>D. "Cái nào đắt nhất thì tốt nhất"</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PHẦN B: TỰ LUẬN (10 câu - 2 điểm) -->
+                <div class="section-divider">
+                    PHẦN B: TỰ LUẬN (10 câu - 2 điểm)
+                </div>
+
+                <!-- Essay 1 - Dạng Liệt kê -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 1/10 (Dạng: Liệt kê kiến thức)</div>
+                    <div class="quiz-question-text">
+                        <strong>Yêu cầu:</strong> Liệt kê size phổ thông của dây chuyền, vòng tay (cả 2 chất liệu bạc 925 & thép). Trình bày rõ ràng, đầy đủ. (100 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay1" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count1">0</span>/100 từ</div>
+                </div>
+
+                <!-- Essay 2 - Tư vấn chất liệu -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 2/10 (Dạng: Tư vấn chất liệu)</div>
+                    <div class="quiz-question-text">
+                        <strong>Câu hỏi của khách:</strong> "Thép và titan khác nhau như thế nào?"<br>
+                        <strong>Yêu cầu:</strong> Viết câu trả lời giải thích rõ ràng, dễ hiểu cho khách (120 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay2" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count2">0</span>/120 từ</div>
+                </div>
+
+                <!-- Essay 3 - Tư vấn bạc -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 3/10 (Dạng: Tư vấn chất liệu)</div>
+                    <div class="quiz-question-text">
+                        <strong>Câu hỏi của khách:</strong> "Bạc của shop có phải bạc nguyên chất không? Có bị đen khi đeo không?"<br>
+                        <strong>Yêu cầu:</strong> Viết câu trả lời giải thích về bạc S925, tạo trust (150 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay3" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count3">0</span>/150 từ</div>
+                </div>
+
+                <!-- Essay 4 - Tư vấn sản phẩm -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 4/10 (Dạng: Tư vấn sản phẩm)</div>
+                    <div class="quiz-question-text">
+                        <strong>Câu hỏi của khách:</strong> "Mini book chất liệu thép gì? Heyes chất liệu thép gì?"<br>
+                        <strong>Yêu cầu:</strong> Trả lời chính xác về chất liệu từng sản phẩm (80 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay4" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count4">0</span>/80 từ</div>
+                </div>
+
+                <!-- Essay 5 - Tư vấn thời gian -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 5/10 (Dạng: Tư vấn thời gian)</div>
+                    <div class="quiz-question-text">
+                        <strong>Tình huống:</strong> Khách hàng ở HCM, nhắn tin với shop vào ngày 3/12, cần 1 đôi CP08 (vòng chiếu ảnh) & VTW (vòng khắc) vào ngày 17/12.<br>
+                        <strong>Yêu cầu:</strong> Bạn sẽ tư vấn VỀ THỜI GIAN như thế nào? Tính toán cụ thể (150 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay5" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count5">0</span>/150 từ</div>
+                </div>
+
+                <!-- Essay 6 - Xử lý tình huống -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 6/10 (Dạng: Xử lý tình huống)</div>
+                    <div class="quiz-question-text">
+                        <strong>Tình huống:</strong> Khách gửi tin nhắn: "Mình đeo vòng tay bạc của shop 1 thời gian thì bị đen là sao vậy shop? Mình muốn trả hàng"<br>
+                        <strong>Yêu cầu:</strong> Bạn sẽ phản hồi như thế nào? Xử lý cảm xúc + giải thích + đưa ra giải pháp (200 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay6" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count6">0</span>/200 từ</div>
+                </div>
+
+                <!-- Essay 7 - Xử lý tình huống -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 7/10 (Dạng: Xử lý tình huống)</div>
+                    <div class="quiz-question-text">
+                        <strong>Tình huống:</strong> Khách đặt đơn hỏa tốc nhưng sợ lừa đảo không muốn chuyển khoản full trước.<br>
+                        <strong>Yêu cầu:</strong> Bạn sẽ xử lý như thế nào để vừa tạo trust vừa đảm bảo quy trình? (180 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay7" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count7">0</span>/180 từ</div>
+                </div>
+
+                <!-- Essay 8 - Xử lý tình huống -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 8/10 (Dạng: Xử lý tình huống)</div>
+                    <div class="quiz-question-text">
+                        <strong>Tình huống:</strong> Ban đầu khách dự định đặt 1 vòng tay Heyes dây Cuban, nhưng lúc sau lại muốn thay bằng dây Snake Chain.<br>
+                        <strong>Yêu cầu:</strong> Bạn sẽ phản hồi như thế nào? Xử lý linh hoạt (120 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay8" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count8">0</span>/120 từ</div>
+                </div>
+
+                <!-- Essay 9 - Tư vấn tổng hợp -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 9/10 (Dạng: Tư vấn tổng hợp)</div>
+                    <div class="quiz-question-text">
+                        <strong>Tình huống:</strong> Khách hỏi: "Em muốn tặng bạn gái vòng có ảnh, nhưng sợ ảnh không rõ. Shop tư vấn em nên chọn sản phẩm nào?"<br>
+                        <strong>Yêu cầu:</strong> Tư vấn sản phẩm phù hợp + giải thích về độ nét + tạo trust (180 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay9" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count9">0</span>/180 từ</div>
+                </div>
+
+                <!-- Essay 10 - Tư vấn phức tạp -->
+                <div class="essay-question">
+                    <div class="quiz-question-number">Câu 10/10 (Dạng: Tư vấn phức tạp)</div>
+                    <div class="quiz-question-text">
+                        <strong>Tình huống:</strong> Khách hỏi: "Em muốn mua quà cho bạn gái, budget tầm 500-700k, cần trong 10 ngày, có ảnh 2 đứa. Nhưng em thấy bạn gái hay bị dị ứng kim loại. Shop tư vấn giúp em?"<br>
+                        <strong>Yêu cầu:</strong> Tư vấn toàn diện (sản phẩm, chất liệu, thời gian, giải pháp dị ứng) (250 từ)
+                    </div>
+                    <textarea class="essay-answer" id="essay10" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                    <div class="word-count"><span id="count10">0</span>/250 từ</div>
+                </div>
+
+                <button type="submit" class="submit-button">NỘP BÀI</button>
+            </form>
+
+            <!-- Result Section -->
+            <div class="quiz-result" id="result">
+                <h2>🎉 Kết quả bài kiểm tra</h2>
+                <div class="quiz-score" id="score">0/10</div>
+                <div style="font-size: 18px; color: #424242; margin: 16px 0;">
+                    <div id="percentage"></div>
+                    <div id="resultMessage" style="margin-top: 12px; font-weight: 500;"></div>
+                </div>
+
+                <!-- Chi tiết kết quả -->
+                <div style="background: white; border-radius: 12px; padding: 24px; margin: 24px 0; text-align: left;">
+                    <h3 style="margin-top: 0; color: #e91e63;">📊 Chi tiết bài làm</h3>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <strong>Thông tin học viên:</strong><br>
+                        <div style="margin-top: 8px;">
+                            Họ tên: <input type="text" id="studentName" placeholder="Nhập họ tên" style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 4px; width: 250px; margin-left: 8px;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                        <div style="background: #f5f5f5; padding: 16px; border-radius: 8px;">
+                            <div style="color: #757575; font-size: 14px;">Phần trắc nghiệm</div>
+                            <div style="font-size: 24px; font-weight: 700; color: #2196f3;" id="mcScore">0/40</div>
+                        </div>
+                        <div style="background: #f5f5f5; padding: 16px; border-radius: 8px;">
+                            <div style="color: #757575; font-size: 14px;">Phần tự luận</div>
+                            <div style="font-size: 24px; font-weight: 700; color: #ff9800;">Chưa chấm</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; padding: 16px; background: #fff3e0; border-radius: 8px;">
+                        <strong>⏱️ Thời gian làm bài:</strong> <span id="timeTaken"></span>
+                    </div>
+
+                    <div style="margin-top: 16px; padding: 16px; background: #e3f2fd; border-radius: 8px;">
+                        <strong>📝 Ghi chú cho leader:</strong><br>
+                        <textarea id="leaderNote" placeholder="Ghi chú về bài làm của học viên (tự luận cần chấm thủ công)..." style="width: 100%; min-height: 80px; margin-top: 8px; padding: 12px; border: 1px solid #e0e0e0; border-radius: 4px; font-family: 'Inter', sans-serif;"></textarea>
+                    </div>
+                </div>
+
+                <button onclick="savePDF()" class="submit-button" style="background: #4caf50;">
+                    🖨️ IN KẾT QUẢ (PDF)
+                </button>
+                <p style="font-size: 13px; color: #757575; margin-top: 12px;">Nhấn nút để in ra PDF. Sau khi in, chọn "Save as PDF" trong hộp thoại in.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // Đáp án đúng cho 40 câu trắc nghiệm
+        const correctAnswers = {
+            1: 'B', 2: 'B', 3: 'B', 4: 'B', 5: 'B',
+            6: 'B', 7: 'B', 8: 'A', 9: 'B', 10: 'B',
+            11: 'B', 12: 'B', 13: 'B', 14: 'B', 15: 'B',
+            16: 'B', 17: 'A', 18: 'B', 19: 'B', 20: 'B',
+            21: 'B', 22: 'C', 23: 'B', 24: 'C', 25: 'C',
+            26: 'B', 27: 'B', 28: 'C', 29: 'B', 30: 'C',
+            31: 'C', 32: 'B', 33: 'B', 34: 'B', 35: 'B',
+            36: 'B', 37: 'B', 38: 'B', 39: 'C', 40: 'B'
+        };
+
+        const userAnswers = {};
+        let timerInterval;
+        let timeRemaining = 3600; // 60 phút = 3600 giây
+        let startTime;
+
+        // Bắt đầu làm bài
+        function startQuiz() {
+            document.getElementById('startSection').style.display = 'none';
+            document.getElementById('timerSection').style.display = 'block';
+            document.getElementById('quizForm').style.display = 'block';
+            
+            startTime = new Date();
+            startTimer();
+        }
+
+        // Timer đếm ngược
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                
+                document.getElementById('timerDisplay').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Cảnh báo khi còn 5 phút
+                if (timeRemaining === 300) {
+                    document.getElementById('timerWarning').style.display = 'block';
+                    document.getElementById('timerSection').style.background = 
+                        'linear-gradient(135deg, #ff5722, #ff8a65)';
+                }
+                
+                // Hết giờ
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert('⏰ Hết giờ! Bài kiểm tra sẽ tự động nộp.');
+                    document.getElementById('quizForm').dispatchEvent(new Event('submit'));
+                }
+            }, 1000);
+        }
+
+        function selectOption(questionNum, answer) {
+            const question = document.querySelectorAll('.quiz-question')[questionNum - 1];
+            if (question) {
+                const options = question.querySelectorAll('.quiz-option');
+                options.forEach(opt => opt.classList.remove('selected'));
+                event.currentTarget.classList.add('selected');
+                userAnswers[questionNum] = answer;
+            }
+        }
+
+        // Word counter cho essay
+        for (let i = 1; i <= 10; i++) {
+            const textarea = document.getElementById('essay' + i);
+            const counter = document.getElementById('count' + i);
+            
+            if (textarea && counter) {
+                textarea.addEventListener('input', function() {
+                    const words = this.value.trim().split(/\s+/).filter(word => word.length > 0);
+                    counter.textContent = words.length;
+                });
+            }
+        }
+
+        // Submit form
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Dừng timer
+            clearInterval(timerInterval);
+            
+            // Tính điểm trắc nghiệm
+            let correctCount = 0;
+            for (let i = 1; i <= 40; i++) {
+                if (userAnswers[i] === correctAnswers[i]) {
+                    correctCount++;
+                }
+            }
+            
+            const mcScore = correctCount * 0.2;
+            const percentage = (correctCount / 40) * 100;
+            
+            // Tính thời gian làm bài
+            const endTime = new Date();
+            const timeDiff = Math.floor((endTime - startTime) / 1000);
+            const minutesTaken = Math.floor(timeDiff / 60);
+            const secondsTaken = timeDiff % 60;
+            
+            // Hiển thị kết quả
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('score').textContent = mcScore.toFixed(1) + '/8.0';
+            document.getElementById('mcScore').textContent = correctCount + '/40 đúng (' + percentage.toFixed(1) + '%)';
+            document.getElementById('percentage').innerHTML = 
+                '<strong>Phần trắc nghiệm:</strong> ' + mcScore.toFixed(1) + '/8 điểm';
+            document.getElementById('timeTaken').textContent = 
+                minutesTaken + ' phút ' + secondsTaken + ' giây';
+            
+            const resultMsg = document.getElementById('resultMessage');
+            if (mcScore >= 7.2) {
+                resultMsg.innerHTML = '🌟 <strong>Xuất sắc!</strong> Phần trắc nghiệm rất tốt.';
+            } else if (mcScore >= 6.4) {
+                resultMsg.innerHTML = '👏 <strong>Khá!</strong> Cần cố gắng thêm ở phần tự luận.';
+            } else if (mcScore >= 5.6) {
+                resultMsg.innerHTML = '✅ <strong>Trung bình.</strong> Ôn lại kiến thức sản phẩm.';
+            } else {
+                resultMsg.innerHTML = '📚 <strong>Chưa đạt.</strong> Cần học lại Module 2.';
+            }
+            
+            // Scroll to result
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+            
+            // Ẩn timer
+            document.getElementById('timerSection').style.display = 'none';
+        });
+
+        // Save PDF function - In trực tiếp HTML
+        function savePDF() {
+            const studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) {
+                alert('Vui lòng nhập họ tên học viên!');
+                return;
+            }
+
+            // Tạo cửa sổ mới để in
+            const printWindow = window.open('', '_blank');
+            
+            // Tạo nội dung HTML để in
+            let htmlContent = `
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả - ${studentName} - Module 2</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #e91e63;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #e91e63;
+            margin: 0 0 5px 0;
+            font-size: 28px;
+        }
+        .header h2 {
+            color: #424242;
+            margin: 5px 0;
+            font-size: 18px;
+            font-weight: normal;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .info-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .info-table td:first-child {
+            background: #f5f5f5;
+            font-weight: bold;
+            width: 30%;
+        }
+        .warning-box {
+            background: #fff3e0;
+            padding: 12px;
+            border-left: 4px solid #ff9800;
+            margin: 15px 0;
+            page-break-inside: avoid;
+        }
+        .section-title {
+            color: #e91e63;
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f48fb1;
+            padding-bottom: 5px;
+            page-break-after: avoid;
+        }
+        .mc-answers {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .mc-item {
+            padding: 6px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 13px;
+        }
+        .mc-item.correct {
+            background: #c8e6c9;
+            border-color: #4caf50;
+            font-weight: bold;
+        }
+        .mc-item.wrong {
+            background: #ffcdd2;
+            border-color: #f44336;
+        }
+        .mc-item.unanswered {
+            background: #f5f5f5;
+            color: #999;
+        }
+        .essay-item {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        .essay-question {
+            background: #f5f5f5;
+            padding: 10px;
+            border-left: 4px solid #e91e63;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .essay-answer {
+            padding: 12px;
+            border: 1px solid #ddd;
+            background: white;
+            min-height: 60px;
+            white-space: pre-wrap;
+        }
+        .essay-meta {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #666;
+        }
+        .scoring-box {
+            margin-top: 8px;
+            padding: 8px;
+            background: #f9f9f9;
+            border: 1px dashed #ccc;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            page-break-inside: avoid;
+        }
+        .legend {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-box {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💎 CRUSH ROOM</h1>
+        <h2>Kết quả bài kiểm tra Module 2: Sản phẩm</h2>
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <td>Họ tên:</td>
+            <td><strong>${studentName}</strong></td>
+        </tr>
+        <tr>
+            <td>Ngày thi:</td>
+            <td>${new Date().toLocaleString('vi-VN')}</td>
+        </tr>
+        <tr>
+            <td>Thời gian làm bài:</td>
+            <td>${document.getElementById('timeTaken').textContent}</td>
+        </tr>
+        <tr>
+            <td>Điểm trắc nghiệm:</td>
+            <td><strong style="color: #2196f3; font-size: 16px;">${document.getElementById('mcScore').textContent}</strong></td>
+        </tr>
+    </table>
+
+    <div class="warning-box">
+        <strong>⚠️ Lưu ý:</strong> Phần tự luận cần leader chấm thủ công theo rubric (0.2đ/câu). Tổng điểm = Điểm trắc nghiệm + Điểm tự luận (tối đa 10 điểm).
+    </div>
+
+    <h3 class="section-title">📊 Đáp án trắc nghiệm (40 câu)</h3>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-box" style="background: #c8e6c9; border-color: #4caf50;"></div>
+            <span>Đúng</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background: #ffcdd2; border-color: #f44336;"></div>
+            <span>Sai</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background: #f5f5f5;"></div>
+            <span>Chưa trả lời</span>
+        </div>
+    </div>
+
+    <div class="mc-answers">
+`;
+
+            // Thêm 40 câu trắc nghiệm
+            for (let i = 1; i <= 40; i++) {
+                const userAnswer = userAnswers[i] || '';
+                const correctAnswer = correctAnswers[i];
+                let className = 'unanswered';
+                let displayText = `${i}. -`;
+                
+                if (userAnswer) {
+                    if (userAnswer === correctAnswer) {
+                        className = 'correct';
+                        displayText = `${i}. ${userAnswer} ✓`;
+                    } else {
+                        className = 'wrong';
+                        displayText = `${i}. ${userAnswer} (Đ: ${correctAnswer})`;
+                    }
+                }
+                
+                htmlContent += `<div class="mc-item ${className}">${displayText}</div>\n`;
+            }
+
+            htmlContent += `
+    </div>
+
+    <h3 class="section-title">📝 Câu trả lời tự luận</h3>
+`;
+
+            // Thêm 10 câu tự luận
+            for (let i = 1; i <= 10; i++) {
+                const essayAnswer = document.getElementById('essay' + i).value.trim();
+                const essayQuestion = document.querySelectorAll('.essay-question')[i - 1];
+                const questionText = essayQuestion.querySelector('.quiz-question-text').innerText;
+                const wordCount = essayAnswer ? essayAnswer.split(/\s+/).filter(w => w.length > 0).length : 0;
+                
+                htmlContent += `
+    <div class="essay-item">
+        <div class="essay-question">Câu ${i}/10: ${questionText.replace(/\n/g, '<br>')}</div>
+        <div class="essay-answer">${essayAnswer || '<em style="color: #999;">Chưa trả lời</em>'}</div>
+        <div class="essay-meta">Số từ: ${wordCount}</div>
+        <div class="scoring-box">
+            <strong>Điểm:</strong> _____/0.2đ &nbsp;&nbsp;&nbsp; <strong>Nhận xét:</strong> ___________________________________________
+        </div>
+    </div>
+`;
+            }
+
+            // Thêm ghi chú nếu có
+            const leaderNote = document.getElementById('leaderNote').value.trim();
+            if (leaderNote) {
+                htmlContent += `
+    <div style="margin-top: 25px; padding: 12px; background: #e3f2fd; border-left: 4px solid #2196f3; page-break-inside: avoid;">
+        <strong>📌 Ghi chú từ học viên:</strong><br>
+        <div style="margin-top: 8px;">${leaderNote}</div>
+    </div>
+`;
+            }
+
+            // Footer
+            htmlContent += `
+    <div class="footer">
+        <p><strong>Tổng điểm = Điểm trắc nghiệm + Điểm tự luận (cần chấm)</strong></p>
+        <p>Điểm đạt: ≥ 7.0/10</p>
+        <p style="margin-top: 10px;">Crush Room CS Training - Module 2</p>
+    </div>
+</body>
+</html>
+`;
+
+            // Ghi nội dung vào cửa sổ mới và in
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            
+            // Đợi load xong rồi mới in
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+
+        // Auth check
+        if (!Auth.requireAuth()) { /* redirect */ }
+        else if (!Auth.requirePermission('cs')) { /* show denied */ }
+        else { Auth.renderAuthUI(); }
+    </script>
+</body>
+</html>
