@@ -1,59 +1,221 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bài kiểm tra CS - Crush Room Wiki</title>
-  <link rel="stylesheet" href="../../css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài kiểm tra CS - Crush Room Wiki</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/quiz/quiz-player.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="layout">
-    <!-- Sidebar giống các trang khác -->
-    <aside class="sidebar">
-      <!-- ... giữ nguyên sidebar ... -->
-    </aside>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 Crush Room Wiki</h2>
+            </div>
 
-    <main class="main-content">
-      <div class="breadcrumb">
-        <a href="../../index.html">Trang chủ</a>
-        <span>/</span>
-        <span>Customer Service</span>
-        <span>/</span>
-        <span>Bài kiểm tra</span>
-      </div>
+            <nav class="sidebar-nav">
+                <h3>Customer Service</h3>
+                <a href="library.html">📖 CS Training</a>
+                <a href="quiz.html" class="active">✏️ Bài kiểm tra</a>
+                <a href="quick-replies.html">💬 Quick Replies</a>
 
-      <header class="page-header">
-        <h1>✏️ Bài kiểm tra CS</h1>
-        <p class="header-subtitle" id="quiz-header-subtitle">
-          Hệ thống bài test cho từng module training.
-        </p>
-      </header>
+                <h3>Khác</h3>
+                <a href="../../index.html">🏠 Trang chủ</a>
+            </nav>
 
-      <section class="content-section">
-        <div id="quiz-meta" style="font-size:14px;color:#555;margin-bottom:12px;"></div>
+            <div class="sidebar-footer" id="authUI">
+                <!-- Rendered by auth.js -->
+            </div>
+        </aside>
 
-        <div id="quiz-container">
-          <!-- JS render câu hỏi -->
-        </div>
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="../../index.html">Trang chủ</a>
+                <span>/</span>
+                <a href="library.html">CS Training</a>
+                <span>/</span>
+                <span>Bài kiểm tra</span>
+            </div>
 
-        <div id="quiz-actions" style="margin-top:16px;display:flex;gap:12px;align-items:center;">
-          <button id="submit-quiz-btn" class="btn btn-primary">
-            🚀 Nộp bài
-          </button>
-          <span id="quiz-message" style="font-size:14px;"></span>
-        </div>
-      </section>
+            <!-- Quiz Container - Will be dynamically filled -->
+            <div id="quiz-container">
+                <div class="quiz-instructions">
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">⏳</div>
+                        <h2>Đang tải bài kiểm tra...</h2>
+                        <p style="color: #757575;">Vui lòng đợi trong giây lát</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
-      <section class="content-section" id="quiz-result-section" style="display:none;">
-        <h2>Kết quả bài kiểm tra</h2>
-        <div id="quiz-result"></div>
-      </section>
-    </main>
-  </div>
+    <!-- Scripts -->
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/quiz/quiz-engine.js"></script>
+    <script src="../../js/quiz/quiz-renderer.js"></script>
+    <script src="../../js/quiz/quiz-storage.js"></script>
 
-  <script src="../../js/auth.js"></script>
-  <script src="../../js/main.js"></script>
-  <script src="../../js/cs-quiz.js"></script>
+    <script>
+        /**
+         * Quiz Initialization Script
+         * Initializes and runs the quiz player
+         */
+        (async function() {
+            // ============================================
+            // 1. Authentication Check
+            // ============================================
+            if (!Auth.requireAuth()) {
+                document.getElementById('quiz-container').innerHTML = `
+                    <div class="quiz-instructions">
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">🔒</div>
+                            <h2>Yêu cầu đăng nhập</h2>
+                            <p style="color: #757575;">Bạn cần đăng nhập để làm bài kiểm tra</p>
+                            <a href="../../login.html" class="btn btn-primary" style="margin-top: 20px;">
+                                Đăng nhập ngay
+                            </a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!Auth.requirePermission('cs')) {
+                document.getElementById('quiz-container').innerHTML = `
+                    <div class="quiz-instructions">
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">⛔</div>
+                            <h2>Không có quyền truy cập</h2>
+                            <p style="color: #757575;">Bạn không có quyền truy cập CS Training</p>
+                            <a href="../../index.html" class="btn btn-secondary" style="margin-top: 20px;">
+                                ← Quay lại trang chủ
+                            </a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render auth UI
+            Auth.renderAuthUI();
+
+            // ============================================
+            // 2. Get Quiz ID from URL
+            // ============================================
+            const urlParams = new URLSearchParams(window.location.search);
+            const moduleParam = urlParams.get('module');
+
+            // Default to module 2 if not specified
+            const moduleId = moduleParam || '2';
+            const quizId = `module-${moduleId}-quiz`;
+
+            console.log('🎯 Loading quiz:', quizId);
+
+            // ============================================
+            // 3. Initialize Quiz Engine
+            // ============================================
+            try {
+                const engine = new QuizEngine(quizId);
+                const renderer = new QuizRenderer(engine, 'quiz-container');
+
+                // Load quiz data
+                const initialized = await engine.initialize();
+
+                if (!initialized) {
+                    throw new Error('Failed to initialize quiz');
+                }
+
+                // Check prerequisites
+                const prereqCheck = await engine.checkPrerequisites();
+
+                if (!prereqCheck.passed) {
+                    document.getElementById('quiz-container').innerHTML = `
+                        <div class="quiz-instructions">
+                            <div style="text-align: center; padding: 60px 20px;">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">⚠️</div>
+                                <h2>Không thể làm bài</h2>
+                                <p style="color: #757575; max-width: 500px; margin: 20px auto;">
+                                    ${prereqCheck.reason}
+                                </p>
+                                <a href="library.html" class="btn btn-primary" style="margin-top: 20px;">
+                                    ← Quay lại thư viện
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // ============================================
+                // 4. Render Quiz Instructions
+                // ============================================
+                renderer.renderInstructions();
+
+                console.log('✓ Quiz ready to start');
+
+            } catch (error) {
+                console.error('✗ Quiz initialization failed:', error);
+
+                document.getElementById('quiz-container').innerHTML = `
+                    <div class="quiz-instructions">
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: 4rem; margin-bottom: 20px;">❌</div>
+                            <h2>Lỗi tải bài kiểm tra</h2>
+                            <p style="color: #757575; max-width: 500px; margin: 20px auto;">
+                                Không thể tải bài kiểm tra. Vui lòng thử lại sau hoặc liên hệ quản trị viên.
+                            </p>
+                            <p style="color: #f44336; font-size: 0.9rem; margin-top: 12px;">
+                                Lỗi: ${error.message}
+                            </p>
+                            <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center;">
+                                <button onclick="location.reload()" class="btn btn-primary">
+                                    🔄 Thử lại
+                                </button>
+                                <a href="library.html" class="btn btn-secondary">
+                                    ← Quay lại thư viện
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        })();
+
+        // ============================================
+        // Development Helper Functions
+        // ============================================
+
+        // Export results to CSV (for debugging)
+        window.exportResults = function() {
+            QuizStorage.downloadCSV('quiz_results_' + new Date().toISOString().slice(0,10) + '.csv');
+        };
+
+        // View statistics
+        window.viewStats = function() {
+            const stats = QuizStorage.getStatistics();
+            console.log('📊 Quiz Statistics:', stats);
+            alert(`📊 Thống kê Quiz:
+
+Tổng số bài làm: ${stats.totalSubmissions}
+Số người làm: ${stats.uniqueUsers}
+Điểm trung bình: ${stats.averageScore}/10
+Tỷ lệ đậu: ${stats.passRate}
+            `);
+        };
+
+        // Clear all quiz data (careful!)
+        window.clearQuizData = function() {
+            QuizStorage.clearAllData();
+        };
+
+        console.log('💡 Dev commands available:');
+        console.log('  - exportResults() : Export quiz results to CSV');
+        console.log('  - viewStats()     : View quiz statistics');
+        console.log('  - clearQuizData() : Clear all local quiz data');
+    </script>
 </body>
 </html>
