@@ -698,8 +698,7 @@ a {
 .schedule-cell {
   transition: all 0.2s ease;
   padding: 8px 6px;
-  min-width: 100px;
-  max-width: 160px;
+  width: auto;
   vertical-align: top;
   overflow: hidden;
 }
@@ -741,8 +740,9 @@ a {
 .data-table {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   width: 100%;
+  min-width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .data-table thead th {
@@ -763,6 +763,8 @@ a {
   z-index: 6;
   background: linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 100%);
   border-right: 2px solid #dee2e6;
+  width: 80px;
+  min-width: 80px;
 }
 
 .data-table tbody th {
@@ -774,6 +776,14 @@ a {
   padding: 10px 8px;
   border-right: 2px solid #dee2e6;
   white-space: nowrap;
+  width: 80px;
+  min-width: 80px;
+}
+
+/* Day columns should share remaining space equally */
+.data-table thead th:not(:first-child),
+.data-table tbody td {
+  width: auto;
 }
 
 .data-table tbody tr:hover {
@@ -787,11 +797,18 @@ a {
 /* Table wrapper for horizontal scroll */
 .data-table-wrapper,
 div[style*="overflow-x:auto"] {
+  width: 100%;
   overflow-x: auto;
   overflow-y: visible;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure parent flex container allows table to expand */
+.content-section > div[style*="display:flex"] > div[style*="flex:1"] {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .data-table-wrapper::-webkit-scrollbar,
@@ -843,11 +860,10 @@ div[style*="overflow-x:auto"]::-webkit-scrollbar-thumb:hover {
 
   .data-table {
     font-size: 11px;
+    table-layout: auto;
   }
 
   .schedule-cell {
-    min-width: 90px;
-    max-width: 140px;
     padding: 6px 4px;
   }
 
@@ -892,9 +908,11 @@ div[style*="overflow-x:auto"]::-webkit-scrollbar-thumb:hover {
   }
 
   .schedule-cell {
-    min-width: 80px;
-    max-width: 120px;
     padding: 5px 3px;
+  }
+
+  .data-table {
+    table-layout: auto;
   }
 
   .slot-cell-inner {
@@ -930,11 +948,10 @@ div[style*="overflow-x:auto"]::-webkit-scrollbar-thumb:hover {
     border-radius: 8px;
     overflow: hidden;
     font-size: 9px;
+    table-layout: auto;
   }
 
   .schedule-cell {
-    min-width: 70px;
-    max-width: 100px;
     padding: 4px 2px;
   }
 
