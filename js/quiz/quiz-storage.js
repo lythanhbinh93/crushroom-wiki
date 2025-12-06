@@ -8,7 +8,7 @@
 
 class QuizStorage {
   // TODO: Replace with actual Google Apps Script URL after deployment
-  static SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiEbpDwUOvxXp4eIAUcrw0bh1Bky7_b9EGn30YYitXpHsyAcKAb_2C6QxhNi3K9BGG/exec';
+  static SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuH3XYSTlHp3pL6_s7-7UF7JZ0t_5_CPBR5LfJdv4uLcz7qv03nvC2o82cvGCRh_NV/exec';
 
   /**
    * Save quiz result to backend
