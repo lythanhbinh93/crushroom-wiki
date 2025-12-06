@@ -1,0 +1,521 @@
+{
+  "quizId": "module-2-quiz",
+  "version": "1.0",
+  "lastUpdated": "2025-12-05",
+  "questions": {
+    "mcq": [
+      {
+        "id": "q1",
+        "question": "Giá vòng tay thép chiếu ảnh PIX khi mua lẻ là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "299k"},
+          {"id": "B", "text": "349k"},
+          {"id": "C", "text": "399k"},
+          {"id": "D", "text": "449k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q2",
+        "question": "Thời gian sản xuất tiêu chuẩn cho sản phẩm PIX Collection là bao nhiêu ngày?",
+        "options": [
+          {"id": "A", "text": "5-7 ngày"},
+          {"id": "B", "text": "10-14 ngày"},
+          {"id": "C", "text": "7-10 ngày"},
+          {"id": "D", "text": "15-20 ngày"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q3",
+        "question": "Khi mua Set Cỏ Bốn Lá (bạc nữ + thép nam), khách được giảm bao nhiêu so với mua lẻ?",
+        "options": [
+          {"id": "A", "text": "Giảm 50k"},
+          {"id": "B", "text": "Giảm 100k"},
+          {"id": "C", "text": "Giảm 150k"},
+          {"id": "D", "text": "Giảm 200k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q4",
+        "question": "Công nghệ chiếu ảnh trong viên ngọc PIX được gọi là gì?",
+        "options": [
+          {"id": "A", "text": "Micro Projection"},
+          {"id": "B", "text": "Nano Projection"},
+          {"id": "C", "text": "Laser Projection"},
+          {"id": "D", "text": "Digital Projection"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q5",
+        "question": "Giá vòng tay bạc nữ CherishPix khi mua lẻ là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "699k"},
+          {"id": "B", "text": "799k"},
+          {"id": "C", "text": "899k"},
+          {"id": "D", "text": "999k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q6",
+        "question": "Khi khách mua đôi vòng tay thép chiếu ảnh, giá là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "698k"},
+          {"id": "B", "text": "599k"},
+          {"id": "C", "text": "649k"},
+          {"id": "D", "text": "549k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q7",
+        "question": "Phí sản xuất nhanh (hỏa tốc) cho sản phẩm là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "+50k"},
+          {"id": "B", "text": "+100k"},
+          {"id": "C", "text": "+150k"},
+          {"id": "D", "text": "+200k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q8",
+        "question": "Cách nào KHÔNG phải là cách xem ảnh trong viên ngọc PIX?",
+        "options": [
+          {"id": "A", "text": "Dùng kính lúp chuyên dụng"},
+          {"id": "B", "text": "Nhìn trực tiếp ngoài sáng"},
+          {"id": "C", "text": "Dùng camera điện thoại"},
+          {"id": "D", "text": "Chiếu đèn flash từ phía sau"}
+        ],
+        "correctAnswer": "A"
+      },
+      {
+        "id": "q9",
+        "question": "Giá vòng khắc mắt CoupleYes khi mua đôi là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "399k"},
+          {"id": "B", "text": "499k"},
+          {"id": "C", "text": "599k"},
+          {"id": "D", "text": "699k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q10",
+        "question": "Thời gian sản xuất vòng khắc mắt CoupleYes là bao lâu?",
+        "options": [
+          {"id": "A", "text": "3-5 ngày"},
+          {"id": "B", "text": "5-7 ngày"},
+          {"id": "C", "text": "7-10 ngày"},
+          {"id": "D", "text": "10-14 ngày"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q11",
+        "question": "Giá dịch vụ khắc chữ đánh máy lên sản phẩm là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "35k/mặt"},
+          {"id": "B", "text": "45k/mặt"},
+          {"id": "C", "text": "55k/mặt"},
+          {"id": "D", "text": "65k/mặt"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q12",
+        "question": "Khi chiếu đèn flash để xem ảnh trong viên ngọc, nên rọi đèn từ phía nào của viên ngọc?",
+        "options": [
+          {"id": "A", "text": "Phía trước (mặt lồi)"},
+          {"id": "B", "text": "Phía sau (mặt phẳng)"},
+          {"id": "C", "text": "Chiếu từ bên cạnh"},
+          {"id": "D", "text": "Chiếu từ phía trên"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q13",
+        "question": "Giá vòng tay bạc nam chiếu ảnh là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "999k"},
+          {"id": "B", "text": "1.399k"},
+          {"id": "C", "text": "1.199k"},
+          {"id": "D", "text": "1.499k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q14",
+        "question": "Giá dây chuyền bạc nữ chiếu ảnh khi mua lẻ là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "599k"},
+          {"id": "B", "text": "699k"},
+          {"id": "C", "text": "799k"},
+          {"id": "D", "text": "899k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q15",
+        "question": "Giá nhẫn bạc chiếu ảnh khi mua lẻ là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "499k"},
+          {"id": "B", "text": "599k"},
+          {"id": "C", "text": "699k"},
+          {"id": "D", "text": "799k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q16",
+        "question": "Giá Set Cỏ Bốn Lá (bạc nữ + thép nam) là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "998k"},
+          {"id": "B", "text": "1.048k"},
+          {"id": "C", "text": "1.148k"},
+          {"id": "D", "text": "1.248k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q17",
+        "question": "Ưu điểm chính của chất liệu thép không gỉ là gì?",
+        "options": [
+          {"id": "A", "text": "Bền, không đen, không gỉ sét"},
+          {"id": "B", "text": "Nhẹ nhàng, dễ đeo"},
+          {"id": "C", "text": "Giá rẻ nhất"},
+          {"id": "D", "text": "Màu sắc đa dạng"}
+        ],
+        "correctAnswer": "A"
+      },
+      {
+        "id": "q18",
+        "question": "Giá vòng khắc mắt CoupleYes khi mua lẻ là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "249k"},
+          {"id": "B", "text": "299k"},
+          {"id": "C", "text": "349k"},
+          {"id": "D", "text": "399k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q19",
+        "question": "Giá dịch vụ khắc chữ viết tay lên sản phẩm là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "65k/mặt"},
+          {"id": "B", "text": "85k/mặt"},
+          {"id": "C", "text": "95k/mặt"},
+          {"id": "D", "text": "105k/mặt"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q20",
+        "question": "Khi khách mua đôi nhẫn bạc chiếu ảnh, giá là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "999k"},
+          {"id": "B", "text": "1.099k"},
+          {"id": "C", "text": "1.198k"},
+          {"id": "D", "text": "1.298k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q21",
+        "question": "Giá dịch vụ khắc mã Spotify lên sản phẩm là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "45k/mặt"},
+          {"id": "B", "text": "55k/mặt"},
+          {"id": "C", "text": "65k/mặt"},
+          {"id": "D", "text": "75k/mặt"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q22",
+        "question": "Công nghệ đổi màu theo nhiệt độ trong WarmLove được gọi là gì?",
+        "options": [
+          {"id": "A", "text": "Thermal Technology"},
+          {"id": "B", "text": "Heat Sensitive"},
+          {"id": "C", "text": "Thermochromic"},
+          {"id": "D", "text": "Temperature Dynamic"}
+        ],
+        "correctAnswer": "C"
+      },
+      {
+        "id": "q23",
+        "question": "Giá dịch vụ khắc QR ghi âm thường lên sản phẩm là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "80k/mặt"},
+          {"id": "B", "text": "100k/mặt"},
+          {"id": "C", "text": "120k/mặt"},
+          {"id": "D", "text": "140k/mặt"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q24",
+        "question": "Ở nhiệt độ bao nhiêu thì ảnh trên WarmLove hiện rõ nét?",
+        "options": [
+          {"id": "A", "text": "20°C trở lên"},
+          {"id": "B", "text": "25°C trở lên"},
+          {"id": "C", "text": "30°C trở lên"},
+          {"id": "D", "text": "35°C trở lên"}
+        ],
+        "correctAnswer": "C"
+      },
+      {
+        "id": "q25",
+        "question": "Giá WarmLove đang sale hiện tại là bao nhiêu (giá lẻ)?",
+        "options": [
+          {"id": "A", "text": "399k"},
+          {"id": "B", "text": "449k"},
+          {"id": "C", "text": "499k"},
+          {"id": "D", "text": "549k"}
+        ],
+        "correctAnswer": "C"
+      },
+      {
+        "id": "q26",
+        "question": "Giá dịch vụ khắc QR Counter Love lên sản phẩm là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "100k/mặt"},
+          {"id": "B", "text": "150k/mặt"},
+          {"id": "C", "text": "200k/mặt"},
+          {"id": "D", "text": "250k/mặt"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q27",
+        "question": "Khi mua đôi WarmLove, giá là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "699k"},
+          {"id": "B", "text": "799k"},
+          {"id": "C", "text": "899k"},
+          {"id": "D", "text": "998k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q28",
+        "question": "Giá gốc của WarmLove (trước khi sale) là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "499k"},
+          {"id": "B", "text": "549k"},
+          {"id": "C", "text": "599k"},
+          {"id": "D", "text": "649k"}
+        ],
+        "correctAnswer": "C"
+      },
+      {
+        "id": "q29",
+        "question": "Giá Sổ ký ức gói 1 trang là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "249k"},
+          {"id": "B", "text": "299k"},
+          {"id": "C", "text": "349k"},
+          {"id": "D", "text": "399k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q30",
+        "question": "Thời gian sản xuất Sổ ký ức là bao lâu?",
+        "options": [
+          {"id": "A", "text": "3-5 ngày"},
+          {"id": "B", "text": "5-7 ngày"},
+          {"id": "C", "text": "7-10 ngày"},
+          {"id": "D", "text": "10-14 ngày"}
+        ],
+        "correctAnswer": "C"
+      },
+      {
+        "id": "q31",
+        "question": "Sổ ký ức gói full 7 trang có giá là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "499k"},
+          {"id": "B", "text": "549k"},
+          {"id": "C", "text": "599k"},
+          {"id": "D", "text": "649k"}
+        ],
+        "correctAnswer": "C"
+      },
+      {
+        "id": "q32",
+        "question": "Phí cắt size vòng thép là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "20k"},
+          {"id": "B", "text": "Miễn phí"},
+          {"id": "C", "text": "30k"},
+          {"id": "D", "text": "50k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q33",
+        "question": "Phí cắt size vòng bạc là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "Miễn phí"},
+          {"id": "B", "text": "+30k"},
+          {"id": "C", "text": "+50k"},
+          {"id": "D", "text": "+70k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q34",
+        "question": "Khi khách mua đôi vòng bạc nữ CherishPix, giá là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "1.398k"},
+          {"id": "B", "text": "1.498k"},
+          {"id": "C", "text": "1.598k"},
+          {"id": "D", "text": "1.698k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q35",
+        "question": "Khi khách mua đôi dây chuyền bạc nữ chiếu ảnh, giá là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "1.198k"},
+          {"id": "B", "text": "1.298k"},
+          {"id": "C", "text": "1.398k"},
+          {"id": "D", "text": "1.498k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q36",
+        "question": "Phí ship nhanh (COD) là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "+15k"},
+          {"id": "B", "text": "+25k"},
+          {"id": "C", "text": "+35k"},
+          {"id": "D", "text": "+50k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q37",
+        "question": "Giá Sổ ký ức gói 3 trang là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "349k"},
+          {"id": "B", "text": "399k"},
+          {"id": "C", "text": "449k"},
+          {"id": "D", "text": "499k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q38",
+        "question": "Giá Sổ ký ức gói 5 trang là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "449k"},
+          {"id": "B", "text": "499k"},
+          {"id": "C", "text": "549k"},
+          {"id": "D", "text": "599k"}
+        ],
+        "correctAnswer": "B"
+      },
+      {
+        "id": "q39",
+        "question": "Phí ship địa chỉ thứ 2 là bao nhiêu?",
+        "options": [
+          {"id": "A", "text": "+15k"},
+          {"id": "B", "text": "+25k"},
+          {"id": "C", "text": "+35k"},
+          {"id": "D", "text": "+50k"}
+        ],
+        "correctAnswer": "C"
+      },
+      {
+        "id": "q40",
+        "question": "Nhược điểm chính của chất liệu bạc S925 là gì?",
+        "options": [
+          {"id": "A", "text": "Dễ gãy, dễ hỏng"},
+          {"id": "B", "text": "Giá quá cao"},
+          {"id": "C", "text": "Có thể đen theo thời gian"},
+          {"id": "D", "text": "Nặng, khó đeo"}
+        ],
+        "correctAnswer": "B"
+      }
+    ],
+    "essay": [
+      {
+        "id": "e1",
+        "question": "Liệt kê size phổ thông của dây chuyền, vòng tay (cả 2 chất liệu bạc 925 & thép). Trình bày rõ ràng, đầy đủ.",
+        "type": "Liệt kê kiến thức",
+        "minWords": 100,
+        "maxWords": 300
+      },
+      {
+        "id": "e2",
+        "question": "Khách hỏi: 'Thép và titan khác nhau như thế nào?' - Viết câu trả lời giải thích rõ ràng, dễ hiểu cho khách.",
+        "type": "Tư vấn chất liệu",
+        "minWords": 120,
+        "maxWords": 300
+      },
+      {
+        "id": "e3",
+        "question": "Khách hỏi: 'Bạc của shop có phải bạc nguyên chất không? Có bị đen khi đeo không?' - Viết câu trả lời giải thích về bạc S925, tạo trust.",
+        "type": "Tư vấn chất liệu",
+        "minWords": 150,
+        "maxWords": 350
+      },
+      {
+        "id": "e4",
+        "question": "Khách hỏi: 'Mini book chất liệu thép gì? Heyes chất liệu thép gì?' - Trả lời chính xác về chất liệu từng sản phẩm.",
+        "type": "Tư vấn sản phẩm",
+        "minWords": 80,
+        "maxWords": 200
+      },
+      {
+        "id": "e5",
+        "question": "Tình huống: Khách hàng ở HCM, nhắn tin với shop vào ngày 3/12, cần 1 đôi CP08 (vòng chiếu ảnh) & VTW (vòng khắc) vào ngày 17/12. Bạn sẽ tư vấn VỀ THỜI GIAN như thế nào? Tính toán cụ thể.",
+        "type": "Tư vấn thời gian",
+        "minWords": 150,
+        "maxWords": 350
+      },
+      {
+        "id": "e6",
+        "question": "Tình huống: Khách gửi tin nhắn: 'Mình đeo vòng tay bạc của shop 1 thời gian thì bị đen là sao vậy shop? Mình muốn trả hàng' - Bạn sẽ phản hồi như thế nào? Xử lý cảm xúc + giải thích + đưa ra giải pháp.",
+        "type": "Xử lý tình huống",
+        "minWords": 200,
+        "maxWords": 400
+      },
+      {
+        "id": "e7",
+        "question": "Tình huống: Khách đặt đơn hỏa tốc nhưng sợ lừa đảo không muốn chuyển khoản full trước. Bạn sẽ xử lý như thế nào để vừa tạo trust vừa đảm bảo quy trình?",
+        "type": "Xử lý tình huống",
+        "minWords": 180,
+        "maxWords": 400
+      },
+      {
+        "id": "e8",
+        "question": "Tình huống: Ban đầu khách dự định đặt 1 vòng tay Heyes dây Cuban, nhưng lúc sau lại muốn thay bằng dây Snake Chain. Bạn sẽ phản hồi như thế nào? Xử lý linh hoạt.",
+        "type": "Xử lý tình huống",
+        "minWords": 120,
+        "maxWords": 300
+      },
+      {
+        "id": "e9",
+        "question": "Khách hỏi: 'Em muốn tặng bạn gái vòng có ảnh, nhưng sợ ảnh không rõ. Shop tư vấn em nên chọn sản phẩm nào?' - Tư vấn sản phẩm phù hợp + giải thích về độ nét + tạo trust.",
+        "type": "Tư vấn tổng hợp",
+        "minWords": 180,
+        "maxWords": 400
+      },
+      {
+        "id": "e10",
+        "question": "Khách hỏi: 'Em muốn mua quà cho bạn gái, budget tầm 500-700k, cần trong 10 ngày, có ảnh 2 đứa. Nhưng em thấy bạn gái hay bị dị ứng kim loại. Shop tư vấn giúp em?' - Tư vấn toàn diện (sản phẩm, chất liệu, thời gian, giải pháp dị ứng).",
+        "type": "Tư vấn phức tạp",
+        "minWords": 250,
+        "maxWords": 500
+      }
+    ]
+  }
+}
