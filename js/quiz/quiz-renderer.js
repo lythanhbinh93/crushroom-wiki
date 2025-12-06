@@ -143,6 +143,13 @@ class QuizRenderer {
    */
   renderQuestionPalette() {
     const paletteGrid = document.getElementById('palette-grid');
+
+    // Safety check: element must exist
+    if (!paletteGrid) {
+      console.error('❌ palette-grid element not found in DOM');
+      return;
+    }
+
     const totalQuestions = this.engine.config.settings.totalQuestions;
     const mcqCount = this.engine.config.settings.mcqCount;
 
