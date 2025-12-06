@@ -19,7 +19,7 @@ class QuizStorage {
     console.log('💾 Saving quiz result to backend...');
 
     // For development/testing: save to localStorage if no backend URL
-    if (this.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbw80_hszSeEnFco7PtSQPAdTqKDVsAjZTiTahn8tRzCFPEvttRNYtLZoKcUUroypg/exec') {
+    if (this.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
       console.warn('⚠️ Backend URL not configured. Saving to localStorage instead.');
       return this.saveToLocalStorage(submission);
     }
