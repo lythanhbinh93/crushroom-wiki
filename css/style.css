@@ -570,3 +570,62 @@ a {
   font-size: 11px;
 }
 
+/* ===== Quick Assignment Panel ===== */
+.schedule-cell.qa-selected {
+  background: #e3f2fd !important;
+  border: 2px solid #2196f3 !important;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.schedule-cell.qa-selected .slot-cell-inner {
+  opacity: 0.9;
+}
+
+#quick-assignment-panel {
+  transition: var(--transition);
+}
+
+#quick-assignment-panel h3 {
+  color: var(--primary);
+}
+
+#qa-employee-select {
+  font-family: 'Inter', sans-serif;
+}
+
+#qa-employee-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#qa-employee-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+#qa-employee-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+#qa-employee-list::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Responsive for Quick Assignment Panel */
+@media (max-width: 1200px) {
+  #quick-assignment-panel {
+    width: 240px;
+  }
+}
+
+@media (max-width: 992px) {
+  .content-section > div[style*="display:flex"] {
+    flex-direction: column;
+  }
+
+  #quick-assignment-panel {
+    width: 100%;
+    margin-top: 16px;
+  }
+}
+
