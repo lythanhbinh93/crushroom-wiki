@@ -1019,29 +1019,56 @@ function formatShiftLabel(shiftKey) {
       const qaEmployeeList = document.getElementById('qa-employee-list');
       if (qaEmployeeList) {
         if (allEmployees.length === 0) {
-          qaEmployeeList.innerHTML = '<em>Chưa có nhân viên nào đăng ký</em>';
+          qaEmployeeList.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-style:italic;">Chưa có nhân viên nào đăng ký</div>';
         } else {
           qaEmployeeList.innerHTML = '';
           allEmployees.forEach(emp => {
             const div = document.createElement('div');
-            div.style.padding = '4px 0';
-            div.style.borderBottom = '1px solid #eee';
+            div.style.padding = '8px 6px';
+            div.style.borderRadius = '4px';
+            div.style.marginBottom = '4px';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'space-between';
+            div.style.transition = 'all 0.2s ease';
+            div.style.cursor = 'default';
+
+            div.addEventListener('mouseenter', () => {
+              div.style.background = '#f8f9fa';
+              div.style.transform = 'translateX(2px)';
+            });
+
+            div.addEventListener('mouseleave', () => {
+              div.style.background = 'transparent';
+              div.style.transform = 'translateX(0)';
+            });
+
+            const nameWrapper = document.createElement('div');
+            nameWrapper.style.display = 'flex';
+            nameWrapper.style.alignItems = 'center';
+            nameWrapper.style.gap = '6px';
 
             const span = document.createElement('span');
             span.style.display = 'inline-block';
-            span.style.padding = '2px 6px';
-            span.style.borderRadius = '4px';
+            span.style.padding = '3px 8px';
+            span.style.borderRadius = '6px';
             span.style.background = getColorForEmail(emp.email);
             span.style.fontSize = '11px';
+            span.style.fontWeight = '500';
+            span.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
             span.textContent = emp.name;
 
             const teamBadge = document.createElement('span');
-            teamBadge.style.marginLeft = '4px';
-            teamBadge.style.fontSize = '10px';
-            teamBadge.style.color = '#666';
+            teamBadge.style.fontSize = '9px';
+            teamBadge.style.padding = '2px 6px';
+            teamBadge.style.borderRadius = '4px';
+            teamBadge.style.background = emp.team.toLowerCase() === 'cs' ? '#e3f2fd' : '#fce4ec';
+            teamBadge.style.color = emp.team.toLowerCase() === 'cs' ? '#1976d2' : '#c2185b';
+            teamBadge.style.fontWeight = '600';
             teamBadge.textContent = emp.team.toUpperCase();
 
-            div.appendChild(span);
+            nameWrapper.appendChild(span);
+            div.appendChild(nameWrapper);
             div.appendChild(teamBadge);
             qaEmployeeList.appendChild(div);
           });
