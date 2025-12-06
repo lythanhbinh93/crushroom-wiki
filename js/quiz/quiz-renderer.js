@@ -502,9 +502,10 @@ class QuizRenderer {
       const result = await this.engine.submitQuiz();
       this.renderResults(result);
     } catch (error) {
-      this.hideLoading();
       alert('Có lỗi xảy ra khi nộp bài. Vui lòng thử lại hoặc liên hệ giảng viên.');
       console.error('Submit error:', error);
+          } finally {
+      this.hideLoading();
     }
   }
 
@@ -549,6 +550,9 @@ class QuizRenderer {
    * Render results page
    */
   renderResults(result) {
+    // Ensure any loading overlays are removed before showing results
+    this.hideLoading();
+
     const mcqCount = this.engine.config.settings.mcqCount;
     const essayCount = this.engine.config.settings.essayCount;
     const passingScore = this.engine.config.settings.passingScore;
@@ -613,6 +617,9 @@ class QuizRenderer {
    * Show loading overlay
    */
   showLoading(message = 'Đang tải...') {
+    // Remove existing overlay if any to avoid duplicates
+    this.hideLoading();
+      
     const overlay = document.createElement('div');
     overlay.id = 'loading-overlay';
     overlay.className = 'loading-overlay';
@@ -627,10 +634,10 @@ class QuizRenderer {
    * Hide loading overlay
    */
   hideLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) {
+  // Remove all potential overlays (defensive in case duplicates were added previously)
+    document.querySelectorAll('#loading-overlay, .loading-overlay').forEach((overlay) => {
       overlay.remove();
-    }
+    });
   }
 
   /**
