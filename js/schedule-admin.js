@@ -383,7 +383,7 @@ window.ScheduleAdminPage = {
           span.dataset.name   = u.name || '';
           span.dataset.team   = u.team || '';
 
-          span.textContent = (isAssigned ? '✅ ' : '') + (u.name || u.email);
+          span.textContent = u.name || u.email;
 
           span.addEventListener('click', onNameClick);
 
