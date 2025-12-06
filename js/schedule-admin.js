@@ -278,11 +278,6 @@ window.ScheduleAdminPage = {
           statsEl.classList.add('slot-stats');
           statsEl.textContent = '0/0 người';
 
-          const hintEl = document.createElement('div');
-          hintEl.classList.add('slot-hint');
-          hintEl.style.opacity = '0.7';
-          hintEl.textContent = 'Click để phân ca';
-
           const namesEl = document.createElement('div');
           namesEl.classList.add('slot-names');
           namesEl.style.fontSize = '11px';
@@ -290,7 +285,6 @@ window.ScheduleAdminPage = {
           namesEl.style.color = '#555';
 
           inner.appendChild(statsEl);
-          inner.appendChild(hintEl);
           inner.appendChild(namesEl);
 
           td.appendChild(inner);
