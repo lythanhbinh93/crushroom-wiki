@@ -19,7 +19,7 @@ class QuizStorage {
     console.log('💾 Saving quiz result to backend...');
 
     // For development/testing: save to localStorage if no backend URL
-    if (this.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+    if (this.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbw80_hszSeEnFco7PtSQPAdTqKDVsAjZTiTahn8tRzCFPEvttRNYtLZoKcUUroypg/exec') {
       console.warn('⚠️ Backend URL not configured. Saving to localStorage instead.');
       return this.saveToLocalStorage(submission);
     }
@@ -109,7 +109,7 @@ class QuizStorage {
     console.log('📊 Fetching quiz results for:', userId);
 
     // Check localStorage first
-    if (this.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+    if (this.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbw80_hszSeEnFco7PtSQPAdTqKDVsAjZTiTahn8tRzCFPEvttRNYtLZoKcUUroypg/exec') {
       return this.getResultsFromLocalStorage(userId, quizId);
     }
 
@@ -164,7 +164,7 @@ class QuizStorage {
    * @returns {Promise<Object>} Response from backend
    */
   static async updateProgress(progressData) {
-    if (this.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+    if (this.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbw80_hszSeEnFco7PtSQPAdTqKDVsAjZTiTahn8tRzCFPEvttRNYtLZoKcUUroypg/exec') {
       console.warn('⚠️ Backend URL not configured. Progress not saved.');
       return { success: true, savedLocally: true };
     }
@@ -197,7 +197,7 @@ class QuizStorage {
    * @returns {Promise<Object>} Progress data
    */
   static async getProgress(userId, moduleId) {
-    if (this.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+    if (this.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbw80_hszSeEnFco7PtSQPAdTqKDVsAjZTiTahn8tRzCFPEvttRNYtLZoKcUUroypg/exec') {
       return { progress: 100, completed: true }; // Assume completed for now
     }
 
@@ -223,7 +223,7 @@ class QuizStorage {
    * @returns {Promise<Object>} Schedule data
    */
   static async getQuizSchedule(quizId) {
-    if (this.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+    if (this.SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbw80_hszSeEnFco7PtSQPAdTqKDVsAjZTiTahn8tRzCFPEvttRNYtLZoKcUUroypg/exec') {
       return { enabled: false };
     }
 
