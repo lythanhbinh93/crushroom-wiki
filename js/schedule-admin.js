@@ -331,16 +331,40 @@ window.ScheduleAdminPage = {
         statsEl.textContent = `${assignedCount}/${availCount} người`;
 
         namesEl.innerHTML = '';
-        if (availCount === 0) return;
 
-        const availByEmail = {};
+        // Build combined list of all people (from both availability and assigned)
+        const peopleByEmail = {};
+
+        // Add people from availability list
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
           if (!key) return;
-          if (!availByEmail[key]) availByEmail[key] = u;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: true
+            };
+          }
         });
 
-        Object.values(availByEmail).forEach(u => {
+        // Add people from assigned list (even if not available)
+        assignedList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: false
+            };
+          }
+        });
+
+        // Render all people
+        Object.values(peopleByEmail).forEach(u => {
           const emailKey   = (u.email || '').toLowerCase();
           const isAssigned = assignedList.some(
             a => (a.email || '').toLowerCase() === emailKey
