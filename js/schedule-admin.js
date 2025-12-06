@@ -58,6 +58,10 @@ window.ScheduleAdminPage = {
     let currentMeta = null;   // trạng thái tuần (draft/final)
     let lastScheduleRaw = null; // dữ liệu thô từ API getSchedule (dùng cho section tóm tắt)
 
+    // ==== QUICK ASSIGNMENT STATE ===========================================
+    let selectedCells = new Set(); // Set of slotIds
+    let allEmployees = [];         // [{email, name, team}]
+
     // Màu cho từng nhân viên
     const COLOR_PALETTE = [
       '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0',
@@ -78,6 +82,12 @@ window.ScheduleAdminPage = {
     // Tuần mặc định: thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
 
+    // Quick Assignment Panel elements
+    const qaEmployeeSelect = document.getElementById('qa-employee-select');
+    const qaAssignBtn = document.getElementById('qa-assign-btn');
+    const qaClearBtn = document.getElementById('qa-clear-selection-btn');
+    const qaCountValue = document.getElementById('qa-count-value');
+
     // Events
     loadBtn.addEventListener('click', () => loadData());
     teamSelect.addEventListener('change', () => loadData());
@@ -85,6 +95,17 @@ window.ScheduleAdminPage = {
     saveWeekBtn && saveWeekBtn.addEventListener('click', saveWeekSchedule);
     if (lockWeekBtn) {
       lockWeekBtn.addEventListener('click', onToggleLockClick);
+    }
+
+    // Quick Assignment events
+    if (qaEmployeeSelect) {
+      qaEmployeeSelect.addEventListener('change', onQAEmployeeChange);
+    }
+    if (qaAssignBtn) {
+      qaAssignBtn.addEventListener('click', onQAAssign);
+    }
+    if (qaClearBtn) {
+      qaClearBtn.addEventListener('click', onQAClearSelection);
     }
 
     // Lần đầu load
@@ -181,6 +202,7 @@ window.ScheduleAdminPage = {
         renderGridStats();
         updateWeekStatusUI();
         renderFinalSchedule(lastScheduleRaw);
+        updateQuickAssignmentPanel(); // Populate employee list
 
         showAdminMessage('Đã tải dữ liệu đăng ký & lịch hiện tại.', false);
       } catch (err) {
@@ -250,32 +272,26 @@ window.ScheduleAdminPage = {
           const inner = document.createElement('div');
           inner.classList.add('slot-cell-inner');
           inner.style.cursor = 'pointer';
-          inner.style.fontSize = '12px';
 
           const statsEl = document.createElement('div');
           statsEl.classList.add('slot-stats');
           statsEl.textContent = '0/0 người';
 
-          const hintEl = document.createElement('div');
-          hintEl.classList.add('slot-hint');
-          hintEl.style.opacity = '0.7';
-          hintEl.textContent = 'Click để phân ca';
-
           const namesEl = document.createElement('div');
           namesEl.classList.add('slot-names');
-          namesEl.style.fontSize = '11px';
-          namesEl.style.marginTop = '2px';
-          namesEl.style.color = '#555';
 
           inner.appendChild(statsEl);
-          inner.appendChild(hintEl);
           inner.appendChild(namesEl);
 
           td.appendChild(inner);
 
-          // Click cả ô: mở editor chi tiết (dù section editor đang ẩn)
-          td.addEventListener('click', () => {
-            onSlotClick(slotId, dateISO, slot);
+          // Click cả ô: toggle multi-select for Quick Assignment
+          td.addEventListener('click', (evt) => {
+            // Check if click on name pill (skip selection)
+            if (evt.target.classList.contains('slot-name-pill')) {
+              return; // Let onNameClick handle it
+            }
+            onCellClickForSelection(slotId, td);
           });
 
           tr.appendChild(td);
@@ -305,16 +321,40 @@ window.ScheduleAdminPage = {
         statsEl.textContent = `${assignedCount}/${availCount} người`;
 
         namesEl.innerHTML = '';
-        if (availCount === 0) return;
 
-        const availByEmail = {};
+        // Build combined list of all people (from both availability and assigned)
+        const peopleByEmail = {};
+
+        // Add people from availability list
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
           if (!key) return;
-          if (!availByEmail[key]) availByEmail[key] = u;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: true
+            };
+          }
         });
 
-        Object.values(availByEmail).forEach(u => {
+        // Add people from assigned list (even if not available)
+        assignedList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: false
+            };
+          }
+        });
+
+        // Render all people
+        Object.values(peopleByEmail).forEach(u => {
           const emailKey   = (u.email || '').toLowerCase();
           const isAssigned = assignedList.some(
             a => (a.email || '').toLowerCase() === emailKey
@@ -322,26 +362,28 @@ window.ScheduleAdminPage = {
 
           const span = document.createElement('span');
           span.classList.add('slot-name-pill');
+
+          // Basic styling (responsive handled by CSS)
           span.style.display      = 'inline-block';
-          span.style.padding      = '2px 8px';
+          span.style.padding      = '3px 8px';
           span.style.borderRadius = '999px';
-          span.style.marginRight  = '4px';
-          span.style.marginBottom = '2px';
+          span.style.marginRight  = '3px';
+          span.style.marginBottom = '3px';
           span.style.cursor       = 'pointer';
 
           const baseColor = getColorForEmail(emailKey);
           span.style.background = baseColor;
-          span.style.border     = isAssigned ? '1px solid rgba(0,0,0,0.35)'
+          span.style.border     = isAssigned ? '2px solid rgba(0,0,0,0.25)'
                                              : '1px solid transparent';
           span.style.opacity    = isAssigned ? '1' : '0.5';
-          span.style.fontWeight = isAssigned ? '600' : '400';
+          span.style.fontWeight = isAssigned ? '600' : '500';
 
           span.dataset.slotId = slotId;
           span.dataset.email  = u.email;
           span.dataset.name   = u.name || '';
           span.dataset.team   = u.team || '';
 
-          span.textContent = (isAssigned ? '✅ ' : '') + (u.name || u.email);
+          span.textContent = u.name || u.email;
 
           span.addEventListener('click', onNameClick);
 
@@ -930,6 +972,232 @@ function formatShiftLabel(shiftKey) {
       const daysToNextMonday = ((8 - day) % 7) || 7;
       const nextMonday = addDays(now, daysToNextMonday);
       return toISODate(nextMonday);
+    }
+
+    // ======================================================================
+    // QUICK ASSIGNMENT PANEL FUNCTIONS
+    // ======================================================================
+
+    /**
+     * Update Quick Assignment Panel với employee list
+     */
+    function updateQuickAssignmentPanel() {
+      // Extract all unique employees from availabilityMap
+      const employeeSet = new Map(); // email -> {email, name, team}
+
+      Object.values(availabilityMap).forEach(userList => {
+        userList.forEach(u => {
+          const email = (u.email || '').toLowerCase();
+          if (email && !employeeSet.has(email)) {
+            employeeSet.set(email, {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || ''
+            });
+          }
+        });
+      });
+
+      allEmployees = Array.from(employeeSet.values()).sort((a, b) =>
+        (a.name || '').localeCompare(b.name || '')
+      );
+
+      // Populate dropdown
+      if (qaEmployeeSelect) {
+        qaEmployeeSelect.innerHTML = '<option value="">-- Chọn nhân viên --</option>';
+        allEmployees.forEach(emp => {
+          const option = document.createElement('option');
+          option.value = emp.email;
+          option.textContent = `${emp.name} (${emp.team.toUpperCase()})`;
+          qaEmployeeSelect.appendChild(option);
+        });
+      }
+
+      // Populate employee list (for reference)
+      const qaEmployeeList = document.getElementById('qa-employee-list');
+      if (qaEmployeeList) {
+        if (allEmployees.length === 0) {
+          qaEmployeeList.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-style:italic;">Chưa có nhân viên nào đăng ký</div>';
+        } else {
+          qaEmployeeList.innerHTML = '';
+          allEmployees.forEach(emp => {
+            const div = document.createElement('div');
+            div.style.padding = '8px 6px';
+            div.style.borderRadius = '4px';
+            div.style.marginBottom = '4px';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'space-between';
+            div.style.transition = 'all 0.2s ease';
+            div.style.cursor = 'default';
+
+            div.addEventListener('mouseenter', () => {
+              div.style.background = '#f8f9fa';
+              div.style.transform = 'translateX(2px)';
+            });
+
+            div.addEventListener('mouseleave', () => {
+              div.style.background = 'transparent';
+              div.style.transform = 'translateX(0)';
+            });
+
+            const nameWrapper = document.createElement('div');
+            nameWrapper.style.display = 'flex';
+            nameWrapper.style.alignItems = 'center';
+            nameWrapper.style.gap = '6px';
+
+            const span = document.createElement('span');
+            span.style.display = 'inline-block';
+            span.style.padding = '3px 8px';
+            span.style.borderRadius = '6px';
+            span.style.background = getColorForEmail(emp.email);
+            span.style.fontSize = '11px';
+            span.style.fontWeight = '500';
+            span.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+            span.textContent = emp.name;
+
+            const teamBadge = document.createElement('span');
+            teamBadge.style.fontSize = '9px';
+            teamBadge.style.padding = '2px 6px';
+            teamBadge.style.borderRadius = '4px';
+            teamBadge.style.background = emp.team.toLowerCase() === 'cs' ? '#e3f2fd' : '#fce4ec';
+            teamBadge.style.color = emp.team.toLowerCase() === 'cs' ? '#1976d2' : '#c2185b';
+            teamBadge.style.fontWeight = '600';
+            teamBadge.textContent = emp.team.toUpperCase();
+
+            nameWrapper.appendChild(span);
+            div.appendChild(nameWrapper);
+            div.appendChild(teamBadge);
+            qaEmployeeList.appendChild(div);
+          });
+        }
+      }
+
+      // Reset selection
+      selectedCells.clear();
+      updateQACountDisplay();
+      updateQAAssignButtonState();
+      clearCellSelectionHighlights();
+    }
+
+    /**
+     * Handle cell click for multi-selection
+     */
+    function onCellClickForSelection(slotId, tdElement) {
+      if (selectedCells.has(slotId)) {
+        selectedCells.delete(slotId);
+        tdElement.classList.remove('qa-selected');
+      } else {
+        selectedCells.add(slotId);
+        tdElement.classList.add('qa-selected');
+      }
+
+      updateQACountDisplay();
+      updateQAAssignButtonState();
+    }
+
+    /**
+     * Update selected count display
+     */
+    function updateQACountDisplay() {
+      if (qaCountValue) {
+        qaCountValue.textContent = selectedCells.size;
+      }
+    }
+
+    /**
+     * Update assign button state (enabled/disabled)
+     */
+    function updateQAAssignButtonState() {
+      if (!qaAssignBtn) return;
+
+      const hasEmployee = qaEmployeeSelect && qaEmployeeSelect.value;
+      const hasCells = selectedCells.size > 0;
+
+      qaAssignBtn.disabled = !(hasEmployee && hasCells);
+    }
+
+    /**
+     * Handle employee selection change
+     */
+    function onQAEmployeeChange() {
+      updateQAAssignButtonState();
+    }
+
+    /**
+     * Handle Quick Assign button click
+     */
+    function onQAAssign() {
+      if (!qaEmployeeSelect) return;
+
+      const selectedEmail = qaEmployeeSelect.value;
+      if (!selectedEmail || selectedCells.size === 0) {
+        showAdminMessage('Vui lòng chọn nhân viên và ít nhất 1 slot.', true);
+        return;
+      }
+
+      const employee = allEmployees.find(e => e.email === selectedEmail);
+      if (!employee) {
+        showAdminMessage('Không tìm thấy thông tin nhân viên.', true);
+        return;
+      }
+
+      // Assign employee to all selected cells
+      let assignedCount = 0;
+      selectedCells.forEach(slotId => {
+        let list = scheduleMap[slotId] || [];
+
+        // Check if already assigned
+        const idx = list.findIndex(
+          u => (u.email || '').toLowerCase() === (employee.email || '').toLowerCase()
+        );
+
+        if (idx < 0) {
+          // Not assigned yet -> add
+          list.push({
+            email: employee.email,
+            name: employee.name,
+            team: employee.team
+          });
+          assignedCount++;
+        }
+
+        scheduleMap[slotId] = list;
+      });
+
+      // Re-render grid
+      renderGridStats();
+
+      // Clear selection
+      selectedCells.clear();
+      clearCellSelectionHighlights();
+      updateQACountDisplay();
+      updateQAAssignButtonState();
+
+      showAdminMessage(
+        `Đã phân ca ${employee.name} vào ${assignedCount} slot. Nhớ bấm "Lưu lịch tuần này".`,
+        false
+      );
+    }
+
+    /**
+     * Handle clear selection button click
+     */
+    function onQAClearSelection() {
+      selectedCells.clear();
+      clearCellSelectionHighlights();
+      updateQACountDisplay();
+      updateQAAssignButtonState();
+    }
+
+    /**
+     * Clear all cell selection highlights
+     */
+    function clearCellSelectionHighlights() {
+      const cells = tbody.querySelectorAll('td.schedule-cell');
+      cells.forEach(td => {
+        td.classList.remove('qa-selected');
+      });
     }
   }
 };

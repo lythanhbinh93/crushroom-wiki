@@ -570,3 +570,530 @@ a {
   font-size: 11px;
 }
 
+/* ===== Quick Assignment Panel ===== */
+.schedule-cell.qa-selected {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
+  border: 2px solid #2196f3 !important;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15), 0 4px 12px rgba(33, 150, 243, 0.2);
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+.schedule-cell.qa-selected .slot-cell-inner {
+  opacity: 1;
+}
+
+#quick-assignment-panel {
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+#quick-assignment-panel:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+#quick-assignment-panel h3 {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+#qa-mode-info {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#qa-employee-select {
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  border: 1px solid #ddd;
+}
+
+#qa-employee-select:hover {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+#qa-employee-select:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+#qa-selected-count {
+  transition: all 0.2s ease;
+}
+
+#qa-count-value {
+  font-weight: 700;
+  color: #2196f3;
+  font-size: 14px;
+}
+
+.btn {
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+#qa-employee-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+#qa-employee-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+#qa-employee-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+#qa-employee-list::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Employee name pill styling */
+.slot-name-pill {
+  transition: all 0.2s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.slot-name-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  filter: brightness(0.95);
+  z-index: 10;
+}
+
+.slot-name-pill:active {
+  transform: translateY(0);
+}
+
+/* Schedule cell improvements */
+.schedule-cell {
+  transition: all 0.2s ease;
+  padding: 8px 6px;
+  width: auto;
+  vertical-align: top;
+  overflow: hidden;
+}
+
+.schedule-cell:hover:not(.qa-selected) {
+  background: #fafafa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.slot-cell-inner {
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 40px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.slot-names {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  width: 100%;
+  font-size: 11px;
+  color: #555;
+  margin-top: 4px;
+}
+
+.slot-stats {
+  font-weight: 500;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #333;
+}
+
+/* Data table improvements */
+.data-table {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.data-table thead th {
+  background: linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 100%);
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  padding: 10px 8px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.data-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 6;
+  background: linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 100%);
+  border-right: 2px solid #dee2e6;
+  width: 80px;
+  min-width: 80px;
+}
+
+.data-table tbody th {
+  position: sticky;
+  left: 0;
+  background: #ffffff;
+  z-index: 4;
+  font-weight: 600;
+  padding: 10px 8px;
+  border-right: 2px solid #dee2e6;
+  white-space: nowrap;
+  width: 80px;
+  min-width: 80px;
+}
+
+/* Day columns should share remaining space equally */
+.data-table thead th:not(:first-child),
+.data-table tbody td {
+  width: auto;
+}
+
+.data-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.data-table tbody tr:hover th {
+  background: #f0f3f5;
+}
+
+/* Table wrapper for horizontal scroll */
+.data-table-wrapper,
+div[style*="overflow-x:auto"] {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure parent flex container allows table to expand */
+.content-section > div[style*="display:flex"] > div[style*="flex:1"] {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.data-table-wrapper::-webkit-scrollbar,
+div[style*="overflow-x:auto"]::-webkit-scrollbar {
+  height: 10px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-track,
+div[style*="overflow-x:auto"]::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb,
+div[style*="overflow-x:auto"]::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 5px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb:hover,
+div[style*="overflow-x:auto"]::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Responsive for Quick Assignment Panel */
+@media (max-width: 1200px) {
+  #quick-assignment-panel {
+    width: 260px;
+  }
+}
+
+@media (max-width: 992px) {
+  .content-section > div[style*="display:flex"] {
+    flex-direction: column;
+  }
+
+  #quick-assignment-panel {
+    width: 100%;
+    margin-top: 20px;
+    max-width: none;
+  }
+
+  .slot-name-pill {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+    margin-right: 2px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .data-table {
+    font-size: 11px;
+    table-layout: auto;
+  }
+
+  .schedule-cell {
+    padding: 6px 4px;
+  }
+
+  .slot-cell-inner {
+    min-height: 35px;
+    gap: 3px;
+  }
+
+  .slot-names {
+    gap: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  #quick-assignment-panel {
+    padding: 12px;
+  }
+
+  #qa-mode-info {
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .btn {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+
+  .data-table thead th,
+  .data-table tbody td {
+    padding: 6px 3px;
+    font-size: 10px;
+  }
+
+  .data-table tbody th {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+
+  .slot-stats {
+    font-size: 9px !important;
+  }
+
+  .schedule-cell {
+    padding: 5px 3px;
+  }
+
+  .data-table {
+    table-layout: auto;
+  }
+
+  .slot-cell-inner {
+    min-height: 30px;
+    gap: 2px;
+  }
+
+  .slot-name-pill {
+    font-size: 9px !important;
+    padding: 1px 5px !important;
+  }
+
+  .slot-names {
+    gap: 2px;
+  }
+}
+
+@media (max-width: 576px) {
+  #quick-assignment-panel h3 {
+    font-size: 14px;
+  }
+
+  #quick-assignment-panel {
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .schedule-cell.qa-selected {
+    transform: scale(1);
+  }
+
+  .data-table {
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 9px;
+    table-layout: auto;
+  }
+
+  .schedule-cell {
+    padding: 4px 2px;
+  }
+
+  .slot-cell-inner {
+    min-height: 28px;
+    gap: 2px;
+  }
+
+  .slot-stats {
+    font-size: 8px !important;
+  }
+
+  .slot-name-pill {
+    font-size: 8px !important;
+    padding: 1px 4px !important;
+    margin-right: 1px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .data-table thead th,
+  .data-table tbody td,
+  .data-table tbody th {
+    padding: 4px 2px;
+    font-size: 9px;
+  }
+}
+
+/* Additional improvements for overall UI */
+.schedule-admin-status-bar {
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.schedule-admin-status-bar:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Improve button styling */
+.btn-primary {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  border: none;
+  color: white;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  border: 1px solid #ccc;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #e0e0e0 0%, #d5d5d5 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Page header improvements */
+.page-header {
+  padding: 24px 0;
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.header-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Content section improvements */
+.content-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.content-section:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.content-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Loading states and animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Table overflow wrapper */
+.data-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.data-table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.data-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
