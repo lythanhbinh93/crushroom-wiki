@@ -272,7 +272,6 @@ window.ScheduleAdminPage = {
           const inner = document.createElement('div');
           inner.classList.add('slot-cell-inner');
           inner.style.cursor = 'pointer';
-          inner.style.fontSize = '12px';
 
           const statsEl = document.createElement('div');
           statsEl.classList.add('slot-stats');
@@ -280,9 +279,6 @@ window.ScheduleAdminPage = {
 
           const namesEl = document.createElement('div');
           namesEl.classList.add('slot-names');
-          namesEl.style.fontSize = '11px';
-          namesEl.style.marginTop = '2px';
-          namesEl.style.color = '#555';
 
           inner.appendChild(statsEl);
           inner.appendChild(namesEl);
@@ -366,19 +362,21 @@ window.ScheduleAdminPage = {
 
           const span = document.createElement('span');
           span.classList.add('slot-name-pill');
+
+          // Basic styling (responsive handled by CSS)
           span.style.display      = 'inline-block';
-          span.style.padding      = '2px 8px';
+          span.style.padding      = '3px 8px';
           span.style.borderRadius = '999px';
-          span.style.marginRight  = '4px';
-          span.style.marginBottom = '2px';
+          span.style.marginRight  = '3px';
+          span.style.marginBottom = '3px';
           span.style.cursor       = 'pointer';
 
           const baseColor = getColorForEmail(emailKey);
           span.style.background = baseColor;
-          span.style.border     = isAssigned ? '1px solid rgba(0,0,0,0.35)'
+          span.style.border     = isAssigned ? '2px solid rgba(0,0,0,0.25)'
                                              : '1px solid transparent';
           span.style.opacity    = isAssigned ? '1' : '0.5';
-          span.style.fontWeight = isAssigned ? '600' : '400';
+          span.style.fontWeight = isAssigned ? '600' : '500';
 
           span.dataset.slotId = slotId;
           span.dataset.email  = u.email;
