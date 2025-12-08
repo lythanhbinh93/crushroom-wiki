@@ -367,6 +367,41 @@ window.ScheduleAdminPage = {
     function renderGridOverview() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
+      // Step 1: Collect all unique employees across all time slots
+      const globalEmployees = new Map(); // email -> {name, email, team}
+
+      cells.forEach(td => {
+        const slotId = td.dataset.slotId;
+        const availList = availabilityMap[slotId] || [];
+        const assignedList = scheduleMap[slotId] || [];
+
+        [...availList, ...assignedList].forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!globalEmployees.has(key)) {
+            globalEmployees.set(key, {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || ''
+            });
+          }
+        });
+      });
+
+      // Step 2: Sort employees alphabetically and assign fixed column numbers
+      const sortedEmployees = Array.from(globalEmployees.values()).sort((a, b) => {
+        const nameA = (a.name || a.email || '').toLowerCase();
+        const nameB = (b.name || b.email || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+      const employeeColumnMap = new Map();
+      sortedEmployees.forEach((emp, index) => {
+        const key = (emp.email || '').toLowerCase();
+        employeeColumnMap.set(key, index + 1); // Grid columns are 1-indexed
+      });
+
+      // Step 3: Render each cell with fixed grid column positions
       cells.forEach(td => {
         const slotId  = td.dataset.slotId;
         const statsEl = td.querySelector('.slot-stats');
@@ -374,9 +409,6 @@ window.ScheduleAdminPage = {
 
         const availList    = availabilityMap[slotId] || [];
         const assignedList = scheduleMap[slotId] || [];
-
-        const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
-        const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
 
         // Hide count for cleaner view
         statsEl.style.display = 'none';
@@ -411,32 +443,30 @@ window.ScheduleAdminPage = {
           }
         });
 
-        // Render compact name badges (Quick View) - 2-row horizontal layout
+        // Render compact name badges with CSS Grid for fixed positions
         const badgesContainer = document.createElement('div');
-        badgesContainer.style.display = 'flex';
-        badgesContainer.style.flexDirection = 'row'; // Horizontal layout
-        badgesContainer.style.flexWrap = 'wrap'; // Wrap to next row
+        badgesContainer.style.display = 'grid';
+        badgesContainer.style.gridTemplateColumns = `repeat(${sortedEmployees.length}, minmax(40px, auto))`;
+        badgesContainer.style.gridAutoRows = 'minmax(20px, auto)';
+        badgesContainer.style.gridAutoFlow = 'dense';
         badgesContainer.style.gap = '2px';
-        badgesContainer.style.alignItems = 'center';
-        badgesContainer.style.alignContent = 'flex-start';
+        badgesContainer.style.alignItems = 'start';
         badgesContainer.classList.add('quick-view-badges');
 
-        // Sort employees alphabetically for consistent positioning across time slots
-        const sortedPeople = Object.values(peopleByEmail).sort((a, b) => {
-          const nameA = (a.name || a.email || '').toLowerCase();
-          const nameB = (b.name || b.email || '').toLowerCase();
-          return nameA.localeCompare(nameB);
-        });
-
-        sortedPeople.forEach(u => {
+        // Render badges - each employee always at their fixed column position
+        Object.values(peopleByEmail).forEach(u => {
           const emailKey   = (u.email || '').toLowerCase();
+          const columnIndex = employeeColumnMap.get(emailKey);
+
+          if (!columnIndex) return; // Skip if not in global map
+
           const isAssigned = assignedList.some(
             a => (a.email || '').toLowerCase() === emailKey
           );
 
           const badge = document.createElement('span');
           badge.classList.add('quick-view-badge');
-          badge.style.display = 'inline-block';
+          badge.style.gridColumn = columnIndex; // Fixed column position
           badge.style.padding = '2px 6px';
           badge.style.borderRadius = '3px';
           badge.style.fontSize = '10px';
