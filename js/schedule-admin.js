@@ -65,21 +65,56 @@ window.ScheduleAdminPage = {
     // ==== VIEW MODE STATE ==================================================
     let viewMode = 'overview'; // 'overview' or 'detail'
 
-    // Màu cho từng nhân viên
+    // Màu tương phản cao cho từng nhân viên (vivid colors)
     const COLOR_PALETTE = [
-      '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0',
-      '#F3E5F5', '#E0F7FA', '#F9FBE7', '#FCE4EC'
+      { bg: '#FF5252', text: '#FFFFFF' }, // Red
+      { bg: '#2196F3', text: '#FFFFFF' }, // Blue
+      { bg: '#4CAF50', text: '#FFFFFF' }, // Green
+      { bg: '#FF9800', text: '#000000' }, // Orange
+      { bg: '#9C27B0', text: '#FFFFFF' }, // Purple
+      { bg: '#00BCD4', text: '#000000' }, // Cyan
+      { bg: '#FFEB3B', text: '#000000' }, // Yellow
+      { bg: '#E91E63', text: '#FFFFFF' }, // Pink
+      { bg: '#3F51B5', text: '#FFFFFF' }, // Indigo
+      { bg: '#009688', text: '#FFFFFF' }, // Teal
+      { bg: '#FF5722', text: '#FFFFFF' }, // Deep Orange
+      { bg: '#795548', text: '#FFFFFF' }, // Brown
+      { bg: '#607D8B', text: '#FFFFFF' }, // Blue Grey
+      { bg: '#FFC107', text: '#000000' }, // Amber
+      { bg: '#8BC34A', text: '#000000' }  // Light Green
     ];
     const colorByEmail = {};
     function getColorForEmail(email) {
       const key = (email || '').toLowerCase();
-      if (!key) return '#f1f3f4';
+      if (!key) return { bg: '#f1f3f4', text: '#000000' };
 
       if (!colorByEmail[key]) {
         const index = Object.keys(colorByEmail).length % COLOR_PALETTE.length;
         colorByEmail[key] = COLOR_PALETTE[index];
       }
       return colorByEmail[key];
+    }
+
+    // Helper: Get short name (first name or initials)
+    function getShortName(fullName) {
+      if (!fullName) return '';
+
+      const parts = fullName.trim().split(/\s+/);
+
+      // If single word, return as is (max 8 chars)
+      if (parts.length === 1) {
+        return parts[0].substring(0, 8);
+      }
+
+      // If multiple words, return first name
+      // If first name is too long, return initials
+      const firstName = parts[parts.length - 1]; // Vietnamese: last part is first name
+      if (firstName.length <= 6) {
+        return firstName;
+      }
+
+      // Return initials (e.g., "Nguyễn Văn An" -> "NVA")
+      return parts.map(p => p[0]).join('').toUpperCase();
     }
 
     // Tuần mặc định: thứ 2 tuần sau
@@ -348,7 +383,7 @@ window.ScheduleAdminPage = {
 
         namesEl.innerHTML = '';
 
-        // Build combined list for dots
+        // Build combined list for compact badges
         const peopleByEmail = {};
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
@@ -376,12 +411,15 @@ window.ScheduleAdminPage = {
           }
         });
 
-        // Render dots/indicators
-        const dotsContainer = document.createElement('div');
-        dotsContainer.style.display = 'flex';
-        dotsContainer.style.gap = '3px';
-        dotsContainer.style.flexWrap = 'wrap';
-        dotsContainer.style.marginTop = '4px';
+        // Render compact name badges (Quick View)
+        const badgesContainer = document.createElement('div');
+        badgesContainer.style.display = 'flex';
+        badgesContainer.style.gap = '3px';
+        badgesContainer.style.flexWrap = 'nowrap'; // Don't wrap - keep in one line
+        badgesContainer.style.overflowX = 'auto'; // Scroll if too many
+        badgesContainer.style.overflowY = 'hidden';
+        badgesContainer.style.alignItems = 'center';
+        badgesContainer.classList.add('quick-view-badges');
 
         Object.values(peopleByEmail).forEach(u => {
           const emailKey   = (u.email || '').toLowerCase();
@@ -389,46 +427,47 @@ window.ScheduleAdminPage = {
             a => (a.email || '').toLowerCase() === emailKey
           );
 
-          const dot = document.createElement('span');
-          dot.style.width = '10px';
-          dot.style.height = '10px';
-          dot.style.borderRadius = '50%';
-          dot.style.display = 'inline-block';
-          dot.style.cursor = 'pointer';
-          dot.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân' : '○ Rảnh'}`;
+          const badge = document.createElement('span');
+          badge.classList.add('quick-view-badge');
+          badge.style.display = 'inline-block';
+          badge.style.padding = '2px 6px';
+          badge.style.borderRadius = '4px';
+          badge.style.fontSize = '10px';
+          badge.style.fontWeight = '600';
+          badge.style.cursor = 'pointer';
+          badge.style.whiteSpace = 'nowrap';
+          badge.style.flexShrink = '0'; // Don't shrink
+          badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
 
-          const baseColor = getColorForEmail(emailKey);
+          const colors = getColorForEmail(emailKey);
 
           if (isAssigned) {
-            // Assigned: solid color with checkmark icon
-            dot.textContent = '✓';
-            dot.style.background = baseColor;
-            dot.style.border = '2px solid rgba(0,0,0,0.4)';
-            dot.style.fontSize = '9px';
-            dot.style.lineHeight = '10px';
-            dot.style.textAlign = 'center';
-            dot.style.fontWeight = '900';
-            dot.style.color = 'rgba(0,0,0,0.6)';
-            dot.style.width = '14px';
-            dot.style.height = '14px';
+            // Assigned: vivid color background
+            badge.style.background = colors.bg;
+            badge.style.color = colors.text;
+            badge.style.border = 'none';
+            badge.style.opacity = '1';
           } else {
-            // Available but not assigned: hollow dot
-            dot.style.background = 'transparent';
-            dot.style.border = `2px solid ${baseColor}`;
-            dot.style.opacity = '0.6';
+            // Available but not assigned: light background
+            badge.style.background = 'transparent';
+            badge.style.color = colors.bg;
+            badge.style.border = `1.5px solid ${colors.bg}`;
+            badge.style.opacity = '0.6';
           }
 
-          dot.dataset.slotId = slotId;
-          dot.dataset.email  = u.email;
-          dot.dataset.name   = u.name || '';
-          dot.dataset.team   = u.team || '';
+          badge.dataset.slotId = slotId;
+          badge.dataset.email  = u.email;
+          badge.dataset.name   = u.name || '';
+          badge.dataset.team   = u.team || '';
 
-          dot.addEventListener('click', onNameClick);
+          badge.textContent = getShortName(u.name || u.email);
 
-          dotsContainer.appendChild(dot);
+          badge.addEventListener('click', onNameClick);
+
+          badgesContainer.appendChild(badge);
         });
 
-        namesEl.appendChild(dotsContainer);
+        namesEl.appendChild(badgesContainer);
       });
     }
 
@@ -501,12 +540,23 @@ window.ScheduleAdminPage = {
           span.style.marginBottom = '3px';
           span.style.cursor       = 'pointer';
 
-          const baseColor = getColorForEmail(emailKey);
-          span.style.background = baseColor;
-          span.style.border     = isAssigned ? '2px solid rgba(0,0,0,0.25)'
-                                             : '1px solid transparent';
-          span.style.opacity    = isAssigned ? '1' : '0.5';
-          span.style.fontWeight = isAssigned ? '600' : '500';
+          const colors = getColorForEmail(emailKey);
+
+          if (isAssigned) {
+            // Assigned: vivid color background with contrast text
+            span.style.background = colors.bg;
+            span.style.color = colors.text;
+            span.style.border = 'none';
+            span.style.opacity = '1';
+            span.style.fontWeight = '600';
+          } else {
+            // Available but not assigned: transparent with colored border
+            span.style.background = 'transparent';
+            span.style.color = colors.bg;
+            span.style.border = `1.5px solid ${colors.bg}`;
+            span.style.opacity = '0.6';
+            span.style.fontWeight = '500';
+          }
 
           span.dataset.slotId = slotId;
           span.dataset.email  = u.email;
