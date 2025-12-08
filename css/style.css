@@ -692,15 +692,16 @@ a {
 /* Quick View badges (Overview mode) - CSS Grid with fixed column positions */
 .quick-view-badges {
   max-width: 100%;
-  min-height: 20px;
-  /* Grid layout allows natural 2-row wrapping based on content */
+  min-height: 24px;
+  /* Grid layout ensures consistent column positioning */
 }
 
 .quick-view-badge {
   transition: all 0.15s ease !important;
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1);
-  line-height: 1.3;
-  /* Grid items positioned by gridColumn property */
+  line-height: 1.4;
+  position: relative;
+  /* Grid items positioned by gridColumn property - prevents overlap */
 }
 
 .quick-view-badge:hover {

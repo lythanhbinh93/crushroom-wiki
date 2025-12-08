@@ -446,11 +446,11 @@ window.ScheduleAdminPage = {
         // Render compact name badges with CSS Grid for fixed positions
         const badgesContainer = document.createElement('div');
         badgesContainer.style.display = 'grid';
-        badgesContainer.style.gridTemplateColumns = `repeat(${sortedEmployees.length}, minmax(40px, auto))`;
-        badgesContainer.style.gridAutoRows = 'minmax(20px, auto)';
-        badgesContainer.style.gridAutoFlow = 'dense';
-        badgesContainer.style.gap = '2px';
-        badgesContainer.style.alignItems = 'start';
+        badgesContainer.style.gridTemplateColumns = `repeat(${sortedEmployees.length}, minmax(50px, 1fr))`;
+        badgesContainer.style.gridAutoRows = 'auto';
+        badgesContainer.style.gap = '4px';
+        badgesContainer.style.alignItems = 'center';
+        badgesContainer.style.width = '100%';
         badgesContainer.classList.add('quick-view-badges');
 
         // Render badges - each employee always at their fixed column position
@@ -467,8 +467,9 @@ window.ScheduleAdminPage = {
           const badge = document.createElement('span');
           badge.classList.add('quick-view-badge');
           badge.style.gridColumn = columnIndex; // Fixed column position
-          badge.style.padding = '2px 6px';
-          badge.style.borderRadius = '3px';
+          badge.style.display = 'block';
+          badge.style.padding = '3px 6px';
+          badge.style.borderRadius = '4px';
           badge.style.fontSize = '10px';
           badge.style.fontWeight = '600';
           badge.style.cursor = 'pointer';
@@ -476,7 +477,8 @@ window.ScheduleAdminPage = {
           badge.style.textAlign = 'center';
           badge.style.overflow = 'hidden';
           badge.style.textOverflow = 'ellipsis';
-          badge.style.minWidth = '40px'; // Minimum width for readability
+          badge.style.width = '100%';
+          badge.style.boxSizing = 'border-box';
           badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
 
           const colors = getColorForEmail(emailKey);
