@@ -689,19 +689,20 @@ a {
   background: #999;
 }
 
-/* Quick View badges (Overview mode) - CSS Grid with fixed column positions */
+/* Quick View badges (Overview mode) - Flex layout with alphabetical sorting */
 .quick-view-badges {
   max-width: 100%;
   min-height: 24px;
-  /* Grid layout ensures consistent column positioning */
+  /* Employees sorted alphabetically for consistent positioning */
 }
 
 .quick-view-badge {
   transition: all 0.15s ease !important;
-  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1);
-  line-height: 1.4;
-  position: relative;
-  /* Grid items positioned by gridColumn property - prevents overlap */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .quick-view-badge:hover {

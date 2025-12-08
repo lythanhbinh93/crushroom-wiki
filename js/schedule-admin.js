@@ -363,45 +363,10 @@ window.ScheduleAdminPage = {
       }
     }
 
-    // Overview Mode: Compact view with dots/checkmarks
+    // Overview Mode: Compact view with sorted employees
     function renderGridOverview() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
-      // Step 1: Collect all unique employees across all time slots
-      const globalEmployees = new Map(); // email -> {name, email, team}
-
-      cells.forEach(td => {
-        const slotId = td.dataset.slotId;
-        const availList = availabilityMap[slotId] || [];
-        const assignedList = scheduleMap[slotId] || [];
-
-        [...availList, ...assignedList].forEach(u => {
-          const key = (u.email || '').toLowerCase();
-          if (!key) return;
-          if (!globalEmployees.has(key)) {
-            globalEmployees.set(key, {
-              email: u.email,
-              name: u.name || u.email,
-              team: u.team || ''
-            });
-          }
-        });
-      });
-
-      // Step 2: Sort employees alphabetically and assign fixed column numbers
-      const sortedEmployees = Array.from(globalEmployees.values()).sort((a, b) => {
-        const nameA = (a.name || a.email || '').toLowerCase();
-        const nameB = (b.name || b.email || '').toLowerCase();
-        return nameA.localeCompare(nameB);
-      });
-
-      const employeeColumnMap = new Map();
-      sortedEmployees.forEach((emp, index) => {
-        const key = (emp.email || '').toLowerCase();
-        employeeColumnMap.set(key, index + 1); // Grid columns are 1-indexed
-      });
-
-      // Step 3: Render each cell with fixed grid column positions
       cells.forEach(td => {
         const slotId  = td.dataset.slotId;
         const statsEl = td.querySelector('.slot-stats');
@@ -443,56 +408,39 @@ window.ScheduleAdminPage = {
           }
         });
 
-        // Render compact name badges with CSS Grid for fixed positions
+        // Sort employees alphabetically for consistent ordering
+        const sortedPeople = Object.values(peopleByEmail).sort((a, b) => {
+          const nameA = (a.name || a.email || '').toLowerCase();
+          const nameB = (b.name || b.email || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+
+        // Render compact name badges with flex layout
         const badgesContainer = document.createElement('div');
-        badgesContainer.style.display = 'grid';
-        badgesContainer.style.gridTemplateColumns = `repeat(${sortedEmployees.length}, minmax(50px, 1fr))`;
-        badgesContainer.style.gridAutoRows = 'auto';
-        badgesContainer.style.gap = '4px';
+        badgesContainer.style.display = 'flex';
+        badgesContainer.style.flexWrap = 'wrap';
+        badgesContainer.style.gap = '3px';
         badgesContainer.style.alignItems = 'center';
-        badgesContainer.style.width = '100%';
         badgesContainer.classList.add('quick-view-badges');
 
-        // Render ALL employees to maintain grid structure
-        // Those not in this cell will be invisible placeholders
-        sortedEmployees.forEach((emp, index) => {
-          const emailKey = (emp.email || '').toLowerCase();
-          const columnIndex = index + 1;
-
-          // Check if this employee is in the current cell
-          const personInCell = peopleByEmail[emailKey];
-
-          if (!personInCell) {
-            // Empty placeholder to maintain grid structure
-            const placeholder = document.createElement('span');
-            placeholder.style.gridColumn = columnIndex;
-            placeholder.style.visibility = 'hidden';
-            placeholder.style.height = '0';
-            badgesContainer.appendChild(placeholder);
-            return;
-          }
-
-          // Employee exists in this cell - render visible badge
+        // Render sorted employees
+        sortedPeople.forEach(u => {
+          const emailKey = (u.email || '').toLowerCase();
           const isAssigned = assignedList.some(
             a => (a.email || '').toLowerCase() === emailKey
           );
 
           const badge = document.createElement('span');
           badge.classList.add('quick-view-badge');
-          badge.style.gridColumn = columnIndex; // Fixed column position
-          badge.style.display = 'block';
-          badge.style.padding = '3px 6px';
+          badge.style.padding = '3px 8px';
           badge.style.borderRadius = '4px';
-          badge.style.fontSize = '10px';
+          badge.style.fontSize = '11px';
           badge.style.fontWeight = '600';
           badge.style.cursor = 'pointer';
           badge.style.whiteSpace = 'nowrap';
           badge.style.textAlign = 'center';
-          badge.style.overflow = 'hidden';
-          badge.style.textOverflow = 'ellipsis';
-          badge.style.width = '100%';
-          badge.style.boxSizing = 'border-box';
-          badge.title = `${emp.name || emp.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
+          badge.style.lineHeight = '1.4';
+          badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
 
           const colors = getColorForEmail(emailKey);
 
@@ -501,21 +449,21 @@ window.ScheduleAdminPage = {
             badge.style.background = colors.bg;
             badge.style.color = colors.text;
             badge.style.border = 'none';
-            badge.style.opacity = '1';
+            badge.style.fontWeight = '700';
           } else {
             // Available but not assigned: light background
             badge.style.background = 'transparent';
             badge.style.color = colors.bg;
             badge.style.border = `1.5px solid ${colors.bg}`;
-            badge.style.opacity = '0.6';
+            badge.style.opacity = '0.7';
           }
 
           badge.dataset.slotId = slotId;
-          badge.dataset.email  = emp.email;
-          badge.dataset.name   = emp.name || '';
-          badge.dataset.team   = emp.team || '';
+          badge.dataset.email  = u.email;
+          badge.dataset.name   = u.name || '';
+          badge.dataset.team   = u.team || '';
 
-          badge.textContent = getShortName(emp.name || emp.email);
+          badge.textContent = getShortName(u.name || u.email);
 
           badge.addEventListener('click', onNameClick);
 
