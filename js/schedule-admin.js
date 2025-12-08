@@ -453,13 +453,26 @@ window.ScheduleAdminPage = {
         badgesContainer.style.width = '100%';
         badgesContainer.classList.add('quick-view-badges');
 
-        // Render badges - each employee always at their fixed column position
-        Object.values(peopleByEmail).forEach(u => {
-          const emailKey   = (u.email || '').toLowerCase();
-          const columnIndex = employeeColumnMap.get(emailKey);
+        // Render ALL employees to maintain grid structure
+        // Those not in this cell will be invisible placeholders
+        sortedEmployees.forEach((emp, index) => {
+          const emailKey = (emp.email || '').toLowerCase();
+          const columnIndex = index + 1;
 
-          if (!columnIndex) return; // Skip if not in global map
+          // Check if this employee is in the current cell
+          const personInCell = peopleByEmail[emailKey];
 
+          if (!personInCell) {
+            // Empty placeholder to maintain grid structure
+            const placeholder = document.createElement('span');
+            placeholder.style.gridColumn = columnIndex;
+            placeholder.style.visibility = 'hidden';
+            placeholder.style.height = '0';
+            badgesContainer.appendChild(placeholder);
+            return;
+          }
+
+          // Employee exists in this cell - render visible badge
           const isAssigned = assignedList.some(
             a => (a.email || '').toLowerCase() === emailKey
           );
@@ -479,7 +492,7 @@ window.ScheduleAdminPage = {
           badge.style.textOverflow = 'ellipsis';
           badge.style.width = '100%';
           badge.style.boxSizing = 'border-box';
-          badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
+          badge.title = `${emp.name || emp.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
 
           const colors = getColorForEmail(emailKey);
 
@@ -498,11 +511,11 @@ window.ScheduleAdminPage = {
           }
 
           badge.dataset.slotId = slotId;
-          badge.dataset.email  = u.email;
-          badge.dataset.name   = u.name || '';
-          badge.dataset.team   = u.team || '';
+          badge.dataset.email  = emp.email;
+          badge.dataset.name   = emp.name || '';
+          badge.dataset.team   = emp.team || '';
 
-          badge.textContent = getShortName(u.name || u.email);
+          badge.textContent = getShortName(emp.name || emp.email);
 
           badge.addEventListener('click', onNameClick);
 
