@@ -1032,7 +1032,7 @@ window.ScheduleAdminPage = {
         dateSlotPersons[dateISO][idx].add(pKey);
 
         if (!personMetaByDate[dateISO][pKey]) {
-          personMetaByDate[dateISO][pKey] = { name, team, note };
+          personMetaByDate[dateISO][pKey] = { email, name, team, note };
         }
       });
 
@@ -1053,8 +1053,11 @@ window.ScheduleAdminPage = {
             if (!hasHere) continue;
 
             const meta = personMeta[pKey];
-            const text = meta.name; // chỉ hiện tên trong từng ô
-            labelsByDateSlot[dateISO][i].push(text);
+            // Store both email and name for consistent coloring
+            labelsByDateSlot[dateISO][i].push({
+              email: meta.email || pKey,
+              name: meta.name
+            });
           }
         });
       });
@@ -1086,18 +1089,19 @@ window.ScheduleAdminPage = {
           const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
 
           if (labels.length) {
-            labels.forEach(text => {
+            labels.forEach(person => {
               const span = document.createElement('span');
-              span.textContent = text;
+              span.textContent = person.name;
               span.style.display = 'inline-block';
               span.style.fontSize = '11px';
-              span.style.padding = '2px 8px';
-              span.style.borderRadius = '999px';
+              span.style.padding = '3px 8px';
+              span.style.borderRadius = '4px';
               span.style.marginRight = '4px';
               span.style.marginBottom = '2px';
+              span.style.fontWeight = '600';
 
-              // Use new color palette for finalized schedule
-              const colors = getColorForEmail(text);
+              // Use email for color lookup to match shift assignment table
+              const colors = getColorForEmail(person.email);
               span.style.background = colors.bg;
               span.style.color = colors.text;
 
