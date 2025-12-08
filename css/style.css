@@ -738,7 +738,7 @@ a {
 /* Schedule cell improvements */
 .schedule-cell {
   transition: all 0.2s ease;
-  padding: 8px 6px;
+  padding: 10px 8px;
   width: auto;
   vertical-align: top;
   overflow: hidden;
@@ -754,7 +754,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-height: 40px;
+  min-height: 28px;
   width: 100%;
   overflow: hidden;
 }

@@ -430,9 +430,9 @@ window.ScheduleAdminPage = {
           const badge = document.createElement('span');
           badge.classList.add('quick-view-badge');
           badge.style.display = 'inline-block';
-          badge.style.padding = '2px 6px';
+          badge.style.padding = '3px 8px';
           badge.style.borderRadius = '4px';
-          badge.style.fontSize = '10px';
+          badge.style.fontSize = '11px';
           badge.style.fontWeight = '600';
           badge.style.cursor = 'pointer';
           badge.style.whiteSpace = 'nowrap';
@@ -1092,7 +1092,12 @@ window.ScheduleAdminPage = {
               span.style.borderRadius = '999px';
               span.style.marginRight = '4px';
               span.style.marginBottom = '2px';
-              span.style.background = getColorForEmail(text); // dùng màu giống bảng ca chính
+
+              // Use new color palette for finalized schedule
+              const colors = getColorForEmail(text);
+              span.style.background = colors.bg;
+              span.style.color = colors.text;
+
               td.appendChild(span);
             });
           }
