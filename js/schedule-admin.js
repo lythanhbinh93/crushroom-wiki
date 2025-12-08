@@ -411,12 +411,15 @@ window.ScheduleAdminPage = {
           }
         });
 
-        // Render compact name badges (Quick View)
+        // Render compact name badges (Quick View) - Column-wise layout
         const badgesContainer = document.createElement('div');
-        badgesContainer.style.display = 'grid';
-        badgesContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(50px, 1fr))'; // Grid layout for compactness
+        badgesContainer.style.display = 'flex';
+        badgesContainer.style.flexDirection = 'column'; // Vertical stacking first
+        badgesContainer.style.flexWrap = 'wrap'; // Wrap to next column when needed
         badgesContainer.style.gap = '2px';
-        badgesContainer.style.alignItems = 'center';
+        badgesContainer.style.alignItems = 'stretch';
+        badgesContainer.style.alignContent = 'flex-start';
+        badgesContainer.style.maxHeight = '80px'; // Limit height to trigger column wrapping
         badgesContainer.classList.add('quick-view-badges');
 
         Object.values(peopleByEmail).forEach(u => {
@@ -427,7 +430,7 @@ window.ScheduleAdminPage = {
 
           const badge = document.createElement('span');
           badge.classList.add('quick-view-badge');
-          badge.style.display = 'inline-block';
+          badge.style.display = 'block';
           badge.style.padding = '2px 6px';
           badge.style.borderRadius = '3px';
           badge.style.fontSize = '10px';
@@ -437,6 +440,7 @@ window.ScheduleAdminPage = {
           badge.style.textAlign = 'center';
           badge.style.overflow = 'hidden';
           badge.style.textOverflow = 'ellipsis';
+          badge.style.minWidth = '45px'; // Minimum width for readability
           badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
 
           const colors = getColorForEmail(emailKey);

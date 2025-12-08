@@ -689,21 +689,21 @@ a {
   background: #999;
 }
 
-/* Quick View badges (Overview mode) */
+/* Quick View badges (Overview mode) - Column layout */
 .quick-view-badges {
   max-width: 100%;
+  min-height: 20px;
 }
 
 .quick-view-badge {
   transition: all 0.15s ease !important;
   box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1);
   line-height: 1.2;
-  min-width: 0;
-  width: 100%;
+  flex: 0 0 auto; /* Don't grow or shrink */
 }
 
 .quick-view-badge:hover {
-  transform: translateY(-1px) scale(1.03);
+  transform: translateY(-1px) scale(1.02);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
