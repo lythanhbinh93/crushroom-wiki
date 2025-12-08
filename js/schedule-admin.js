@@ -62,6 +62,9 @@ window.ScheduleAdminPage = {
     let selectedCells = new Set(); // Set of slotIds
     let allEmployees = [];         // [{email, name, team}]
 
+    // ==== VIEW MODE STATE ==================================================
+    let viewMode = 'overview'; // 'overview' or 'detail'
+
     // Màu cho từng nhân viên
     const COLOR_PALETTE = [
       '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0',
@@ -88,6 +91,10 @@ window.ScheduleAdminPage = {
     const qaClearBtn = document.getElementById('qa-clear-selection-btn');
     const qaCountValue = document.getElementById('qa-count-value');
 
+    // View Mode Toggle elements
+    const toggleOverviewBtn = document.getElementById('toggle-overview-mode');
+    const toggleDetailBtn = document.getElementById('toggle-detail-mode');
+
     // Events
     loadBtn.addEventListener('click', () => loadData());
     teamSelect.addEventListener('change', () => loadData());
@@ -106,6 +113,14 @@ window.ScheduleAdminPage = {
     }
     if (qaClearBtn) {
       qaClearBtn.addEventListener('click', onQAClearSelection);
+    }
+
+    // View Mode Toggle events
+    if (toggleOverviewBtn) {
+      toggleOverviewBtn.addEventListener('click', () => switchViewMode('overview'));
+    }
+    if (toggleDetailBtn) {
+      toggleDetailBtn.addEventListener('click', () => switchViewMode('detail'));
     }
 
     // Lần đầu load
@@ -306,6 +321,121 @@ window.ScheduleAdminPage = {
     // ======================================================================
 
     function renderGridStats() {
+      if (viewMode === 'overview') {
+        renderGridOverview();
+      } else {
+        renderGridDetail();
+      }
+    }
+
+    // Overview Mode: Compact view with dots/checkmarks
+    function renderGridOverview() {
+      const cells = tbody.querySelectorAll('td.schedule-cell');
+
+      cells.forEach(td => {
+        const slotId  = td.dataset.slotId;
+        const statsEl = td.querySelector('.slot-stats');
+        const namesEl = td.querySelector('.slot-names');
+
+        const availList    = availabilityMap[slotId] || [];
+        const assignedList = scheduleMap[slotId] || [];
+
+        const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
+        const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
+
+        // Show count prominently
+        statsEl.textContent = `${assignedCount}/${availCount}`;
+        statsEl.style.fontSize = '14px';
+        statsEl.style.fontWeight = '700';
+
+        namesEl.innerHTML = '';
+
+        // Build combined list for dots
+        const peopleByEmail = {};
+        availList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: true
+            };
+          }
+        });
+
+        assignedList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: false
+            };
+          }
+        });
+
+        // Render dots/indicators
+        const dotsContainer = document.createElement('div');
+        dotsContainer.style.display = 'flex';
+        dotsContainer.style.gap = '3px';
+        dotsContainer.style.flexWrap = 'wrap';
+        dotsContainer.style.marginTop = '4px';
+
+        Object.values(peopleByEmail).forEach(u => {
+          const emailKey   = (u.email || '').toLowerCase();
+          const isAssigned = assignedList.some(
+            a => (a.email || '').toLowerCase() === emailKey
+          );
+
+          const dot = document.createElement('span');
+          dot.style.width = '10px';
+          dot.style.height = '10px';
+          dot.style.borderRadius = '50%';
+          dot.style.display = 'inline-block';
+          dot.style.cursor = 'pointer';
+          dot.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân' : '○ Rảnh'}`;
+
+          const baseColor = getColorForEmail(emailKey);
+
+          if (isAssigned) {
+            // Assigned: solid color with checkmark icon
+            dot.textContent = '✓';
+            dot.style.background = baseColor;
+            dot.style.border = '2px solid rgba(0,0,0,0.4)';
+            dot.style.fontSize = '9px';
+            dot.style.lineHeight = '10px';
+            dot.style.textAlign = 'center';
+            dot.style.fontWeight = '900';
+            dot.style.color = 'rgba(0,0,0,0.6)';
+            dot.style.width = '14px';
+            dot.style.height = '14px';
+          } else {
+            // Available but not assigned: hollow dot
+            dot.style.background = 'transparent';
+            dot.style.border = `2px solid ${baseColor}`;
+            dot.style.opacity = '0.6';
+          }
+
+          dot.dataset.slotId = slotId;
+          dot.dataset.email  = u.email;
+          dot.dataset.name   = u.name || '';
+          dot.dataset.team   = u.team || '';
+
+          dot.addEventListener('click', onNameClick);
+
+          dotsContainer.appendChild(dot);
+        });
+
+        namesEl.appendChild(dotsContainer);
+      });
+    }
+
+    // Detail Mode: Full names with badges (original view)
+    function renderGridDetail() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
       cells.forEach(td => {
@@ -319,6 +449,8 @@ window.ScheduleAdminPage = {
         const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
         const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
         statsEl.textContent = `${assignedCount}/${availCount} người`;
+        statsEl.style.fontSize = '';
+        statsEl.style.fontWeight = '';
 
         namesEl.innerHTML = '';
 
@@ -390,6 +522,39 @@ window.ScheduleAdminPage = {
           namesEl.appendChild(span);
         });
       });
+    }
+
+    // Switch between Overview and Detail view modes
+    function switchViewMode(mode) {
+      viewMode = mode;
+
+      // Update toggle button states
+      if (toggleOverviewBtn && toggleDetailBtn) {
+        if (mode === 'overview') {
+          toggleOverviewBtn.classList.add('active');
+          toggleOverviewBtn.style.background = '#ffffff';
+          toggleOverviewBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+          toggleOverviewBtn.style.color = '';
+
+          toggleDetailBtn.classList.remove('active');
+          toggleDetailBtn.style.background = 'transparent';
+          toggleDetailBtn.style.boxShadow = 'none';
+          toggleDetailBtn.style.color = '#666';
+        } else {
+          toggleDetailBtn.classList.add('active');
+          toggleDetailBtn.style.background = '#ffffff';
+          toggleDetailBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+          toggleDetailBtn.style.color = '';
+
+          toggleOverviewBtn.classList.remove('active');
+          toggleOverviewBtn.style.background = 'transparent';
+          toggleOverviewBtn.style.boxShadow = 'none';
+          toggleOverviewBtn.style.color = '#666';
+        }
+      }
+
+      // Re-render the grid with new mode
+      renderGridStats();
     }
 
     // ======================================================================
