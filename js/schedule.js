@@ -79,6 +79,7 @@ window.SchedulePage = {
     let dates = [];       // 7 ngày của tuần
     let timeSlots = [];   // [{key, label}]
     let checkedMap = {};  // slotId -> true/false
+    let allAvailabilityMap = {}; // slotId -> [{email, name}] - all team members who checked this slot
     let canEditAvailability = canUseAvailability; // sẽ cập nhật lại theo trạng thái chốt lịch
 
     // Default tuần: thứ 2 tuần sau
@@ -139,6 +140,13 @@ window.SchedulePage = {
           team
         });
 
+        // NEW: Get all team availability to show who else is available
+        const bodyAllAvail = JSON.stringify({
+          action: 'getAllAvailability',
+          weekStart,
+          team
+        });
+
         const requests = [
           canUseAvailability
             ? fetch(Auth.API_URL, {
@@ -159,10 +167,16 @@ window.SchedulePage = {
             redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: bodySchedule
+          }),
+          fetch(Auth.API_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: bodyAllAvail
           })
         ];
 
-        const [resAvail, resMeta, resSched] = await Promise.all(requests);
+        const [resAvail, resMeta, resSched, resAllAvail] = await Promise.all(requests);
 
         // map availability (nếu được dùng form)
         checkedMap = {};
@@ -181,6 +195,34 @@ window.SchedulePage = {
 
         const dataMeta  = await resMeta.json();
         const dataSched = await resSched.json();
+        const dataAllAvail = await resAllAvail.json();
+
+        // Process all team availability
+        allAvailabilityMap = {};
+        if (dataAllAvail && dataAllAvail.success && Array.isArray(dataAllAvail.availability)) {
+          dataAllAvail.availability.forEach(item => {
+            const date  = String(item.date || '').substring(0, 10);
+            const shift = String(item.shift || '').trim();
+            const email = String(item.email || '').toLowerCase();
+            const name  = String(item.name || email);
+
+            if (!date || !shift) return;
+
+            // Skip current user - we'll show their checkbox instead
+            if (email === currentUser.email.toLowerCase()) return;
+
+            const slotId = `${date}|${shift}`;
+            if (!allAvailabilityMap[slotId]) {
+              allAvailabilityMap[slotId] = [];
+            }
+
+            // Avoid duplicates
+            const exists = allAvailabilityMap[slotId].some(u => u.email === email);
+            if (!exists) {
+              allAvailabilityMap[slotId].push({ email, name });
+            }
+          });
+        }
 
         // Xác định trạng thái chốt lịch
         const meta   = (dataMeta && dataMeta.meta) || {};
@@ -269,13 +311,20 @@ window.SchedulePage = {
         dates.forEach(dateISO => {
           const td = document.createElement('td');
           td.classList.add('schedule-cell');
+          td.style.verticalAlign = 'top';
+          td.style.padding = '8px';
 
           const slotId = `${dateISO}|${slot.key}`;
           td.dataset.slotId = slotId;
 
+          // Checkbox container
+          const checkboxContainer = document.createElement('div');
+          checkboxContainer.style.marginBottom = '6px';
+
           const cb = document.createElement('input');
           cb.type = 'checkbox';
           cb.dataset.slotId = slotId;
+          cb.style.cursor = canEditAvailability ? 'pointer' : 'not-allowed';
 
           if (canEditAvailability) {
             cb.addEventListener('change', () => {
@@ -289,7 +338,31 @@ window.SchedulePage = {
             cb.disabled = true;
           }
 
-          td.appendChild(cb);
+          checkboxContainer.appendChild(cb);
+
+          // Show other team members who checked this slot (muted style)
+          const othersInSlot = allAvailabilityMap[slotId] || [];
+          if (othersInSlot.length > 0) {
+            const othersDiv = document.createElement('div');
+            othersDiv.classList.add('other-availability');
+            othersDiv.style.fontSize = '11px';
+            othersDiv.style.color = '#999';
+            othersDiv.style.marginTop = '4px';
+            othersDiv.style.lineHeight = '1.4';
+
+            const names = othersInSlot.map(u => {
+              // Extract first name (last word for Vietnamese names)
+              const parts = u.name.trim().split(/\s+/);
+              return parts[parts.length - 1];
+            });
+
+            othersDiv.textContent = `✓ ${names.join(', ')}`;
+            othersDiv.title = `Đã tick: ${othersInSlot.map(u => u.name).join(', ')}`;
+
+            checkboxContainer.appendChild(othersDiv);
+          }
+
+          td.appendChild(checkboxContainer);
           tr.appendChild(td);
         });
 
