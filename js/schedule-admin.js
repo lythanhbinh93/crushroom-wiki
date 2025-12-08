@@ -343,10 +343,8 @@ window.ScheduleAdminPage = {
         const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
         const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
 
-        // Show count prominently
-        statsEl.textContent = `${assignedCount}/${availCount}`;
-        statsEl.style.fontSize = '14px';
-        statsEl.style.fontWeight = '700';
+        // Hide count for cleaner view
+        statsEl.style.display = 'none';
 
         namesEl.innerHTML = '';
 
@@ -448,9 +446,9 @@ window.ScheduleAdminPage = {
 
         const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
         const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
-        statsEl.textContent = `${assignedCount}/${availCount} người`;
-        statsEl.style.fontSize = '';
-        statsEl.style.fontWeight = '';
+
+        // Hide count for cleaner view
+        statsEl.style.display = 'none';
 
         namesEl.innerHTML = '';
 
