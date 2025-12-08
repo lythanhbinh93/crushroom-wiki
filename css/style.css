@@ -690,14 +690,21 @@ a {
 }
 
 /* Quick View badges (Overview mode) */
+.quick-view-badges {
+  max-width: 100%;
+}
+
 .quick-view-badge {
   transition: all 0.15s ease !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1);
+  line-height: 1.2;
+  min-width: 0;
+  width: 100%;
 }
 
 .quick-view-badge:hover {
-  transform: translateY(-1px) scale(1.05);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
 
@@ -729,7 +736,7 @@ a {
 /* Schedule cell improvements */
 .schedule-cell {
   transition: all 0.2s ease;
-  padding: 10px 8px;
+  padding: 8px 6px;
   width: auto;
   vertical-align: top;
   overflow: visible; /* Allow content to expand */
@@ -745,21 +752,19 @@ a {
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   min-height: 28px;
   width: 100%;
   overflow: visible; /* Allow content to expand */
 }
 
 .slot-names {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  display: block; /* Changed from flex to block for grid children */
   overflow: visible; /* Allow content to expand */
   width: 100%;
   font-size: 11px;
   color: #555;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .slot-stats {

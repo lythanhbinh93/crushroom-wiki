@@ -413,9 +413,9 @@ window.ScheduleAdminPage = {
 
         // Render compact name badges (Quick View)
         const badgesContainer = document.createElement('div');
-        badgesContainer.style.display = 'flex';
-        badgesContainer.style.gap = '3px';
-        badgesContainer.style.flexWrap = 'wrap'; // Allow wrapping to multiple lines
+        badgesContainer.style.display = 'grid';
+        badgesContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(50px, 1fr))'; // Grid layout for compactness
+        badgesContainer.style.gap = '2px';
         badgesContainer.style.alignItems = 'center';
         badgesContainer.classList.add('quick-view-badges');
 
@@ -428,12 +428,15 @@ window.ScheduleAdminPage = {
           const badge = document.createElement('span');
           badge.classList.add('quick-view-badge');
           badge.style.display = 'inline-block';
-          badge.style.padding = '3px 8px';
-          badge.style.borderRadius = '4px';
-          badge.style.fontSize = '11px';
+          badge.style.padding = '2px 6px';
+          badge.style.borderRadius = '3px';
+          badge.style.fontSize = '10px';
           badge.style.fontWeight = '600';
           badge.style.cursor = 'pointer';
           badge.style.whiteSpace = 'nowrap';
+          badge.style.textAlign = 'center';
+          badge.style.overflow = 'hidden';
+          badge.style.textOverflow = 'ellipsis';
           badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
 
           const colors = getColorForEmail(emailKey);
