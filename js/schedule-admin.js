@@ -62,21 +62,59 @@ window.ScheduleAdminPage = {
     let selectedCells = new Set(); // Set of slotIds
     let allEmployees = [];         // [{email, name, team}]
 
-    // Màu cho từng nhân viên
+    // ==== VIEW MODE STATE ==================================================
+    let viewMode = 'overview'; // 'overview' or 'detail'
+
+    // Màu tương phản cao cho từng nhân viên (vivid colors)
     const COLOR_PALETTE = [
-      '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0',
-      '#F3E5F5', '#E0F7FA', '#F9FBE7', '#FCE4EC'
+      { bg: '#FF5252', text: '#FFFFFF' }, // Red
+      { bg: '#2196F3', text: '#FFFFFF' }, // Blue
+      { bg: '#4CAF50', text: '#FFFFFF' }, // Green
+      { bg: '#FF9800', text: '#000000' }, // Orange
+      { bg: '#9C27B0', text: '#FFFFFF' }, // Purple
+      { bg: '#00BCD4', text: '#000000' }, // Cyan
+      { bg: '#FFEB3B', text: '#000000' }, // Yellow
+      { bg: '#E91E63', text: '#FFFFFF' }, // Pink
+      { bg: '#3F51B5', text: '#FFFFFF' }, // Indigo
+      { bg: '#009688', text: '#FFFFFF' }, // Teal
+      { bg: '#FF5722', text: '#FFFFFF' }, // Deep Orange
+      { bg: '#795548', text: '#FFFFFF' }, // Brown
+      { bg: '#607D8B', text: '#FFFFFF' }, // Blue Grey
+      { bg: '#FFC107', text: '#000000' }, // Amber
+      { bg: '#8BC34A', text: '#000000' }  // Light Green
     ];
     const colorByEmail = {};
     function getColorForEmail(email) {
       const key = (email || '').toLowerCase();
-      if (!key) return '#f1f3f4';
+      if (!key) return { bg: '#f1f3f4', text: '#000000' };
 
       if (!colorByEmail[key]) {
         const index = Object.keys(colorByEmail).length % COLOR_PALETTE.length;
         colorByEmail[key] = COLOR_PALETTE[index];
       }
       return colorByEmail[key];
+    }
+
+    // Helper: Get short name (first name or initials)
+    function getShortName(fullName) {
+      if (!fullName) return '';
+
+      const parts = fullName.trim().split(/\s+/);
+
+      // If single word, return as is (max 8 chars)
+      if (parts.length === 1) {
+        return parts[0].substring(0, 8);
+      }
+
+      // If multiple words, return first name
+      // If first name is too long, return initials
+      const firstName = parts[parts.length - 1]; // Vietnamese: last part is first name
+      if (firstName.length <= 6) {
+        return firstName;
+      }
+
+      // Return initials (e.g., "Nguyễn Văn An" -> "NVA")
+      return parts.map(p => p[0]).join('').toUpperCase();
     }
 
     // Tuần mặc định: thứ 2 tuần sau
@@ -87,6 +125,10 @@ window.ScheduleAdminPage = {
     const qaAssignBtn = document.getElementById('qa-assign-btn');
     const qaClearBtn = document.getElementById('qa-clear-selection-btn');
     const qaCountValue = document.getElementById('qa-count-value');
+
+    // View Mode Toggle elements
+    const toggleOverviewBtn = document.getElementById('toggle-overview-mode');
+    const toggleDetailBtn = document.getElementById('toggle-detail-mode');
 
     // Events
     loadBtn.addEventListener('click', () => loadData());
@@ -106,6 +148,14 @@ window.ScheduleAdminPage = {
     }
     if (qaClearBtn) {
       qaClearBtn.addEventListener('click', onQAClearSelection);
+    }
+
+    // View Mode Toggle events
+    if (toggleOverviewBtn) {
+      toggleOverviewBtn.addEventListener('click', () => switchViewMode('overview'));
+    }
+    if (toggleDetailBtn) {
+      toggleDetailBtn.addEventListener('click', () => switchViewMode('detail'));
     }
 
     // Lần đầu load
@@ -306,6 +356,126 @@ window.ScheduleAdminPage = {
     // ======================================================================
 
     function renderGridStats() {
+      if (viewMode === 'overview') {
+        renderGridOverview();
+      } else {
+        renderGridDetail();
+      }
+    }
+
+    // Overview Mode: Compact view with sorted employees
+    function renderGridOverview() {
+      const cells = tbody.querySelectorAll('td.schedule-cell');
+
+      cells.forEach(td => {
+        const slotId  = td.dataset.slotId;
+        const statsEl = td.querySelector('.slot-stats');
+        const namesEl = td.querySelector('.slot-names');
+
+        const availList    = availabilityMap[slotId] || [];
+        const assignedList = scheduleMap[slotId] || [];
+
+        // Hide count for cleaner view
+        statsEl.style.display = 'none';
+
+        namesEl.innerHTML = '';
+
+        // Build combined list for compact badges
+        const peopleByEmail = {};
+        availList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: true
+            };
+          }
+        });
+
+        assignedList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: false
+            };
+          }
+        });
+
+        // Sort employees alphabetically for consistent ordering
+        const sortedPeople = Object.values(peopleByEmail).sort((a, b) => {
+          const nameA = (a.name || a.email || '').toLowerCase();
+          const nameB = (b.name || b.email || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+
+        // Render compact name badges with flex layout
+        const badgesContainer = document.createElement('div');
+        badgesContainer.style.display = 'flex';
+        badgesContainer.style.flexWrap = 'wrap';
+        badgesContainer.style.gap = '3px';
+        badgesContainer.style.alignItems = 'center';
+        badgesContainer.classList.add('quick-view-badges');
+
+        // Render sorted employees
+        sortedPeople.forEach(u => {
+          const emailKey = (u.email || '').toLowerCase();
+          const isAssigned = assignedList.some(
+            a => (a.email || '').toLowerCase() === emailKey
+          );
+
+          const badge = document.createElement('span');
+          badge.classList.add('quick-view-badge');
+          badge.style.padding = '3px 8px';
+          badge.style.borderRadius = '4px';
+          badge.style.fontSize = '11px';
+          badge.style.fontWeight = '600';
+          badge.style.cursor = 'pointer';
+          badge.style.whiteSpace = 'nowrap';
+          badge.style.textAlign = 'center';
+          badge.style.lineHeight = '1.4';
+          badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
+
+          const colors = getColorForEmail(emailKey);
+
+          if (isAssigned) {
+            // Assigned: vivid color background
+            badge.style.background = colors.bg;
+            badge.style.color = colors.text;
+            badge.style.border = 'none';
+            badge.style.fontWeight = '700';
+          } else {
+            // Available but not assigned: light background
+            badge.style.background = 'transparent';
+            badge.style.color = colors.bg;
+            badge.style.border = `1.5px solid ${colors.bg}`;
+            badge.style.opacity = '0.7';
+          }
+
+          badge.dataset.slotId = slotId;
+          badge.dataset.email  = u.email;
+          badge.dataset.name   = u.name || '';
+          badge.dataset.team   = u.team || '';
+
+          badge.textContent = getShortName(u.name || u.email);
+
+          badge.addEventListener('click', onNameClick);
+
+          badgesContainer.appendChild(badge);
+        });
+
+        namesEl.appendChild(badgesContainer);
+      });
+    }
+
+    // Detail Mode: Full names with badges (original view)
+    function renderGridDetail() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
       cells.forEach(td => {
@@ -318,7 +488,9 @@ window.ScheduleAdminPage = {
 
         const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
         const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
-        statsEl.textContent = `${assignedCount}/${availCount} người`;
+
+        // Hide count for cleaner view
+        statsEl.style.display = 'none';
 
         namesEl.innerHTML = '';
 
@@ -371,12 +543,23 @@ window.ScheduleAdminPage = {
           span.style.marginBottom = '3px';
           span.style.cursor       = 'pointer';
 
-          const baseColor = getColorForEmail(emailKey);
-          span.style.background = baseColor;
-          span.style.border     = isAssigned ? '2px solid rgba(0,0,0,0.25)'
-                                             : '1px solid transparent';
-          span.style.opacity    = isAssigned ? '1' : '0.5';
-          span.style.fontWeight = isAssigned ? '600' : '500';
+          const colors = getColorForEmail(emailKey);
+
+          if (isAssigned) {
+            // Assigned: vivid color background with contrast text
+            span.style.background = colors.bg;
+            span.style.color = colors.text;
+            span.style.border = 'none';
+            span.style.opacity = '1';
+            span.style.fontWeight = '600';
+          } else {
+            // Available but not assigned: transparent with colored border
+            span.style.background = 'transparent';
+            span.style.color = colors.bg;
+            span.style.border = `1.5px solid ${colors.bg}`;
+            span.style.opacity = '0.6';
+            span.style.fontWeight = '500';
+          }
 
           span.dataset.slotId = slotId;
           span.dataset.email  = u.email;
@@ -390,6 +573,39 @@ window.ScheduleAdminPage = {
           namesEl.appendChild(span);
         });
       });
+    }
+
+    // Switch between Overview and Detail view modes
+    function switchViewMode(mode) {
+      viewMode = mode;
+
+      // Update toggle button states
+      if (toggleOverviewBtn && toggleDetailBtn) {
+        if (mode === 'overview') {
+          toggleOverviewBtn.classList.add('active');
+          toggleOverviewBtn.style.background = '#ffffff';
+          toggleOverviewBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+          toggleOverviewBtn.style.color = '';
+
+          toggleDetailBtn.classList.remove('active');
+          toggleDetailBtn.style.background = 'transparent';
+          toggleDetailBtn.style.boxShadow = 'none';
+          toggleDetailBtn.style.color = '#666';
+        } else {
+          toggleDetailBtn.classList.add('active');
+          toggleDetailBtn.style.background = '#ffffff';
+          toggleDetailBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+          toggleDetailBtn.style.color = '';
+
+          toggleOverviewBtn.classList.remove('active');
+          toggleOverviewBtn.style.background = 'transparent';
+          toggleOverviewBtn.style.boxShadow = 'none';
+          toggleOverviewBtn.style.color = '#666';
+        }
+      }
+
+      // Re-render the grid with new mode
+      renderGridStats();
     }
 
     // ======================================================================
@@ -816,7 +1032,7 @@ window.ScheduleAdminPage = {
         dateSlotPersons[dateISO][idx].add(pKey);
 
         if (!personMetaByDate[dateISO][pKey]) {
-          personMetaByDate[dateISO][pKey] = { name, team, note };
+          personMetaByDate[dateISO][pKey] = { email, name, team, note };
         }
       });
 
@@ -837,8 +1053,11 @@ window.ScheduleAdminPage = {
             if (!hasHere) continue;
 
             const meta = personMeta[pKey];
-            const text = meta.name; // chỉ hiện tên trong từng ô
-            labelsByDateSlot[dateISO][i].push(text);
+            // Store both email and name for consistent coloring
+            labelsByDateSlot[dateISO][i].push({
+              email: meta.email || pKey,
+              name: meta.name
+            });
           }
         });
       });
@@ -870,16 +1089,22 @@ window.ScheduleAdminPage = {
           const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
 
           if (labels.length) {
-            labels.forEach(text => {
+            labels.forEach(person => {
               const span = document.createElement('span');
-              span.textContent = text;
+              span.textContent = person.name;
               span.style.display = 'inline-block';
               span.style.fontSize = '11px';
-              span.style.padding = '2px 8px';
-              span.style.borderRadius = '999px';
+              span.style.padding = '3px 8px';
+              span.style.borderRadius = '4px';
               span.style.marginRight = '4px';
               span.style.marginBottom = '2px';
-              span.style.background = getColorForEmail(text); // dùng màu giống bảng ca chính
+              span.style.fontWeight = '600';
+
+              // Use email for color lookup to match shift assignment table
+              const colors = getColorForEmail(person.email);
+              span.style.background = colors.bg;
+              span.style.color = colors.text;
+
               td.appendChild(span);
             });
           }
