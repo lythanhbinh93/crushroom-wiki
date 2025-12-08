@@ -421,7 +421,14 @@ window.ScheduleAdminPage = {
         badgesContainer.style.alignContent = 'flex-start';
         badgesContainer.classList.add('quick-view-badges');
 
-        Object.values(peopleByEmail).forEach(u => {
+        // Sort employees alphabetically for consistent positioning across time slots
+        const sortedPeople = Object.values(peopleByEmail).sort((a, b) => {
+          const nameA = (a.name || a.email || '').toLowerCase();
+          const nameB = (b.name || b.email || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+
+        sortedPeople.forEach(u => {
           const emailKey   = (u.email || '').toLowerCase();
           const isAssigned = assignedList.some(
             a => (a.email || '').toLowerCase() === emailKey
