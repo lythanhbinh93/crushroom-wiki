@@ -415,9 +415,7 @@ window.ScheduleAdminPage = {
         const badgesContainer = document.createElement('div');
         badgesContainer.style.display = 'flex';
         badgesContainer.style.gap = '3px';
-        badgesContainer.style.flexWrap = 'nowrap'; // Don't wrap - keep in one line
-        badgesContainer.style.overflowX = 'auto'; // Scroll if too many
-        badgesContainer.style.overflowY = 'hidden';
+        badgesContainer.style.flexWrap = 'wrap'; // Allow wrapping to multiple lines
         badgesContainer.style.alignItems = 'center';
         badgesContainer.classList.add('quick-view-badges');
 
@@ -436,7 +434,6 @@ window.ScheduleAdminPage = {
           badge.style.fontWeight = '600';
           badge.style.cursor = 'pointer';
           badge.style.whiteSpace = 'nowrap';
-          badge.style.flexShrink = '0'; // Don't shrink
           badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
 
           const colors = getColorForEmail(emailKey);
