@@ -95,8 +95,8 @@ window.SchedulePage = {
     let canEditAvailability = canUseAvailability; // sẽ cập nhật lại theo trạng thái chốt lịch
     let currentTeamFilter = 'all'; // 'all', 'cs', 'mo' - filter for company schedule
 
-    // Default tuần: thứ 2 tuần sau
-    weekInput.value = getNextMondayISO();
+    // Default tuần: thứ 2 tuần này
+    weekInput.value = getThisMondayISO();
 
     // Events
     loadBtn.addEventListener('click', () => loadWeek());
@@ -651,12 +651,13 @@ window.SchedulePage = {
       return String(n).padStart(2, '0');
     }
 
-    function getNextMondayISO() {
+    function getThisMondayISO() {
       const now = new Date();
       const day = now.getDay(); // 0=CN,1=2,...6=7
-      const daysToNextMonday = ((8 - day) % 7) || 7;
-      const nextMonday = addDays(now, daysToNextMonday);
-      return toISODate(nextMonday);
+      // Get Monday of current week (0 if today is Monday, otherwise days back to Monday)
+      const daysFromMonday = (day + 6) % 7;
+      const thisMonday = addDays(now, -daysFromMonday);
+      return toISODate(thisMonday);
     }
 
     function getWeekdayLabel(date) {
