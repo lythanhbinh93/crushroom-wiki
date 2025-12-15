@@ -804,8 +804,9 @@ a {
   z-index: 6;
   background: linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 100%);
   border-right: 2px solid #dee2e6;
-  width: 80px;
-  min-width: 80px;
+  width: 120px;
+  min-width: 120px;
+  white-space: nowrap;
 }
 
 .data-table tbody th {
@@ -817,8 +818,8 @@ a {
   padding: 10px 8px;
   border-right: 2px solid #dee2e6;
   white-space: nowrap;
-  width: 80px;
-  min-width: 80px;
+  width: 120px;
+  min-width: 120px;
 }
 
 /* Day columns should share remaining space equally */
@@ -1598,7 +1599,9 @@ html {
   background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
   color: white;
   font-weight: 700;
-  min-width: 100px;
+  width: 120px;
+  min-width: 120px;
+  white-space: nowrap;
 }
 
 .schedule-table .th-day {
