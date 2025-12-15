@@ -494,13 +494,12 @@ window.SchedulePage = {
       finalWrapperEl.style.display  = 'none';
       finalSummaryEl.style.display  = 'none';
       finalBodyEl.innerHTML         = '';
-      finalStatusEl.style.color     = '#555';
+      finalStatusEl.innerHTML       = '';
 
       const status = (meta.status || 'draft').toLowerCase();
 
       if (status !== 'final') {
-        finalStatusEl.textContent = '⏳ Lịch làm tuần này chưa được chốt. Leader đang xếp lịch, vui lòng xem lại sau.';
-        finalStatusEl.style.color = '#757575';
+        finalStatusEl.innerHTML = '<span class="status-badge status-draft">⏳ Lịch làm tuần này chưa được chốt. Leader đang xếp lịch, vui lòng xem lại sau.</span>';
         return;
       }
 
@@ -512,8 +511,7 @@ window.SchedulePage = {
       });
 
       if (userSlots.length === 0) {
-        finalStatusEl.textContent = '✅ Lịch đã chốt, tuần này bạn không có ca làm nào được xếp.';
-        finalStatusEl.style.color = '#388e3c';
+        finalStatusEl.innerHTML = '<span class="status-badge status-final">✅ Lịch đã chốt, tuần này bạn không có ca làm nào được xếp</span>';
         return;
       }
 
@@ -586,11 +584,12 @@ window.SchedulePage = {
       finalWrapperEl.style.display = 'block';
       finalSummaryEl.style.display = 'block';
 
-      finalStatusEl.textContent = '✅ Lịch làm tuần này đã được chốt.';
-      finalStatusEl.style.color = '#388e3c';
+      finalStatusEl.innerHTML = '<span class="status-badge status-final">✅ Lịch làm tuần này đã được chốt</span>';
 
-      finalSummaryEl.textContent =
-        `Tổng số giờ: khoảng ${totalHours}h, số ngày đi làm: ${daysCount} ngày.`;
+      const summaryTextEl = document.getElementById('final-schedule-summary-text');
+      if (summaryTextEl) {
+        summaryTextEl.textContent = `Tổng số giờ: khoảng ${totalHours}h, số ngày đi làm: ${daysCount} ngày.`;
+      }
     }
 
     function mergeShiftRanges(shifts) {
@@ -626,8 +625,13 @@ window.SchedulePage = {
 
     function showMessage(text, isError) {
       if (!msgEl) return;
-      msgEl.textContent = text || '';
-      msgEl.style.color = isError ? '#d32f2f' : '#455a64';
+      if (!text) {
+        msgEl.textContent = '';
+        msgEl.className = 'alert-message';
+        return;
+      }
+      msgEl.textContent = text;
+      msgEl.className = isError ? 'alert-message alert-error' : 'alert-message alert-success';
     }
 
     function clearMessage() {
@@ -782,7 +786,7 @@ window.SchedulePage = {
 
         // If neither team is finalized
         if (statusCS !== 'final' && statusMO !== 'final') {
-          teamStatusEl.textContent = 'Tuần này chưa chốt lịch làm chính thức.';
+          teamStatusEl.innerHTML = '<span class="status-badge status-draft">⏳ Tuần này chưa chốt lịch làm chính thức</span>';
           teamWrapperEl.style.display = 'none';
           teamEmptyEl.style.display = 'block';
           teamHeadRowEl.innerHTML = '';
@@ -794,7 +798,7 @@ window.SchedulePage = {
         if (!schedule.length) {
           teamWrapperEl.style.display = 'none';
           teamEmptyEl.style.display = 'block';
-          teamStatusEl.textContent = 'Tuần này đã chốt lịch nhưng chưa có ca làm nào cho nhân viên part-time.';
+          teamStatusEl.innerHTML = '<span class="status-badge status-final">✅ Tuần này đã chốt lịch nhưng chưa có ca làm nào cho nhân viên part-time</span>';
           teamHeadRowEl.innerHTML = '';
           teamBodyEl.innerHTML = '';
           return;
@@ -802,7 +806,7 @@ window.SchedulePage = {
 
         teamWrapperEl.style.display = 'block';
         teamEmptyEl.style.display = 'none';
-        teamStatusEl.textContent = `Lịch làm chính thức của công ty (${schedule.length} ca part-time đã chốt)`;
+        teamStatusEl.innerHTML = `<span class="status-badge status-final">✅ Lịch làm chính thức của công ty (${schedule.length} ca part-time đã chốt)</span>`;
 
         // Build dates array
         const d0 = new Date(weekStart + 'T00:00:00');
@@ -972,7 +976,7 @@ window.SchedulePage = {
         });
       } catch (error) {
         console.error('Error rendering company schedule:', error);
-        teamStatusEl.textContent = 'Lỗi khi tải lịch làm của công ty.';
+        teamStatusEl.innerHTML = '<span class="status-badge status-error">❌ Lỗi khi tải lịch làm của công ty</span>';
         teamWrapperEl.style.display = 'none';
         teamEmptyEl.style.display = 'block';
       }
