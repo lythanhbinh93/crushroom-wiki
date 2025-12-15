@@ -24,6 +24,11 @@ window.SchedulePage = {
     const teamBodyEl      = document.getElementById('team-schedule-body');
     const teamEmptyEl     = document.getElementById('team-schedule-empty');
 
+    // Team filter buttons
+    const filterAllBtn    = document.getElementById('filter-all-btn');
+    const filterCsBtn     = document.getElementById('filter-cs-btn');
+    const filterMoBtn     = document.getElementById('filter-mo-btn');
+
     if (!weekInput || !tbody) {
       console.warn('SchedulePage: missing elements');
       return;
@@ -88,6 +93,7 @@ window.SchedulePage = {
     let checkedMap = {};  // slotId -> true/false
     let allAvailabilityMap = {}; // slotId -> [{email, name}] - all team members who checked this slot
     let canEditAvailability = canUseAvailability; // sẽ cập nhật lại theo trạng thái chốt lịch
+    let currentTeamFilter = 'all'; // 'all', 'cs', 'mo' - filter for company schedule
 
     // Default tuần: thứ 2 tuần sau
     weekInput.value = getNextMondayISO();
@@ -101,6 +107,33 @@ window.SchedulePage = {
     weekInput.addEventListener('change', () => {
       loadWeek();
     });
+
+    // Team filter event listeners
+    if (filterAllBtn && filterCsBtn && filterMoBtn) {
+      filterAllBtn.addEventListener('click', () => {
+        currentTeamFilter = 'all';
+        filterAllBtn.classList.add('active');
+        filterCsBtn.classList.remove('active');
+        filterMoBtn.classList.remove('active');
+        renderCompanySchedule(weekInput.value, currentTeamFilter);
+      });
+
+      filterCsBtn.addEventListener('click', () => {
+        currentTeamFilter = 'cs';
+        filterAllBtn.classList.remove('active');
+        filterCsBtn.classList.add('active');
+        filterMoBtn.classList.remove('active');
+        renderCompanySchedule(weekInput.value, currentTeamFilter);
+      });
+
+      filterMoBtn.addEventListener('click', () => {
+        currentTeamFilter = 'mo';
+        filterAllBtn.classList.remove('active');
+        filterCsBtn.classList.remove('active');
+        filterMoBtn.classList.add('active');
+        renderCompanySchedule(weekInput.value, currentTeamFilter);
+      });
+    }
 
     // Lần đầu
     loadWeek();
@@ -257,7 +290,7 @@ window.SchedulePage = {
         renderFinalSchedule(weekStart, team, dataMeta, dataSched, currentUser.email);
 
         // render company schedule (all part-time employees from both teams)
-        renderCompanySchedule(weekStart);
+        renderCompanySchedule(weekStart, currentTeamFilter);
 
         if (!canEditAvailability && canUseAvailability) {
           // Tuần đã chốt, nhân viên không sửa lịch rảnh được nữa
@@ -649,7 +682,7 @@ window.SchedulePage = {
     // RENDER COMPANY SCHEDULE (ALL PART-TIME EMPLOYEES)
     // =====================================================
 
-    async function renderCompanySchedule(weekStart) {
+    async function renderCompanySchedule(weekStart, teamFilter = 'all') {
       if (!teamStatusEl || !teamWrapperEl || !teamHeadRowEl || !teamBodyEl || !teamEmptyEl) {
         return; // Elements not found
       }
@@ -729,6 +762,20 @@ window.SchedulePage = {
           const empType = (item.employmentType || 'parttime').toLowerCase();
           return empType === 'parttime' || empType === 'part-time';
         });
+
+        // Apply team filter
+        if (teamFilter === 'cs') {
+          combinedSchedule = combinedSchedule.filter(item => {
+            const team = (item.team || '').toLowerCase();
+            return team === 'cs';
+          });
+        } else if (teamFilter === 'mo') {
+          combinedSchedule = combinedSchedule.filter(item => {
+            const team = (item.team || '').toLowerCase();
+            return team === 'mo';
+          });
+        }
+        // If teamFilter === 'all', show all teams (no additional filtering)
 
         const schedule = combinedSchedule;
 
