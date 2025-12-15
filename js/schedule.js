@@ -354,44 +354,71 @@ window.SchedulePage = {
         dates.forEach(dateISO => {
           const td = document.createElement('td');
           td.classList.add('schedule-cell');
-          td.style.verticalAlign = 'top';
-          td.style.padding = '8px';
+          td.classList.add('availability-cell');
+          td.style.verticalAlign = 'middle';
+          td.style.padding = '12px 8px';
+          td.style.textAlign = 'center';
+          td.style.minHeight = '50px';
+          td.style.position = 'relative';
+          td.style.transition = 'all 0.2s ease';
 
           const slotId = `${dateISO}|${slot.key}`;
           td.dataset.slotId = slotId;
 
-          // Checkbox container
-          const checkboxContainer = document.createElement('div');
-          checkboxContainer.style.marginBottom = '6px';
-
-          const cb = document.createElement('input');
-          cb.type = 'checkbox';
-          cb.dataset.slotId = slotId;
-          cb.style.cursor = canEditAvailability ? 'pointer' : 'not-allowed';
-
+          // Make cell clickable if editable
           if (canEditAvailability) {
-            cb.addEventListener('change', () => {
-              if (cb.checked) {
-                checkedMap[slotId] = true;
-              } else {
+            td.style.cursor = 'pointer';
+            td.classList.add('clickable-cell');
+
+            td.addEventListener('click', () => {
+              // Toggle state
+              if (checkedMap[slotId]) {
                 delete checkedMap[slotId];
+              } else {
+                checkedMap[slotId] = true;
+              }
+              // Update UI
+              updateCellVisualState(td, slotId);
+            });
+
+            // Add hover effect
+            td.addEventListener('mouseenter', () => {
+              if (!checkedMap[slotId]) {
+                td.style.backgroundColor = '#f0f7ff';
+              }
+            });
+
+            td.addEventListener('mouseleave', () => {
+              if (!checkedMap[slotId]) {
+                td.style.backgroundColor = '';
               }
             });
           } else {
-            cb.disabled = true;
+            td.style.cursor = 'not-allowed';
+            td.style.opacity = '0.6';
+            td.classList.add('disabled-cell');
           }
 
-          checkboxContainer.appendChild(cb);
+          // Check icon container (initially hidden)
+          const checkIcon = document.createElement('div');
+          checkIcon.classList.add('check-icon');
+          checkIcon.innerHTML = '✓';
+          checkIcon.style.fontSize = '28px';
+          checkIcon.style.fontWeight = 'bold';
+          checkIcon.style.color = '#ffffff';
+          checkIcon.style.marginBottom = '4px';
+          checkIcon.style.display = 'none';
+          td.appendChild(checkIcon);
 
           // Show other team members who checked this slot (muted style)
           const othersInSlot = allAvailabilityMap[slotId] || [];
           if (othersInSlot.length > 0) {
             const othersDiv = document.createElement('div');
             othersDiv.classList.add('other-availability');
-            othersDiv.style.fontSize = '11px';
-            othersDiv.style.color = '#999';
+            othersDiv.style.fontSize = '10px';
+            othersDiv.style.color = '#666';
             othersDiv.style.marginTop = '4px';
-            othersDiv.style.lineHeight = '1.4';
+            othersDiv.style.lineHeight = '1.3';
 
             const names = othersInSlot.map(u => {
               // Extract first name (last word for Vietnamese names)
@@ -399,13 +426,12 @@ window.SchedulePage = {
               return parts[parts.length - 1];
             });
 
-            othersDiv.textContent = `✓ ${names.join(', ')}`;
+            othersDiv.textContent = names.join(', ');
             othersDiv.title = `Đã tick: ${othersInSlot.map(u => u.name).join(', ')}`;
 
-            checkboxContainer.appendChild(othersDiv);
+            td.appendChild(othersDiv);
           }
 
-          td.appendChild(checkboxContainer);
           tr.appendChild(td);
         });
 
@@ -413,11 +439,27 @@ window.SchedulePage = {
       });
     }
 
+    // Helper function to update cell visual state
+    function updateCellVisualState(cell, slotId) {
+      const isChecked = !!checkedMap[slotId];
+      const checkIcon = cell.querySelector('.check-icon');
+
+      if (isChecked) {
+        cell.style.backgroundColor = '#4CAF50';
+        cell.style.borderColor = '#388E3C';
+        if (checkIcon) checkIcon.style.display = 'block';
+      } else {
+        cell.style.backgroundColor = '';
+        cell.style.borderColor = '';
+        if (checkIcon) checkIcon.style.display = 'none';
+      }
+    }
+
     function syncUIFromCheckedMap() {
-      const cbs = tbody.querySelectorAll('input[type="checkbox"]');
-      cbs.forEach(cb => {
-        const slotId = cb.dataset.slotId;
-        cb.checked = !!checkedMap[slotId];
+      const cells = tbody.querySelectorAll('.availability-cell');
+      cells.forEach(cell => {
+        const slotId = cell.dataset.slotId;
+        updateCellVisualState(cell, slotId);
       });
     }
 
