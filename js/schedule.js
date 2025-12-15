@@ -11,11 +11,23 @@ window.SchedulePage = {
     const saveBtn      = document.getElementById('save-availability-btn');
     const availSection = document.getElementById('availability-section');
 
-    // Final schedule elements
+    // Final schedule elements (personal)
     const finalStatusEl   = document.getElementById('final-schedule-status');
     const finalWrapperEl  = document.getElementById('final-schedule-wrapper');
     const finalBodyEl     = document.getElementById('final-schedule-body');
     const finalSummaryEl  = document.getElementById('final-schedule-summary');
+
+    // Team schedule elements (all team members)
+    const teamStatusEl    = document.getElementById('team-schedule-status');
+    const teamWrapperEl   = document.getElementById('team-schedule-wrapper');
+    const teamHeadRowEl   = document.getElementById('team-schedule-head-row');
+    const teamBodyEl      = document.getElementById('team-schedule-body');
+    const teamEmptyEl     = document.getElementById('team-schedule-empty');
+
+    // Team filter buttons
+    const filterAllBtn    = document.getElementById('filter-all-btn');
+    const filterCsBtn     = document.getElementById('filter-cs-btn');
+    const filterMoBtn     = document.getElementById('filter-mo-btn');
 
     if (!weekInput || !tbody) {
       console.warn('SchedulePage: missing elements');
@@ -79,10 +91,12 @@ window.SchedulePage = {
     let dates = [];       // 7 ngày của tuần
     let timeSlots = [];   // [{key, label}]
     let checkedMap = {};  // slotId -> true/false
+    let allAvailabilityMap = {}; // slotId -> [{email, name}] - all team members who checked this slot
     let canEditAvailability = canUseAvailability; // sẽ cập nhật lại theo trạng thái chốt lịch
+    let currentTeamFilter = 'all'; // 'all', 'cs', 'mo' - filter for company schedule
 
-    // Default tuần: thứ 2 tuần sau
-    weekInput.value = getNextMondayISO();
+    // Default tuần: thứ 2 tuần này
+    weekInput.value = getThisMondayISO();
 
     // Events
     loadBtn.addEventListener('click', () => loadWeek());
@@ -93,6 +107,33 @@ window.SchedulePage = {
     weekInput.addEventListener('change', () => {
       loadWeek();
     });
+
+    // Team filter event listeners
+    if (filterAllBtn && filterCsBtn && filterMoBtn) {
+      filterAllBtn.addEventListener('click', () => {
+        currentTeamFilter = 'all';
+        filterAllBtn.classList.add('active');
+        filterCsBtn.classList.remove('active');
+        filterMoBtn.classList.remove('active');
+        renderCompanySchedule(weekInput.value, currentTeamFilter);
+      });
+
+      filterCsBtn.addEventListener('click', () => {
+        currentTeamFilter = 'cs';
+        filterAllBtn.classList.remove('active');
+        filterCsBtn.classList.add('active');
+        filterMoBtn.classList.remove('active');
+        renderCompanySchedule(weekInput.value, currentTeamFilter);
+      });
+
+      filterMoBtn.addEventListener('click', () => {
+        currentTeamFilter = 'mo';
+        filterAllBtn.classList.remove('active');
+        filterCsBtn.classList.remove('active');
+        filterMoBtn.classList.add('active');
+        renderCompanySchedule(weekInput.value, currentTeamFilter);
+      });
+    }
 
     // Lần đầu
     loadWeek();
@@ -139,6 +180,13 @@ window.SchedulePage = {
           team
         });
 
+        // NEW: Get all team availability to show who else is available
+        const bodyAllAvail = JSON.stringify({
+          action: 'getAllAvailability',
+          weekStart,
+          team
+        });
+
         const requests = [
           canUseAvailability
             ? fetch(Auth.API_URL, {
@@ -159,10 +207,16 @@ window.SchedulePage = {
             redirect: 'follow',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: bodySchedule
+          }),
+          fetch(Auth.API_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: bodyAllAvail
           })
         ];
 
-        const [resAvail, resMeta, resSched] = await Promise.all(requests);
+        const [resAvail, resMeta, resSched, resAllAvail] = await Promise.all(requests);
 
         // map availability (nếu được dùng form)
         checkedMap = {};
@@ -181,6 +235,34 @@ window.SchedulePage = {
 
         const dataMeta  = await resMeta.json();
         const dataSched = await resSched.json();
+        const dataAllAvail = await resAllAvail.json();
+
+        // Process all team availability
+        allAvailabilityMap = {};
+        if (dataAllAvail && dataAllAvail.success && Array.isArray(dataAllAvail.availability)) {
+          dataAllAvail.availability.forEach(item => {
+            const date  = String(item.date || '').substring(0, 10);
+            const shift = String(item.shift || '').trim();
+            const email = String(item.email || '').toLowerCase();
+            const name  = String(item.name || email);
+
+            if (!date || !shift) return;
+
+            // Skip current user - we'll show their checkbox instead
+            if (email === currentUser.email.toLowerCase()) return;
+
+            const slotId = `${date}|${shift}`;
+            if (!allAvailabilityMap[slotId]) {
+              allAvailabilityMap[slotId] = [];
+            }
+
+            // Avoid duplicates
+            const exists = allAvailabilityMap[slotId].some(u => u.email === email);
+            if (!exists) {
+              allAvailabilityMap[slotId].push({ email, name });
+            }
+          });
+        }
 
         // Xác định trạng thái chốt lịch
         const meta   = (dataMeta && dataMeta.meta) || {};
@@ -204,8 +286,11 @@ window.SchedulePage = {
           }
         }
 
-        // render final schedule
+        // render final schedule (personal)
         renderFinalSchedule(weekStart, team, dataMeta, dataSched, currentUser.email);
+
+        // render company schedule (all part-time employees from both teams)
+        renderCompanySchedule(weekStart, currentTeamFilter);
 
         if (!canEditAvailability && canUseAvailability) {
           // Tuần đã chốt, nhân viên không sửa lịch rảnh được nữa
@@ -269,27 +354,82 @@ window.SchedulePage = {
         dates.forEach(dateISO => {
           const td = document.createElement('td');
           td.classList.add('schedule-cell');
+          td.classList.add('availability-cell');
+          td.style.verticalAlign = 'middle';
+          td.style.padding = '12px 8px';
+          td.style.textAlign = 'center';
+          td.style.position = 'relative';
+          td.style.transition = 'all 0.2s ease';
 
           const slotId = `${dateISO}|${slot.key}`;
           td.dataset.slotId = slotId;
 
-          const cb = document.createElement('input');
-          cb.type = 'checkbox';
-          cb.dataset.slotId = slotId;
-
+          // Make cell clickable if editable
           if (canEditAvailability) {
-            cb.addEventListener('change', () => {
-              if (cb.checked) {
-                checkedMap[slotId] = true;
-              } else {
+            td.style.cursor = 'pointer';
+            td.classList.add('clickable-cell');
+
+            td.addEventListener('click', () => {
+              // Toggle state
+              if (checkedMap[slotId]) {
                 delete checkedMap[slotId];
+              } else {
+                checkedMap[slotId] = true;
+              }
+              // Update UI
+              updateCellVisualState(td, slotId);
+            });
+
+            // Add hover effect
+            td.addEventListener('mouseenter', () => {
+              if (!checkedMap[slotId]) {
+                td.style.backgroundColor = '#f0f7ff';
+              }
+            });
+
+            td.addEventListener('mouseleave', () => {
+              if (!checkedMap[slotId]) {
+                td.style.backgroundColor = '';
               }
             });
           } else {
-            cb.disabled = true;
+            td.style.cursor = 'not-allowed';
+            td.style.opacity = '0.6';
+            td.classList.add('disabled-cell');
           }
 
-          td.appendChild(cb);
+          // Check icon container (initially hidden)
+          const checkIcon = document.createElement('div');
+          checkIcon.classList.add('check-icon');
+          checkIcon.innerHTML = '✓';
+          checkIcon.style.fontSize = '28px';
+          checkIcon.style.fontWeight = 'bold';
+          checkIcon.style.color = '#ffffff';
+          checkIcon.style.display = 'none';
+          td.appendChild(checkIcon);
+
+          // Show other team members who checked this slot (muted style)
+          const othersInSlot = allAvailabilityMap[slotId] || [];
+          if (othersInSlot.length > 0) {
+            const othersDiv = document.createElement('div');
+            othersDiv.classList.add('other-availability');
+            othersDiv.style.fontSize = '10px';
+            othersDiv.style.color = '#666';
+            othersDiv.style.marginTop = '4px';
+            othersDiv.style.lineHeight = '1.3';
+
+            const names = othersInSlot.map(u => {
+              // Extract first name (last word for Vietnamese names)
+              const parts = u.name.trim().split(/\s+/);
+              return parts[parts.length - 1];
+            });
+
+            othersDiv.textContent = names.join(', ');
+            othersDiv.title = `Đã tick: ${othersInSlot.map(u => u.name).join(', ')}`;
+
+            td.appendChild(othersDiv);
+          }
+
           tr.appendChild(td);
         });
 
@@ -297,11 +437,27 @@ window.SchedulePage = {
       });
     }
 
+    // Helper function to update cell visual state
+    function updateCellVisualState(cell, slotId) {
+      const isChecked = !!checkedMap[slotId];
+      const checkIcon = cell.querySelector('.check-icon');
+
+      if (isChecked) {
+        cell.style.backgroundColor = '#4CAF50';
+        cell.style.borderColor = '#388E3C';
+        if (checkIcon) checkIcon.style.display = 'block';
+      } else {
+        cell.style.backgroundColor = '';
+        cell.style.borderColor = '';
+        if (checkIcon) checkIcon.style.display = 'none';
+      }
+    }
+
     function syncUIFromCheckedMap() {
-      const cbs = tbody.querySelectorAll('input[type="checkbox"]');
-      cbs.forEach(cb => {
-        const slotId = cb.dataset.slotId;
-        cb.checked = !!checkedMap[slotId];
+      const cells = tbody.querySelectorAll('.availability-cell');
+      cells.forEach(cell => {
+        const slotId = cell.dataset.slotId;
+        updateCellVisualState(cell, slotId);
       });
     }
 
@@ -378,13 +534,12 @@ window.SchedulePage = {
       finalWrapperEl.style.display  = 'none';
       finalSummaryEl.style.display  = 'none';
       finalBodyEl.innerHTML         = '';
-      finalStatusEl.style.color     = '#555';
+      finalStatusEl.innerHTML       = '';
 
       const status = (meta.status || 'draft').toLowerCase();
 
       if (status !== 'final') {
-        finalStatusEl.textContent = '⏳ Lịch làm tuần này chưa được chốt. Leader đang xếp lịch, vui lòng xem lại sau.';
-        finalStatusEl.style.color = '#757575';
+        finalStatusEl.innerHTML = '<span class="status-badge status-draft">⏳ Lịch làm tuần này chưa được chốt. Leader đang xếp lịch, vui lòng xem lại sau.</span>';
         return;
       }
 
@@ -396,8 +551,7 @@ window.SchedulePage = {
       });
 
       if (userSlots.length === 0) {
-        finalStatusEl.textContent = '✅ Lịch đã chốt, tuần này bạn không có ca làm nào được xếp.';
-        finalStatusEl.style.color = '#388e3c';
+        finalStatusEl.innerHTML = '<span class="status-badge status-final">✅ Lịch đã chốt, tuần này bạn không có ca làm nào được xếp</span>';
         return;
       }
 
@@ -470,11 +624,12 @@ window.SchedulePage = {
       finalWrapperEl.style.display = 'block';
       finalSummaryEl.style.display = 'block';
 
-      finalStatusEl.textContent = '✅ Lịch làm tuần này đã được chốt.';
-      finalStatusEl.style.color = '#388e3c';
+      finalStatusEl.innerHTML = '<span class="status-badge status-final">✅ Lịch làm tuần này đã được chốt</span>';
 
-      finalSummaryEl.textContent =
-        `Tổng số giờ: khoảng ${totalHours}h, số ngày đi làm: ${daysCount} ngày.`;
+      const summaryTextEl = document.getElementById('final-schedule-summary-text');
+      if (summaryTextEl) {
+        summaryTextEl.textContent = `Tổng số giờ: khoảng ${totalHours}h, số ngày đi làm: ${daysCount} ngày.`;
+      }
     }
 
     function mergeShiftRanges(shifts) {
@@ -510,8 +665,13 @@ window.SchedulePage = {
 
     function showMessage(text, isError) {
       if (!msgEl) return;
-      msgEl.textContent = text || '';
-      msgEl.style.color = isError ? '#d32f2f' : '#455a64';
+      if (!text) {
+        msgEl.textContent = '';
+        msgEl.className = 'alert-message';
+        return;
+      }
+      msgEl.textContent = text;
+      msgEl.className = isError ? 'alert-message alert-error' : 'alert-message alert-success';
     }
 
     function clearMessage() {
@@ -535,12 +695,13 @@ window.SchedulePage = {
       return String(n).padStart(2, '0');
     }
 
-    function getNextMondayISO() {
+    function getThisMondayISO() {
       const now = new Date();
       const day = now.getDay(); // 0=CN,1=2,...6=7
-      const daysToNextMonday = ((8 - day) % 7) || 7;
-      const nextMonday = addDays(now, daysToNextMonday);
-      return toISODate(nextMonday);
+      // Get Monday of current week (0 if today is Monday, otherwise days back to Monday)
+      const daysFromMonday = (day + 6) % 7;
+      const thisMonday = addDays(now, -daysFromMonday);
+      return toISODate(thisMonday);
     }
 
     function getWeekdayLabel(date) {
@@ -560,6 +721,337 @@ window.SchedulePage = {
       const dd = String(d.getDate()).padStart(2, '0');
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       return `${dd}/${mm}`;
+    }
+
+    // =====================================================
+    // RENDER COMPANY SCHEDULE (ALL PART-TIME EMPLOYEES)
+    // =====================================================
+
+    async function renderCompanySchedule(weekStart, teamFilter = 'all') {
+      if (!teamStatusEl || !teamWrapperEl || !teamHeadRowEl || !teamBodyEl || !teamEmptyEl) {
+        return; // Elements not found
+      }
+
+      try {
+        // Fetch schedule for both teams
+        const bodyCS = JSON.stringify({
+          action: 'getSchedule',
+          weekStart,
+          team: 'cs'
+        });
+
+        const bodyMO = JSON.stringify({
+          action: 'getSchedule',
+          weekStart,
+          team: 'mo'
+        });
+
+        const bodyMetaCS = JSON.stringify({
+          action: 'getScheduleMeta',
+          weekStart,
+          team: 'cs'
+        });
+
+        const bodyMetaMO = JSON.stringify({
+          action: 'getScheduleMeta',
+          weekStart,
+          team: 'mo'
+        });
+
+        const [resSchedCS, resSchedMO, resMetaCS, resMetaMO] = await Promise.all([
+          fetch(Auth.API_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: bodyCS
+          }),
+          fetch(Auth.API_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: bodyMO
+          }),
+          fetch(Auth.API_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: bodyMetaCS
+          }),
+          fetch(Auth.API_URL, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: bodyMetaMO
+          })
+        ]);
+
+        const dataSchedCS = await resSchedCS.json();
+        const dataSchedMO = await resSchedMO.json();
+        const dataMetaCS = await resMetaCS.json();
+        const dataMetaMO = await resMetaMO.json();
+
+        const metaCS = (dataMetaCS && dataMetaCS.meta) || {};
+        const metaMO = (dataMetaMO && dataMetaMO.meta) || {};
+        const statusCS = (metaCS.status || 'draft').toLowerCase();
+        const statusMO = (metaMO.status || 'draft').toLowerCase();
+
+        const scheduleCS = (dataSchedCS && dataSchedCS.schedule) || [];
+        const scheduleMO = (dataSchedMO && dataSchedMO.schedule) || [];
+
+        // Combine both schedules, filter out fulltime employees
+        let combinedSchedule = [...scheduleCS, ...scheduleMO];
+
+        // Filter to only show part-time employees
+        // Backend should include employmentType field in schedule data
+        combinedSchedule = combinedSchedule.filter(item => {
+          const empType = (item.employmentType || 'parttime').toLowerCase();
+          return empType === 'parttime' || empType === 'part-time';
+        });
+
+        // Apply team filter
+        if (teamFilter === 'cs') {
+          combinedSchedule = combinedSchedule.filter(item => {
+            const team = (item.team || '').toLowerCase();
+            return team === 'cs';
+          });
+        } else if (teamFilter === 'mo') {
+          combinedSchedule = combinedSchedule.filter(item => {
+            const team = (item.team || '').toLowerCase();
+            return team === 'mo';
+          });
+        }
+        // If teamFilter === 'all', show all teams (no additional filtering)
+
+        const schedule = combinedSchedule;
+
+        // If neither team is finalized
+        if (statusCS !== 'final' && statusMO !== 'final') {
+          teamStatusEl.innerHTML = '<span class="status-badge status-draft">⏳ Tuần này chưa chốt lịch làm chính thức</span>';
+          teamWrapperEl.style.display = 'none';
+          teamEmptyEl.style.display = 'block';
+          teamHeadRowEl.innerHTML = '';
+          teamBodyEl.innerHTML = '';
+          return;
+        }
+
+        // Finalized but no schedule entries
+        if (!schedule.length) {
+          teamWrapperEl.style.display = 'none';
+          teamEmptyEl.style.display = 'block';
+          teamStatusEl.innerHTML = '<span class="status-badge status-final">✅ Tuần này đã chốt lịch nhưng chưa có ca làm nào cho nhân viên part-time</span>';
+          teamHeadRowEl.innerHTML = '';
+          teamBodyEl.innerHTML = '';
+          return;
+        }
+
+        teamWrapperEl.style.display = 'block';
+        teamEmptyEl.style.display = 'none';
+        teamStatusEl.innerHTML = `<span class="status-badge status-final">✅ Lịch làm chính thức của công ty (${schedule.length} ca part-time đã chốt)</span>`;
+
+        // Build dates array
+        const d0 = new Date(weekStart + 'T00:00:00');
+        const dates = [];
+        for (let i = 0; i < 7; i++) {
+          const d = addDays(d0, i);
+          dates.push(toISODate(d));
+        }
+
+        // Build time slots covering both CS and MO hours (8:00 - 24:00)
+        const timeSlots = [];
+        const startHour = 8;
+        const endHour = 24;
+
+        for (let h = startHour; h < endHour; h++) {
+          const next = (h + 1) % 24;
+          const key = `${pad2(h)}-${pad2(next)}`;
+          const label = `${pad2(h)}:00`;
+          timeSlots.push({ key, label });
+        }
+
+      // Map slots by key
+      const slotIndexByKey = {};
+      timeSlots.forEach((slot, idx) => {
+        slotIndexByKey[slot.key] = idx;
+      });
+
+      // Build data structure: date -> slot -> people
+      const dateSlotPersons = {}; // dateISO -> Array(timeSlots.length) of Set(personKey)
+      const personMetaByDate = {}; // dateISO -> { personKey: {email, name} }
+
+        schedule.forEach(item => {
+          const dateISO = (item.date || '').substring(0, 10);
+          const shiftKey = item.shift || '';
+          const idx = slotIndexByKey[shiftKey];
+          if (idx == null) return;
+
+          if (!dateSlotPersons[dateISO]) {
+            dateSlotPersons[dateISO] = Array(timeSlots.length).fill(null).map(() => new Set());
+            personMetaByDate[dateISO] = {};
+          }
+
+          const email = (item.email || '').toString().trim().toLowerCase();
+          const name = item.name || item.email || '';
+          const team = (item.team || '').toUpperCase();
+          const pKey = email || name;
+
+          dateSlotPersons[dateISO][idx].add(pKey);
+
+          if (!personMetaByDate[dateISO][pKey]) {
+            personMetaByDate[dateISO][pKey] = { email, name, team };
+          }
+        });
+
+      // Build labels by date/slot
+      const labelsByDateSlot = {};
+      dates.forEach(dateISO => {
+        labelsByDateSlot[dateISO] = Array(timeSlots.length).fill(null).map(() => []);
+
+        const slotsArr = dateSlotPersons[dateISO];
+        if (!slotsArr) return;
+
+        const personMeta = personMetaByDate[dateISO] || {};
+        const persons = Object.keys(personMeta);
+
+          persons.forEach(pKey => {
+            for (let i = 0; i < timeSlots.length; i++) {
+              const hasHere = slotsArr[i] && slotsArr[i].has(pKey);
+              if (!hasHere) continue;
+
+              const meta = personMeta[pKey];
+              labelsByDateSlot[dateISO][i].push({
+                email: meta.email || pKey,
+                name: meta.name,
+                team: meta.team || ''
+              });
+            }
+          });
+      });
+
+      // Render header
+      teamHeadRowEl.innerHTML = '';
+      const thTime = document.createElement('th');
+      thTime.className = 'th-time';
+      thTime.textContent = 'Giờ / Ngày';
+      teamHeadRowEl.appendChild(thTime);
+
+      dates.forEach((dateISO, index) => {
+        const th = document.createElement('th');
+        th.className = index === 6 ? 'th-day th-sunday' : 'th-day';
+
+        const dayName = document.createElement('div');
+        dayName.className = 'day-name';
+        const d = new Date(dateISO + 'T00:00:00');
+        dayName.textContent = getWeekdayLabel(d);
+
+        const dayDate = document.createElement('div');
+        dayDate.className = 'day-date';
+        dayDate.textContent = formatVNDate(d);
+
+        th.appendChild(dayName);
+        th.appendChild(dayDate);
+        teamHeadRowEl.appendChild(th);
+      });
+
+      // Render body
+      teamBodyEl.innerHTML = '';
+
+      timeSlots.forEach((slot, slotIndex) => {
+        const tr = document.createElement('tr');
+
+        const thSlot = document.createElement('th');
+        thSlot.textContent = slot.label;
+        tr.appendChild(thSlot);
+
+        dates.forEach(dateISO => {
+          const td = document.createElement('td');
+          const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
+
+          if (labels.length) {
+            labels.forEach(person => {
+              const container = document.createElement('div');
+              container.style.display = 'inline-flex';
+              container.style.alignItems = 'center';
+              container.style.gap = '4px';
+              container.style.marginRight = '6px';
+              container.style.marginBottom = '2px';
+
+              const nameSpan = document.createElement('span');
+              nameSpan.textContent = person.name;
+              nameSpan.style.display = 'inline-block';
+              nameSpan.style.fontSize = '11px';
+              nameSpan.style.padding = '3px 8px';
+              nameSpan.style.borderRadius = '4px';
+              nameSpan.style.fontWeight = '600';
+
+              // Use consistent color palette
+              const colors = getColorForEmail(person.email);
+              nameSpan.style.background = colors.bg;
+              nameSpan.style.color = colors.text;
+
+              container.appendChild(nameSpan);
+
+              // Add team badge
+              if (person.team) {
+                const teamBadge = document.createElement('span');
+                teamBadge.textContent = person.team;
+                teamBadge.style.fontSize = '9px';
+                teamBadge.style.padding = '2px 6px';
+                teamBadge.style.borderRadius = '3px';
+                teamBadge.style.fontWeight = '700';
+                teamBadge.style.backgroundColor = person.team === 'CS' ? '#E3F2FD' : '#FFF3E0';
+                teamBadge.style.color = person.team === 'CS' ? '#1976D2' : '#F57C00';
+                teamBadge.style.border = `1px solid ${person.team === 'CS' ? '#BBDEFB' : '#FFE0B2'}`;
+
+                container.appendChild(teamBadge);
+              }
+
+              td.appendChild(container);
+            });
+          }
+
+          tr.appendChild(td);
+        });
+
+        teamBodyEl.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Error rendering company schedule:', error);
+        teamStatusEl.innerHTML = '<span class="status-badge status-error">❌ Lỗi khi tải lịch làm của công ty</span>';
+        teamWrapperEl.style.display = 'none';
+        teamEmptyEl.style.display = 'block';
+      }
+    }
+
+    // Color palette for consistent employee colors
+    const COLOR_PALETTE = [
+      { bg: '#FF5252', text: '#FFFFFF' },
+      { bg: '#2196F3', text: '#FFFFFF' },
+      { bg: '#4CAF50', text: '#FFFFFF' },
+      { bg: '#FF9800', text: '#000000' },
+      { bg: '#9C27B0', text: '#FFFFFF' },
+      { bg: '#00BCD4', text: '#000000' },
+      { bg: '#FFEB3B', text: '#000000' },
+      { bg: '#E91E63', text: '#FFFFFF' },
+      { bg: '#3F51B5', text: '#FFFFFF' },
+      { bg: '#009688', text: '#FFFFFF' },
+      { bg: '#FF5722', text: '#FFFFFF' },
+      { bg: '#795548', text: '#FFFFFF' },
+      { bg: '#607D8B', text: '#FFFFFF' },
+      { bg: '#FFC107', text: '#000000' },
+      { bg: '#8BC34A', text: '#000000' }
+    ];
+
+    const colorByEmail = {};
+
+    function getColorForEmail(email) {
+      const key = (email || '').toLowerCase();
+      if (!key) return { bg: '#f1f3f4', text: '#000000' };
+
+      if (!colorByEmail[key]) {
+        const index = Object.keys(colorByEmail).length % COLOR_PALETTE.length;
+        colorByEmail[key] = COLOR_PALETTE[index];
+      }
+      return colorByEmail[key];
     }
   }
 };
