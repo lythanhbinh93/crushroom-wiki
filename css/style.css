@@ -1744,11 +1744,10 @@ html {
 .availability-cell.clickable-cell:hover {
   border-color: #2196F3;
   box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
-  transform: scale(1.02);
 }
 
 .availability-cell.clickable-cell:active {
-  transform: scale(0.98);
+  box-shadow: 0 1px 2px rgba(33, 150, 243, 0.3);
 }
 
 .availability-cell.disabled-cell {
