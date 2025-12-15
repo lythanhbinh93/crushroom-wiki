@@ -358,7 +358,6 @@ window.SchedulePage = {
           td.style.verticalAlign = 'middle';
           td.style.padding = '12px 8px';
           td.style.textAlign = 'center';
-          td.style.minHeight = '50px';
           td.style.position = 'relative';
           td.style.transition = 'all 0.2s ease';
 
@@ -406,7 +405,6 @@ window.SchedulePage = {
           checkIcon.style.fontSize = '28px';
           checkIcon.style.fontWeight = 'bold';
           checkIcon.style.color = '#ffffff';
-          checkIcon.style.marginBottom = '4px';
           checkIcon.style.display = 'none';
           td.appendChild(checkIcon);
 
