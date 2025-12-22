@@ -117,8 +117,8 @@ window.ScheduleAdminPage = {
       return parts.map(p => p[0]).join('').toUpperCase();
     }
 
-    // Tuần mặc định: thứ 2 tuần sau
-    weekInput.value = getNextMondayISO();
+    // Tuần mặc định: thứ 2 tuần này
+    weekInput.value = getThisMondayISO();
 
     // Quick Assignment Panel elements
     const qaEmployeeSelect = document.getElementById('qa-employee-select');
@@ -1191,12 +1191,13 @@ function formatShiftLabel(shiftKey) {
       return String(n).padStart(2, '0');
     }
 
-    function getNextMondayISO() {
+    function getThisMondayISO() {
       const now = new Date();
       const day = now.getDay(); // 0=CN,1=2,...6=7
-      const daysToNextMonday = ((8 - day) % 7) || 7;
-      const nextMonday = addDays(now, daysToNextMonday);
-      return toISODate(nextMonday);
+      // Get Monday of current week (0 if today is Monday, otherwise days back to Monday)
+      const daysFromMonday = (day + 6) % 7;
+      const thisMonday = addDays(now, -daysFromMonday);
+      return toISODate(thisMonday);
     }
 
     // ======================================================================

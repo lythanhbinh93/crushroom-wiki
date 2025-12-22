@@ -85,22 +85,27 @@
             </div>
             
             <header class="page-header">
-                <h1>📅 Đăng ký lịch làm</h1>
-                <p class="header-subtitle">Hướng dẫn đăng ký ca làm việc hàng tuần</p>
+                <div class="page-header-content">
+                    <h1>📅 Đăng ký lịch làm</h1>
+                    <p class="header-subtitle">Hướng dẫn đăng ký ca làm việc hàng tuần và xem lịch chốt của team</p>
+                </div>
             </header>
 
             <!-- ==== LỊCH LÀM ĐÃ CHỐT TUẦN NÀY (ƯU TIÊN HIỂN THỊ ĐẦU) ==== -->
-            <section class="content-section">
-                <h2 style="font-size:1.7rem; font-weight:700; margin-bottom:6px;">
-                    Lịch làm đã chốt tuần này
-                </h2>
-                <p style="font-size:13px; color:#777; margin-bottom:8px;">
+            <section class="content-section schedule-card">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <span class="section-number">1</span>
+                        <h2>Lịch làm đã chốt tuần này</h2>
+                    </div>
+                </div>
+                <p class="section-description">
                     Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là lịch làm chính thức của bạn trong tuần đó.
                 </p>
 
-                <div id="final-schedule-status" style="font-size:14px; margin-bottom:8px; color:#555;"></div>
+                <div id="final-schedule-status" class="status-badge-container"></div>
 
-                <div id="final-schedule-wrapper" class="schedule-table-wrapper" style="overflow-x:auto; display:none;">
+                <div id="final-schedule-wrapper" class="table-wrapper" style="display:none;">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -114,14 +119,17 @@
                     </table>
                 </div>
 
-                <div id="final-schedule-summary" style="font-size:13px; margin-top:8px; color:#555; display:none;"></div>
+                <div id="final-schedule-summary" class="info-box" style="display:none;">
+                    <span class="info-icon">ℹ️</span>
+                    <p id="final-schedule-summary-text"></p>
+                </div>
             </section>
 
             <!-- ==== LỊCH LÀM CỦA CÔNG TY TUẦN NÀY (PART-TIME) ==== -->
             <section class="content-section schedule-card">
                 <div class="section-header">
                     <div class="section-title-group">
-                        <span class="section-number" style="background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);">👥</span>
+                        <span class="section-number" style="background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);">2</span>
                         <h2>Lịch làm của công ty tuần này (Part-time)</h2>
                     </div>
 
@@ -142,7 +150,7 @@
                     </div>
                 </div>
                 <p class="section-description">
-                    Xem lịch làm đã chốt của tất cả nhân viên part-time (cả CS và MO) để dễ dàng phối hợp và liên hệ đổi ca
+                    Xem lịch làm đã chốt của tất cả nhân viên part-time (cả CS và MO) để dễ dàng phối hợp và liên hệ đổi ca.
                 </p>
 
                 <div id="team-schedule-status" class="status-badge-container">
@@ -169,72 +177,33 @@
             </section>
 
             <!-- ==== QUY TRÌNH ĐĂNG KÝ & ĐĂNG KÝ LỊCH RẢNH ==== -->
-            <section class="content-section">
-                <h2>Quy trình đăng ký</h2>
-                
-                <h3>1. Thời gian đăng ký</h3>
-                <p>Đăng ký lịch làm cho tuần kế tiếp được thực hiện vào:</p>
-                <ul>
-                    <li><strong>Thứ 5 hàng tuần:</strong> Mở form đăng ký</li>
-                    <li><strong>Thứ 6 - 12:00:</strong> Deadline đăng ký</li>
-                    <li><strong>Thứ 6 - 18:00:</strong> Công bố lịch chính thức</li>
-                </ul>
-
-                <h3>2. Các ca làm việc</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Ca</th>
-                            <th>Thời gian</th>
-                            <th>Ghi chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Ca sáng</td>
-                            <td>08:00 - 12:00</td>
-                            <td>4 tiếng</td>
-                        </tr>
-                        <tr>
-                            <td>Ca chiều</td>
-                            <td>13:00 - 17:00</td>
-                            <td>4 tiếng</td>
-                        </tr>
-                        <tr>
-                            <td>Ca tối</td>
-                            <td>17:00 - 21:00</td>
-                            <td>4 tiếng</td>
-                        </tr>
-                        <tr>
-                            <td>Ca full</td>
-                            <td>08:00 - 17:00</td>
-                            <td>8 tiếng (nghỉ trưa 1h)</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>3. Yêu cầu tối thiểu</h3>
-                <ul>
-                    <li>Fulltime: Tối thiểu <strong>40 giờ/tuần</strong></li>
-                    <li>Part-time: Tối thiểu <strong>20 giờ/tuần</strong></li>
-                    <li>Không đăng ký quá <strong>10 tiếng/ngày</strong></li>
-                </ul>
-
-                <!-- ==== 4. ĐĂNG KÝ CA LINH HOẠT (TRONG HỆ THỐNG) ==== -->
-                <h3>4. Đăng ký ca linh hoạt</h3>
-                <p id="team-label" class="text-muted" style="margin-bottom:8px;">
-                    (Phần này dành cho nhân viên PART-TIME. Nhân viên FULLTIME chỉ cần xem lịch làm đã chốt ở trên.)
+            <section id="availability-section" class="content-section schedule-card">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <span class="section-number">3</span>
+                        <h2>Đăng ký lịch rảnh</h2>
+                    </div>
+                </div>
+                <p class="section-description" id="team-label">
+                    Chọn tuần và tick những ca bạn có thể làm. Leader sẽ phân ca dựa trên đăng ký này.
                 </p>
 
-                <p>Chọn tuần và tick những ca bạn có thể làm. Leader sẽ phân ca dựa trên đăng ký này.</p>
-
-                <div class="schedule-controls" style="margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
-                    <label for="week-start-input">Tuần bắt đầu:</label>
-                    <input type="date" id="week-start-input">
-                    <button id="load-week-btn" class="btn btn-secondary">Tải đăng ký</button>
+                <div class="filter-controls">
+                    <div class="form-group">
+                        <label for="week-start-input" class="form-label">Tuần bắt đầu</label>
+                        <input type="date" id="week-start-input" class="form-input" />
+                    </div>
+                    <div class="form-group">
+                        <button id="load-week-btn" class="btn btn-primary">
+                            <span class="btn-icon">📥</span>
+                            Tải đăng ký
+                        </button>
+                    </div>
                 </div>
 
-                <div class="schedule-table-wrapper" style="overflow-x:auto;">
+                <div id="schedule-message" class="alert-message"></div>
+
+                <div class="table-wrapper">
                     <table class="data-table schedule-table">
                         <thead>
                             <tr>
@@ -254,40 +223,114 @@
                     </table>
                 </div>
 
-                <div class="schedule-actions" style="margin-top:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                    <!-- Chỉ part-time / fulltime CS mới dùng nút này; fulltime MO sẽ bị ẩn bằng JS khác -->
+                <div class="schedule-actions" style="margin-top:20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                     <button id="save-availability-btn" class="btn btn-primary">
-                        💾 Lưu lịch rảnh
+                        <span class="btn-icon">💾</span>
+                        Lưu lịch rảnh
                     </button>
-
-                    <span id="schedule-message" class="schedule-message" style="font-size:14px;"></span>
                 </div>
 
-                <p style="margin-top:12px; font-size:13px; color:#777;">
-                    Nếu hệ thống gặp lỗi, tạm thời có thể báo lịch qua quản lý hoặc Google Form như trước.
-                </p>
+                <div class="info-box" style="margin-top:16px;">
+                    <span class="info-icon">💡</span>
+                    <p>Nếu hệ thống gặp lỗi, tạm thời có thể báo lịch qua quản lý hoặc Google Form như trước.</p>
+                </div>
             </section>
 
-            <section class="content-section">
-                <h2>Quy định đổi ca / Nghỉ phép</h2>
-                
-                <h3>Đổi ca</h3>
+            <!-- ==== HƯỚNG DẪN & QUY ĐỊNH ==== -->
+            <section class="content-section schedule-card">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <span class="section-number">4</span>
+                        <h2>Hướng dẫn & Quy định</h2>
+                    </div>
+                </div>
+
+                <h3>📅 Thời gian đăng ký</h3>
+                <p>Đăng ký lịch làm cho tuần kế tiếp được thực hiện vào:</p>
+                <ul>
+                    <li><strong>Thứ 5 hàng tuần:</strong> Mở form đăng ký</li>
+                    <li><strong>Thứ 6 - 12:00:</strong> Deadline đăng ký</li>
+                    <li><strong>Thứ 6 - 18:00:</strong> Công bố lịch chính thức</li>
+                </ul>
+
+                <h3>⏰ Các ca làm việc</h3>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Ca</th>
+                                <th>Thời gian</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ca sáng</td>
+                                <td>08:00 - 12:00</td>
+                                <td>4 tiếng</td>
+                            </tr>
+                            <tr>
+                                <td>Ca chiều</td>
+                                <td>13:00 - 17:00</td>
+                                <td>4 tiếng</td>
+                            </tr>
+                            <tr>
+                                <td>Ca tối</td>
+                                <td>17:00 - 21:00</td>
+                                <td>4 tiếng</td>
+                            </tr>
+                            <tr>
+                                <td>Ca full</td>
+                                <td>08:00 - 17:00</td>
+                                <td>8 tiếng (nghỉ trưa 1h)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>✅ Yêu cầu tối thiểu</h3>
+                <ul>
+                    <li>Fulltime: Tối thiểu <strong>40 giờ/tuần</strong></li>
+                    <li>Part-time: Tối thiểu <strong>20 giờ/tuần</strong></li>
+                    <li>Không đăng ký quá <strong>10 tiếng/ngày</strong></li>
+                </ul>
+            </section>
+
+            <section class="content-section schedule-card">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <span class="section-number">5</span>
+                        <h2>Quy định đổi ca / Nghỉ phép</h2>
+                    </div>
+                </div>
+
+                <h3>🔄 Đổi ca</h3>
                 <ul>
                     <li>Tự tìm người thay ca và thông báo cho quản lý</li>
                     <li>Báo trước tối thiểu <strong>24 giờ</strong></li>
                     <li>Xác nhận đổi ca qua group Zalo team</li>
                 </ul>
 
-                <h3>Nghỉ phép</h3>
+                <h3>🏖️ Nghỉ phép</h3>
                 <ul>
                     <li>Nghỉ có kế hoạch: Báo trước <strong>3 ngày</strong></li>
                     <li>Nghỉ đột xuất (ốm): Báo ngay khi biết, có giấy xác nhận nếu nghỉ > 1 ngày</li>
                     <li>Không báo + Không lý do = <strong>Nghỉ không phép</strong></li>
                 </ul>
+
+                <div class="info-box">
+                    <span class="info-icon">⚠️</span>
+                    <p><strong>Lưu ý:</strong> Đổi ca và nghỉ phép đột xuất ảnh hưởng đến toàn team. Hãy sắp xếp hợp lý và thông báo sớm nhất có thể.</p>
+                </div>
             </section>
 
-            <section class="content-section">
-                <h2>Liên hệ hỗ trợ</h2>
+            <section class="content-section schedule-card">
+                <div class="section-header">
+                    <div class="section-title-group">
+                        <span class="section-number">6</span>
+                        <h2>Liên hệ hỗ trợ</h2>
+                    </div>
+                </div>
                 <p>Nếu có vấn đề về lịch làm, liên hệ:</p>
                 <ul>
                     <li>📱 Zalo: [Số điện thoại quản lý]</li>
