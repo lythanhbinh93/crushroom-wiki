@@ -58,15 +58,35 @@ window.ScheduleAdminPage = {
     let currentMeta = null;   // trạng thái tuần (draft/final)
     let lastScheduleRaw = null; // dữ liệu thô từ API getSchedule (dùng cho section tóm tắt)
 
-    // Màu cho từng nhân viên
+    // ==== QUICK ASSIGNMENT STATE ===========================================
+    let selectedCells = new Set(); // Set of slotIds
+    let allEmployees = [];         // [{email, name, team}]
+
+    // ==== VIEW MODE STATE ==================================================
+    let viewMode = 'overview'; // 'overview' or 'detail'
+
+    // Màu tương phản cao cho từng nhân viên (vivid colors)
     const COLOR_PALETTE = [
-      '#FFEBEE', '#E3F2FD', '#E8F5E9', '#FFF3E0',
-      '#F3E5F5', '#E0F7FA', '#F9FBE7', '#FCE4EC'
+      { bg: '#FF5252', text: '#FFFFFF' }, // Red
+      { bg: '#2196F3', text: '#FFFFFF' }, // Blue
+      { bg: '#4CAF50', text: '#FFFFFF' }, // Green
+      { bg: '#FF9800', text: '#000000' }, // Orange
+      { bg: '#9C27B0', text: '#FFFFFF' }, // Purple
+      { bg: '#00BCD4', text: '#000000' }, // Cyan
+      { bg: '#FFEB3B', text: '#000000' }, // Yellow
+      { bg: '#E91E63', text: '#FFFFFF' }, // Pink
+      { bg: '#3F51B5', text: '#FFFFFF' }, // Indigo
+      { bg: '#009688', text: '#FFFFFF' }, // Teal
+      { bg: '#FF5722', text: '#FFFFFF' }, // Deep Orange
+      { bg: '#795548', text: '#FFFFFF' }, // Brown
+      { bg: '#607D8B', text: '#FFFFFF' }, // Blue Grey
+      { bg: '#FFC107', text: '#000000' }, // Amber
+      { bg: '#8BC34A', text: '#000000' }  // Light Green
     ];
     const colorByEmail = {};
     function getColorForEmail(email) {
       const key = (email || '').toLowerCase();
-      if (!key) return '#f1f3f4';
+      if (!key) return { bg: '#f1f3f4', text: '#000000' };
 
       if (!colorByEmail[key]) {
         const index = Object.keys(colorByEmail).length % COLOR_PALETTE.length;
@@ -75,8 +95,40 @@ window.ScheduleAdminPage = {
       return colorByEmail[key];
     }
 
-    // Tuần mặc định: thứ 2 tuần sau
-    weekInput.value = getNextMondayISO();
+    // Helper: Get short name (first name or initials)
+    function getShortName(fullName) {
+      if (!fullName) return '';
+
+      const parts = fullName.trim().split(/\s+/);
+
+      // If single word, return as is (max 8 chars)
+      if (parts.length === 1) {
+        return parts[0].substring(0, 8);
+      }
+
+      // If multiple words, return first name
+      // If first name is too long, return initials
+      const firstName = parts[parts.length - 1]; // Vietnamese: last part is first name
+      if (firstName.length <= 6) {
+        return firstName;
+      }
+
+      // Return initials (e.g., "Nguyễn Văn An" -> "NVA")
+      return parts.map(p => p[0]).join('').toUpperCase();
+    }
+
+    // Tuần mặc định: thứ 2 tuần này
+    weekInput.value = getThisMondayISO();
+
+    // Quick Assignment Panel elements
+    const qaEmployeeSelect = document.getElementById('qa-employee-select');
+    const qaAssignBtn = document.getElementById('qa-assign-btn');
+    const qaClearBtn = document.getElementById('qa-clear-selection-btn');
+    const qaCountValue = document.getElementById('qa-count-value');
+
+    // View Mode Toggle elements
+    const toggleOverviewBtn = document.getElementById('toggle-overview-mode');
+    const toggleDetailBtn = document.getElementById('toggle-detail-mode');
 
     // Events
     loadBtn.addEventListener('click', () => loadData());
@@ -85,6 +137,25 @@ window.ScheduleAdminPage = {
     saveWeekBtn && saveWeekBtn.addEventListener('click', saveWeekSchedule);
     if (lockWeekBtn) {
       lockWeekBtn.addEventListener('click', onToggleLockClick);
+    }
+
+    // Quick Assignment events
+    if (qaEmployeeSelect) {
+      qaEmployeeSelect.addEventListener('change', onQAEmployeeChange);
+    }
+    if (qaAssignBtn) {
+      qaAssignBtn.addEventListener('click', onQAAssign);
+    }
+    if (qaClearBtn) {
+      qaClearBtn.addEventListener('click', onQAClearSelection);
+    }
+
+    // View Mode Toggle events
+    if (toggleOverviewBtn) {
+      toggleOverviewBtn.addEventListener('click', () => switchViewMode('overview'));
+    }
+    if (toggleDetailBtn) {
+      toggleDetailBtn.addEventListener('click', () => switchViewMode('detail'));
     }
 
     // Lần đầu load
@@ -181,6 +252,7 @@ window.ScheduleAdminPage = {
         renderGridStats();
         updateWeekStatusUI();
         renderFinalSchedule(lastScheduleRaw);
+        updateQuickAssignmentPanel(); // Populate employee list
 
         showAdminMessage('Đã tải dữ liệu đăng ký & lịch hiện tại.', false);
       } catch (err) {
@@ -250,32 +322,26 @@ window.ScheduleAdminPage = {
           const inner = document.createElement('div');
           inner.classList.add('slot-cell-inner');
           inner.style.cursor = 'pointer';
-          inner.style.fontSize = '12px';
 
           const statsEl = document.createElement('div');
           statsEl.classList.add('slot-stats');
           statsEl.textContent = '0/0 người';
 
-          const hintEl = document.createElement('div');
-          hintEl.classList.add('slot-hint');
-          hintEl.style.opacity = '0.7';
-          hintEl.textContent = 'Click để phân ca';
-
           const namesEl = document.createElement('div');
           namesEl.classList.add('slot-names');
-          namesEl.style.fontSize = '11px';
-          namesEl.style.marginTop = '2px';
-          namesEl.style.color = '#555';
 
           inner.appendChild(statsEl);
-          inner.appendChild(hintEl);
           inner.appendChild(namesEl);
 
           td.appendChild(inner);
 
-          // Click cả ô: mở editor chi tiết (dù section editor đang ẩn)
-          td.addEventListener('click', () => {
-            onSlotClick(slotId, dateISO, slot);
+          // Click cả ô: toggle multi-select for Quick Assignment
+          td.addEventListener('click', (evt) => {
+            // Check if click on name pill (skip selection)
+            if (evt.target.classList.contains('slot-name-pill')) {
+              return; // Let onNameClick handle it
+            }
+            onCellClickForSelection(slotId, td);
           });
 
           tr.appendChild(td);
@@ -290,6 +356,126 @@ window.ScheduleAdminPage = {
     // ======================================================================
 
     function renderGridStats() {
+      if (viewMode === 'overview') {
+        renderGridOverview();
+      } else {
+        renderGridDetail();
+      }
+    }
+
+    // Overview Mode: Compact view with sorted employees
+    function renderGridOverview() {
+      const cells = tbody.querySelectorAll('td.schedule-cell');
+
+      cells.forEach(td => {
+        const slotId  = td.dataset.slotId;
+        const statsEl = td.querySelector('.slot-stats');
+        const namesEl = td.querySelector('.slot-names');
+
+        const availList    = availabilityMap[slotId] || [];
+        const assignedList = scheduleMap[slotId] || [];
+
+        // Hide count for cleaner view
+        statsEl.style.display = 'none';
+
+        namesEl.innerHTML = '';
+
+        // Build combined list for compact badges
+        const peopleByEmail = {};
+        availList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: true
+            };
+          }
+        });
+
+        assignedList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: false
+            };
+          }
+        });
+
+        // Sort employees alphabetically for consistent ordering
+        const sortedPeople = Object.values(peopleByEmail).sort((a, b) => {
+          const nameA = (a.name || a.email || '').toLowerCase();
+          const nameB = (b.name || b.email || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+
+        // Render compact name badges with flex layout
+        const badgesContainer = document.createElement('div');
+        badgesContainer.style.display = 'flex';
+        badgesContainer.style.flexWrap = 'wrap';
+        badgesContainer.style.gap = '3px';
+        badgesContainer.style.alignItems = 'center';
+        badgesContainer.classList.add('quick-view-badges');
+
+        // Render sorted employees
+        sortedPeople.forEach(u => {
+          const emailKey = (u.email || '').toLowerCase();
+          const isAssigned = assignedList.some(
+            a => (a.email || '').toLowerCase() === emailKey
+          );
+
+          const badge = document.createElement('span');
+          badge.classList.add('quick-view-badge');
+          badge.style.padding = '3px 8px';
+          badge.style.borderRadius = '4px';
+          badge.style.fontSize = '11px';
+          badge.style.fontWeight = '600';
+          badge.style.cursor = 'pointer';
+          badge.style.whiteSpace = 'nowrap';
+          badge.style.textAlign = 'center';
+          badge.style.lineHeight = '1.4';
+          badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
+
+          const colors = getColorForEmail(emailKey);
+
+          if (isAssigned) {
+            // Assigned: vivid color background
+            badge.style.background = colors.bg;
+            badge.style.color = colors.text;
+            badge.style.border = 'none';
+            badge.style.fontWeight = '700';
+          } else {
+            // Available but not assigned: light background
+            badge.style.background = 'transparent';
+            badge.style.color = colors.bg;
+            badge.style.border = `1.5px solid ${colors.bg}`;
+            badge.style.opacity = '0.7';
+          }
+
+          badge.dataset.slotId = slotId;
+          badge.dataset.email  = u.email;
+          badge.dataset.name   = u.name || '';
+          badge.dataset.team   = u.team || '';
+
+          badge.textContent = getShortName(u.name || u.email);
+
+          badge.addEventListener('click', onNameClick);
+
+          badgesContainer.appendChild(badge);
+        });
+
+        namesEl.appendChild(badgesContainer);
+      });
+    }
+
+    // Detail Mode: Full names with badges (original view)
+    function renderGridDetail() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
       cells.forEach(td => {
@@ -302,19 +488,45 @@ window.ScheduleAdminPage = {
 
         const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
         const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
-        statsEl.textContent = `${assignedCount}/${availCount} người`;
+
+        // Hide count for cleaner view
+        statsEl.style.display = 'none';
 
         namesEl.innerHTML = '';
-        if (availCount === 0) return;
 
-        const availByEmail = {};
+        // Build combined list of all people (from both availability and assigned)
+        const peopleByEmail = {};
+
+        // Add people from availability list
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
           if (!key) return;
-          if (!availByEmail[key]) availByEmail[key] = u;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: true
+            };
+          }
         });
 
-        Object.values(availByEmail).forEach(u => {
+        // Add people from assigned list (even if not available)
+        assignedList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              isAvailable: false
+            };
+          }
+        });
+
+        // Render all people
+        Object.values(peopleByEmail).forEach(u => {
           const emailKey   = (u.email || '').toLowerCase();
           const isAssigned = assignedList.some(
             a => (a.email || '').toLowerCase() === emailKey
@@ -322,32 +534,78 @@ window.ScheduleAdminPage = {
 
           const span = document.createElement('span');
           span.classList.add('slot-name-pill');
+
+          // Basic styling (responsive handled by CSS)
           span.style.display      = 'inline-block';
-          span.style.padding      = '2px 8px';
+          span.style.padding      = '3px 8px';
           span.style.borderRadius = '999px';
-          span.style.marginRight  = '4px';
-          span.style.marginBottom = '2px';
+          span.style.marginRight  = '3px';
+          span.style.marginBottom = '3px';
           span.style.cursor       = 'pointer';
 
-          const baseColor = getColorForEmail(emailKey);
-          span.style.background = baseColor;
-          span.style.border     = isAssigned ? '1px solid rgba(0,0,0,0.35)'
-                                             : '1px solid transparent';
-          span.style.opacity    = isAssigned ? '1' : '0.5';
-          span.style.fontWeight = isAssigned ? '600' : '400';
+          const colors = getColorForEmail(emailKey);
+
+          if (isAssigned) {
+            // Assigned: vivid color background with contrast text
+            span.style.background = colors.bg;
+            span.style.color = colors.text;
+            span.style.border = 'none';
+            span.style.opacity = '1';
+            span.style.fontWeight = '600';
+          } else {
+            // Available but not assigned: transparent with colored border
+            span.style.background = 'transparent';
+            span.style.color = colors.bg;
+            span.style.border = `1.5px solid ${colors.bg}`;
+            span.style.opacity = '0.6';
+            span.style.fontWeight = '500';
+          }
 
           span.dataset.slotId = slotId;
           span.dataset.email  = u.email;
           span.dataset.name   = u.name || '';
           span.dataset.team   = u.team || '';
 
-          span.textContent = (isAssigned ? '✅ ' : '') + (u.name || u.email);
+          span.textContent = u.name || u.email;
 
           span.addEventListener('click', onNameClick);
 
           namesEl.appendChild(span);
         });
       });
+    }
+
+    // Switch between Overview and Detail view modes
+    function switchViewMode(mode) {
+      viewMode = mode;
+
+      // Update toggle button states
+      if (toggleOverviewBtn && toggleDetailBtn) {
+        if (mode === 'overview') {
+          toggleOverviewBtn.classList.add('active');
+          toggleOverviewBtn.style.background = '#ffffff';
+          toggleOverviewBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+          toggleOverviewBtn.style.color = '';
+
+          toggleDetailBtn.classList.remove('active');
+          toggleDetailBtn.style.background = 'transparent';
+          toggleDetailBtn.style.boxShadow = 'none';
+          toggleDetailBtn.style.color = '#666';
+        } else {
+          toggleDetailBtn.classList.add('active');
+          toggleDetailBtn.style.background = '#ffffff';
+          toggleDetailBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+          toggleDetailBtn.style.color = '';
+
+          toggleOverviewBtn.classList.remove('active');
+          toggleOverviewBtn.style.background = 'transparent';
+          toggleOverviewBtn.style.boxShadow = 'none';
+          toggleOverviewBtn.style.color = '#666';
+        }
+      }
+
+      // Re-render the grid with new mode
+      renderGridStats();
     }
 
     // ======================================================================
@@ -774,7 +1032,7 @@ window.ScheduleAdminPage = {
         dateSlotPersons[dateISO][idx].add(pKey);
 
         if (!personMetaByDate[dateISO][pKey]) {
-          personMetaByDate[dateISO][pKey] = { name, team, note };
+          personMetaByDate[dateISO][pKey] = { email, name, team, note };
         }
       });
 
@@ -795,8 +1053,11 @@ window.ScheduleAdminPage = {
             if (!hasHere) continue;
 
             const meta = personMeta[pKey];
-            const text = meta.name; // chỉ hiện tên trong từng ô
-            labelsByDateSlot[dateISO][i].push(text);
+            // Store both email and name for consistent coloring
+            labelsByDateSlot[dateISO][i].push({
+              email: meta.email || pKey,
+              name: meta.name
+            });
           }
         });
       });
@@ -828,16 +1089,22 @@ window.ScheduleAdminPage = {
           const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
 
           if (labels.length) {
-            labels.forEach(text => {
+            labels.forEach(person => {
               const span = document.createElement('span');
-              span.textContent = text;
+              span.textContent = person.name;
               span.style.display = 'inline-block';
               span.style.fontSize = '11px';
-              span.style.padding = '2px 8px';
-              span.style.borderRadius = '999px';
+              span.style.padding = '3px 8px';
+              span.style.borderRadius = '4px';
               span.style.marginRight = '4px';
               span.style.marginBottom = '2px';
-              span.style.background = getColorForEmail(text); // dùng màu giống bảng ca chính
+              span.style.fontWeight = '600';
+
+              // Use email for color lookup to match shift assignment table
+              const colors = getColorForEmail(person.email);
+              span.style.background = colors.bg;
+              span.style.color = colors.text;
+
               td.appendChild(span);
             });
           }
@@ -924,12 +1191,239 @@ function formatShiftLabel(shiftKey) {
       return String(n).padStart(2, '0');
     }
 
-    function getNextMondayISO() {
+    function getThisMondayISO() {
       const now = new Date();
       const day = now.getDay(); // 0=CN,1=2,...6=7
-      const daysToNextMonday = ((8 - day) % 7) || 7;
-      const nextMonday = addDays(now, daysToNextMonday);
-      return toISODate(nextMonday);
+      // Get Monday of current week (0 if today is Monday, otherwise days back to Monday)
+      const daysFromMonday = (day + 6) % 7;
+      const thisMonday = addDays(now, -daysFromMonday);
+      return toISODate(thisMonday);
+    }
+
+    // ======================================================================
+    // QUICK ASSIGNMENT PANEL FUNCTIONS
+    // ======================================================================
+
+    /**
+     * Update Quick Assignment Panel với employee list
+     */
+    function updateQuickAssignmentPanel() {
+      // Extract all unique employees from availabilityMap
+      const employeeSet = new Map(); // email -> {email, name, team}
+
+      Object.values(availabilityMap).forEach(userList => {
+        userList.forEach(u => {
+          const email = (u.email || '').toLowerCase();
+          if (email && !employeeSet.has(email)) {
+            employeeSet.set(email, {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || ''
+            });
+          }
+        });
+      });
+
+      allEmployees = Array.from(employeeSet.values()).sort((a, b) =>
+        (a.name || '').localeCompare(b.name || '')
+      );
+
+      // Populate dropdown
+      if (qaEmployeeSelect) {
+        qaEmployeeSelect.innerHTML = '<option value="">-- Chọn nhân viên --</option>';
+        allEmployees.forEach(emp => {
+          const option = document.createElement('option');
+          option.value = emp.email;
+          option.textContent = `${emp.name} (${emp.team.toUpperCase()})`;
+          qaEmployeeSelect.appendChild(option);
+        });
+      }
+
+      // Populate employee list (for reference)
+      const qaEmployeeList = document.getElementById('qa-employee-list');
+      if (qaEmployeeList) {
+        if (allEmployees.length === 0) {
+          qaEmployeeList.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-style:italic;">Chưa có nhân viên nào đăng ký</div>';
+        } else {
+          qaEmployeeList.innerHTML = '';
+          allEmployees.forEach(emp => {
+            const div = document.createElement('div');
+            div.style.padding = '8px 6px';
+            div.style.borderRadius = '4px';
+            div.style.marginBottom = '4px';
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'space-between';
+            div.style.transition = 'all 0.2s ease';
+            div.style.cursor = 'default';
+
+            div.addEventListener('mouseenter', () => {
+              div.style.background = '#f8f9fa';
+              div.style.transform = 'translateX(2px)';
+            });
+
+            div.addEventListener('mouseleave', () => {
+              div.style.background = 'transparent';
+              div.style.transform = 'translateX(0)';
+            });
+
+            const nameWrapper = document.createElement('div');
+            nameWrapper.style.display = 'flex';
+            nameWrapper.style.alignItems = 'center';
+            nameWrapper.style.gap = '6px';
+
+            const span = document.createElement('span');
+            span.style.display = 'inline-block';
+            span.style.padding = '3px 8px';
+            span.style.borderRadius = '6px';
+            span.style.background = getColorForEmail(emp.email);
+            span.style.fontSize = '11px';
+            span.style.fontWeight = '500';
+            span.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+            span.textContent = emp.name;
+
+            const teamBadge = document.createElement('span');
+            teamBadge.style.fontSize = '9px';
+            teamBadge.style.padding = '2px 6px';
+            teamBadge.style.borderRadius = '4px';
+            teamBadge.style.background = emp.team.toLowerCase() === 'cs' ? '#e3f2fd' : '#fce4ec';
+            teamBadge.style.color = emp.team.toLowerCase() === 'cs' ? '#1976d2' : '#c2185b';
+            teamBadge.style.fontWeight = '600';
+            teamBadge.textContent = emp.team.toUpperCase();
+
+            nameWrapper.appendChild(span);
+            div.appendChild(nameWrapper);
+            div.appendChild(teamBadge);
+            qaEmployeeList.appendChild(div);
+          });
+        }
+      }
+
+      // Reset selection
+      selectedCells.clear();
+      updateQACountDisplay();
+      updateQAAssignButtonState();
+      clearCellSelectionHighlights();
+    }
+
+    /**
+     * Handle cell click for multi-selection
+     */
+    function onCellClickForSelection(slotId, tdElement) {
+      if (selectedCells.has(slotId)) {
+        selectedCells.delete(slotId);
+        tdElement.classList.remove('qa-selected');
+      } else {
+        selectedCells.add(slotId);
+        tdElement.classList.add('qa-selected');
+      }
+
+      updateQACountDisplay();
+      updateQAAssignButtonState();
+    }
+
+    /**
+     * Update selected count display
+     */
+    function updateQACountDisplay() {
+      if (qaCountValue) {
+        qaCountValue.textContent = selectedCells.size;
+      }
+    }
+
+    /**
+     * Update assign button state (enabled/disabled)
+     */
+    function updateQAAssignButtonState() {
+      if (!qaAssignBtn) return;
+
+      const hasEmployee = qaEmployeeSelect && qaEmployeeSelect.value;
+      const hasCells = selectedCells.size > 0;
+
+      qaAssignBtn.disabled = !(hasEmployee && hasCells);
+    }
+
+    /**
+     * Handle employee selection change
+     */
+    function onQAEmployeeChange() {
+      updateQAAssignButtonState();
+    }
+
+    /**
+     * Handle Quick Assign button click
+     */
+    function onQAAssign() {
+      if (!qaEmployeeSelect) return;
+
+      const selectedEmail = qaEmployeeSelect.value;
+      if (!selectedEmail || selectedCells.size === 0) {
+        showAdminMessage('Vui lòng chọn nhân viên và ít nhất 1 slot.', true);
+        return;
+      }
+
+      const employee = allEmployees.find(e => e.email === selectedEmail);
+      if (!employee) {
+        showAdminMessage('Không tìm thấy thông tin nhân viên.', true);
+        return;
+      }
+
+      // Assign employee to all selected cells
+      let assignedCount = 0;
+      selectedCells.forEach(slotId => {
+        let list = scheduleMap[slotId] || [];
+
+        // Check if already assigned
+        const idx = list.findIndex(
+          u => (u.email || '').toLowerCase() === (employee.email || '').toLowerCase()
+        );
+
+        if (idx < 0) {
+          // Not assigned yet -> add
+          list.push({
+            email: employee.email,
+            name: employee.name,
+            team: employee.team
+          });
+          assignedCount++;
+        }
+
+        scheduleMap[slotId] = list;
+      });
+
+      // Re-render grid
+      renderGridStats();
+
+      // Clear selection
+      selectedCells.clear();
+      clearCellSelectionHighlights();
+      updateQACountDisplay();
+      updateQAAssignButtonState();
+
+      showAdminMessage(
+        `Đã phân ca ${employee.name} vào ${assignedCount} slot. Nhớ bấm "Lưu lịch tuần này".`,
+        false
+      );
+    }
+
+    /**
+     * Handle clear selection button click
+     */
+    function onQAClearSelection() {
+      selectedCells.clear();
+      clearCellSelectionHighlights();
+      updateQACountDisplay();
+      updateQAAssignButtonState();
+    }
+
+    /**
+     * Clear all cell selection highlights
+     */
+    function clearCellSelectionHighlights() {
+      const cells = tbody.querySelectorAll('td.schedule-cell');
+      cells.forEach(td => {
+        td.classList.remove('qa-selected');
+      });
     }
   }
 };

@@ -1,0 +1,35 @@
+{
+  "quizzes": [
+    {
+      "id": "module-2-quiz",
+      "title": "Kiểm tra Module 2: Sản phẩm",
+      "moduleId": "module-2",
+      "category": "cs",
+      "version": "1.0",
+      "status": "active",
+      "settings": {
+        "totalQuestions": 50,
+        "mcqCount": 40,
+        "essayCount": 10,
+        "timeLimit": 60,
+        "passingScore": 7.0,
+        "maxAttempts": 3,
+        "shuffleQuestions": false,
+        "shuffleOptions": false,
+        "showCorrectAnswers": false,
+        "allowReview": true
+      },
+      "prerequisites": {
+        "requiredModules": [],
+        "requiredQuizzes": [],
+        "minTrainingProgress": 0
+      },
+      "grading": {
+        "mcqWeight": 0.8,
+        "essayWeight": 0.2,
+        "autoGrade": true,
+        "manualReview": true
+      }
+    }
+  ]
+}

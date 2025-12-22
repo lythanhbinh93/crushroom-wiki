@@ -88,139 +88,201 @@
       </div>
 
       <header class="page-header">
-        <h1>🧩 Quản lý lịch làm (Leader)</h1>
-        <p class="header-subtitle">
-          Xem đăng ký ca linh hoạt, phân ca theo giờ và chốt lịch làm chính thức cho team.
-        </p>
+        <div class="page-header-content">
+          <h1>🧩 Quản lý lịch làm</h1>
+          <p class="header-subtitle">
+            Xem đăng ký ca linh hoạt, phân ca theo giờ và chốt lịch làm chính thức cho team
+          </p>
+        </div>
       </header>
 
-      <!-- 1. Lịch làm đã chốt tuần này (tóm tắt) – ĐƯA LÊN ĐẦU -->
-      <section class="content-section">
-        <h2>1. Lịch làm đã chốt tuần này (tóm tắt)</h2>
-        <p style="font-size:13px; color:#777; margin-bottom:8px;">
-          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là phần tổng hợp lịch chính thức
-          theo ca và nhân viên, trình bày giống bảng ca theo giờ để leader dễ theo dõi.
+      <!-- 1. Lịch làm đã chốt tuần này -->
+      <section class="content-section schedule-card">
+        <div class="section-header">
+          <div class="section-title-group">
+            <span class="section-number">1</span>
+            <h2>Lịch làm đã chốt tuần này</h2>
+          </div>
+        </div>
+        <p class="section-description">
+          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là lịch chính thức
+          đã được công bố cho team
         </p>
-        <div id="final-schedule-admin-status" style="font-size:14px; margin-bottom:8px; color:#555;">
+        <div id="final-schedule-admin-status" class="status-badge-container">
           <!-- JS hiển thị: trạng thái lịch chốt -->
         </div>
-        <div id="final-schedule-admin-wrapper" style="overflow-x:auto; display:none;">
-          <table class="data-table">
+        <div id="final-schedule-admin-wrapper" class="table-wrapper" style="display:none;">
+          <table class="data-table schedule-table">
             <thead>
               <tr id="final-schedule-admin-head-row">
-                <!-- JS render header: Giờ / Ngày + các ngày trong tuần -->
+                <!-- JS render header -->
               </tr>
             </thead>
             <tbody id="final-schedule-admin-body">
-              <!-- JS render tóm tắt lịch chốt dạng bảng giờ x ngày -->
+              <!-- JS render body -->
             </tbody>
           </table>
         </div>
-        <div id="final-schedule-admin-empty" style="font-size:13px; color:#777; margin-top:8px; display:none;">
-          Tuần này chưa có lịch chính thức nào được xếp.
+        <div id="final-schedule-admin-empty" class="empty-state" style="display:none;">
+          <span class="empty-icon">📭</span>
+          <p>Tuần này chưa có lịch chính thức nào được xếp</p>
         </div>
       </section>
 
-      <!-- 2. Chọn tuần & team + trạng thái -->
-      <section class="content-section">
-        <h2>2. Chọn tuần &amp; team</h2>
-        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:8px;">
-          <div>
-            <label for="week-start-admin">Tuần bắt đầu:</label><br />
-            <input type="date" id="week-start-admin" />
+      <!-- 2. Chọn tuần & team -->
+      <section class="content-section schedule-card">
+        <div class="section-header">
+          <div class="section-title-group">
+            <span class="section-number">2</span>
+            <h2>Chọn tuần &amp; team</h2>
           </div>
-          <div>
-            <label for="team-select-admin">Team:</label><br />
-            <select id="team-select-admin">
+        </div>
+
+        <div class="filter-controls">
+          <div class="form-group">
+            <label for="week-start-admin" class="form-label">Tuần bắt đầu</label>
+            <input type="date" id="week-start-admin" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label for="team-select-admin" class="form-label">Team</label>
+            <select id="team-select-admin" class="form-select">
               <option value="cs">Customer Service (CS)</option>
               <option value="mo">Marketing (MO)</option>
             </select>
           </div>
-          <div style="margin-top:18px;">
-            <button id="load-admin-btn" class="btn btn-secondary">Tải dữ liệu</button>
+          <div class="form-group">
+            <button id="load-admin-btn" class="btn btn-primary">
+              <span class="btn-icon">📥</span>
+              Tải dữ liệu
+            </button>
           </div>
-          <span id="admin-message" style="font-size:14px; margin-left:8px;"></span>
         </div>
+        <div id="admin-message" class="alert-message"></div>
 
-        <!-- Thanh trạng thái tuần + nút Lưu + nút Chốt -->
-        <div class="schedule-admin-status-bar"
-             style="margin-top:4px; padding:8px 12px; border-radius:8px; background:#f5f5f5; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-          <span id="week-status-text" style="font-size:14px; color:#555;">
-            <!-- JS cập nhật: Trạng thái: ĐANG SOẠN / ĐÃ CHỐT -->
-          </span>
+        <!-- Status bar -->
+        <div class="schedule-admin-status-bar">
+          <div class="status-info">
+            <span id="week-status-text" class="status-text"></span>
+            <span id="save-week-message" class="save-message"></span>
+          </div>
 
-          <span id="save-week-message" style="font-size:13px; margin-left:12px;">
-            <!-- JS hiển thị message lưu lịch -->
-          </span>
-
-          <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
-            <button id="save-week-schedule-btn"
-                    class="btn btn-primary"
-                    style="font-size:13px; padding:6px 10px;">
-              💾 Lưu lịch tuần này
+          <div class="status-actions">
+            <button id="save-week-schedule-btn" class="btn btn-primary btn-sm">
+              <span class="btn-icon">💾</span>
+              Lưu lịch tuần này
             </button>
 
-            <button id="lock-week-btn"
-                    class="btn btn-secondary"
-                    style="font-size:13px; padding:6px 10px;">
-              <!-- JS: "✅ Chốt lịch tuần này" hoặc "🔓 Mở lại để chỉnh sửa" -->
+            <button id="lock-week-btn" class="btn btn-secondary btn-sm">
+              <!-- JS will update text -->
             </button>
           </div>
         </div>
 
-        <p style="font-size:13px; color:#777; margin-top:8px;">
-          Hãy luôn <strong>Lưu lịch tuần này</strong> sau khi phân ca, sau đó dùng nút
-          <strong>"Chốt lịch tuần này"</strong> để khóa và công bố cho nhân viên.
-        </p>
+        <div class="info-box">
+          <span class="info-icon">💡</span>
+          <p>Hãy luôn <strong>Lưu lịch tuần này</strong> sau khi phân ca, sau đó dùng
+          <strong>"Chốt lịch tuần này"</strong> để khóa và công bố cho nhân viên</p>
+        </div>
       </section>
 
       <!-- 3. Bảng ca theo giờ -->
-      <section class="content-section">
-        <h2>3. Bảng ca theo giờ</h2>
-        <p style="font-size:13px; color:#777; margin-bottom:8px;">
-          Mỗi ô trong bảng thể hiện: <strong>Đã phân / Số người đăng ký</strong>.<br />
-          • Tên nhân viên sẽ hiển thị trực tiếp trong ô (mỗi người một màu).  
-          • <strong>Click vào tên</strong> để bật/tắt phân ca cho người đó.
-        </p>
-        <div style="overflow-x:auto;">
-          <table class="data-table">
+      <section class="content-section schedule-card">
+        <div class="section-header">
+          <div class="section-title-group">
+            <span class="section-number">3</span>
+            <h2>Bảng ca theo giờ</h2>
+          </div>
+
+          <!-- View Mode Toggle -->
+          <div class="view-mode-toggle">
+            <button id="toggle-overview-mode" class="view-toggle-btn active">
+              <span class="btn-icon">📊</span>
+              Overview
+            </button>
+            <button id="toggle-detail-mode" class="view-toggle-btn">
+              <span class="btn-icon">📋</span>
+              Detail
+            </button>
+          </div>
+        </div>
+
+        <div class="mode-descriptions">
+          <div class="mode-description">
+            <span class="mode-bullet">•</span>
+            <strong>Overview</strong>: Tên ngắn gọn, size nhỏ, màu tương phản cao
+          </div>
+          <div class="mode-description">
+            <span class="mode-bullet">•</span>
+            <strong>Detail</strong>: Tên đầy đủ của từng nhân viên
+          </div>
+          <div class="mode-description">
+            <span class="mode-bullet">•</span>
+            <strong>Click vào badge</strong> để bật/tắt phân ca, hoặc dùng Quick Assignment bên dưới
+          </div>
+        </div>
+
+        <!-- Quick Assignment Panel -->
+        <div class="quick-assignment-panel">
+          <div class="qa-header">
+            <span class="qa-icon">⚡</span>
+            <strong class="qa-title">Quick Assignment</strong>
+          </div>
+
+          <div class="qa-controls">
+            <select id="qa-employee-select" class="form-select qa-select">
+              <option value="">-- Chọn nhân viên --</option>
+            </select>
+
+            <div class="qa-counter">
+              <strong class="qa-label">Đã chọn:</strong>
+              <span id="qa-count-value" class="qa-badge">0</span>
+            </div>
+
+            <button id="qa-assign-btn" class="btn btn-primary btn-sm" disabled>
+              <span class="btn-icon">✅</span>
+              Assign
+            </button>
+
+            <button id="qa-clear-selection-btn" class="btn btn-secondary btn-sm">
+              <span class="btn-icon">🔄</span>
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Schedule Table -->
+        <div class="table-wrapper">
+          <table class="data-table schedule-table">
             <thead>
               <tr>
-                <th>Giờ / Ngày</th>
-                <th>
-                  Thứ 2
-                  <div id="schedule-main-date-0"
-                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                <th class="th-time">Giờ / Ngày</th>
+                <th class="th-day">
+                  <div class="day-name">Thứ 2</div>
+                  <div id="schedule-main-date-0" class="day-date"></div>
                 </th>
-                <th>
-                  Thứ 3
-                  <div id="schedule-main-date-1"
-                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                <th class="th-day">
+                  <div class="day-name">Thứ 3</div>
+                  <div id="schedule-main-date-1" class="day-date"></div>
                 </th>
-                <th>
-                  Thứ 4
-                  <div id="schedule-main-date-2"
-                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                <th class="th-day">
+                  <div class="day-name">Thứ 4</div>
+                  <div id="schedule-main-date-2" class="day-date"></div>
                 </th>
-                <th>
-                  Thứ 5
-                  <div id="schedule-main-date-3"
-                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                <th class="th-day">
+                  <div class="day-name">Thứ 5</div>
+                  <div id="schedule-main-date-3" class="day-date"></div>
                 </th>
-                <th>
-                  Thứ 6
-                  <div id="schedule-main-date-4"
-                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                <th class="th-day">
+                  <div class="day-name">Thứ 6</div>
+                  <div id="schedule-main-date-4" class="day-date"></div>
                 </th>
-                <th>
-                  Thứ 7
-                  <div id="schedule-main-date-5"
-                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                <th class="th-day">
+                  <div class="day-name">Thứ 7</div>
+                  <div id="schedule-main-date-5" class="day-date"></div>
                 </th>
-                <th>
-                  Chủ nhật
-                  <div id="schedule-main-date-6"
-                       style="font-size:12px; color:#777; margin-top:2px;"></div>
+                <th class="th-day th-sunday">
+                  <div class="day-name">Chủ nhật</div>
+                  <div id="schedule-main-date-6" class="day-date"></div>
                 </th>
               </tr>
             </thead>
