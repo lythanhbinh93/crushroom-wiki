@@ -475,43 +475,52 @@ window.ScheduleAdminPage = {
           return nameA.localeCompare(nameB);
         });
 
-        // Render assigned employees with full names
+        // Render compact badges with flex layout (same style as overview mode)
+        const badgesContainer = document.createElement('div');
+        badgesContainer.style.display = 'flex';
+        badgesContainer.style.flexWrap = 'wrap';
+        badgesContainer.style.gap = '3px';
+        badgesContainer.style.alignItems = 'center';
+        badgesContainer.classList.add('quick-view-badges');
+
+        // Render assigned employees with consistent badge style
         sortedPeople.forEach(u => {
           const emailKey = (u.email || '').toLowerCase();
 
-          const span = document.createElement('span');
-          span.classList.add('slot-name-pill');
-
-          // Basic styling (responsive handled by CSS)
-          span.style.display      = 'inline-block';
-          span.style.padding      = '4px 10px';
-          span.style.borderRadius = '999px';
-          span.style.marginRight  = '4px';
-          span.style.marginBottom = '4px';
-          span.style.cursor       = 'pointer';
-          span.style.fontSize     = '12px';
+          const badge = document.createElement('span');
+          badge.classList.add('quick-view-badge');
+          badge.style.padding = '3px 8px';
+          badge.style.borderRadius = '4px';
+          badge.style.fontSize = '11px';
+          badge.style.fontWeight = '600';
+          badge.style.cursor = 'pointer';
+          badge.style.whiteSpace = 'nowrap';
+          badge.style.textAlign = 'center';
+          badge.style.lineHeight = '1.4';
+          badge.title = `${u.name || u.email} - Đã được phân ca`;
 
           const colors = getColorForEmail(emailKey);
 
           // Assigned: vivid color background with contrast text
-          span.style.background = colors.bg;
-          span.style.color = colors.text;
-          span.style.border = 'none';
-          span.style.opacity = '1';
-          span.style.fontWeight = '600';
+          badge.style.background = colors.bg;
+          badge.style.color = colors.text;
+          badge.style.border = 'none';
+          badge.style.opacity = '1';
+          badge.style.fontWeight = '700';
 
-          span.dataset.slotId = slotId;
-          span.dataset.email  = u.email;
-          span.dataset.name   = u.name || '';
-          span.dataset.team   = u.team || '';
+          badge.dataset.slotId = slotId;
+          badge.dataset.email  = u.email;
+          badge.dataset.name   = u.name || '';
+          badge.dataset.team   = u.team || '';
 
-          span.title = `${u.name || u.email} - Đã được phân ca`;
-          span.textContent = u.name || u.email;
+          badge.textContent = getShortName(u.name || u.email);
 
-          span.addEventListener('click', onNameClick);
+          badge.addEventListener('click', onNameClick);
 
-          namesEl.appendChild(span);
+          badgesContainer.appendChild(badge);
         });
+
+        namesEl.appendChild(badgesContainer);
       });
     }
 
