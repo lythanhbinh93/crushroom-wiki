@@ -1256,6 +1256,46 @@ window.ScheduleAdminPage = {
 
       updateFABVisibility();
       window.addEventListener('resize', updateFABVisibility);
+
+      // Setup scroll detection for table
+      setupScrollIndicator();
+
+      // Make QA header clickable to close modal
+      const qaHeader = document.querySelector('.qa-header');
+      if (qaHeader) {
+        qaHeader.addEventListener('click', (evt) => {
+          // Only close if clicking on header itself, not children
+          if (evt.target.classList.contains('qa-header') ||
+              evt.target.classList.contains('qa-icon') ||
+              evt.target.classList.contains('qa-title')) {
+            closeQAModal();
+          }
+        });
+      }
+    }
+
+    /**
+     * Setup scroll indicator for table
+     */
+    function setupScrollIndicator() {
+      const tableWrapper = document.querySelector('.table-wrapper');
+      if (!tableWrapper) return;
+
+      let scrollTimeout;
+      tableWrapper.addEventListener('scroll', () => {
+        // Add scrolled class to hide indicator
+        tableWrapper.classList.add('scrolled');
+
+        // Clear previous timeout
+        clearTimeout(scrollTimeout);
+
+        // Reset after 2 seconds of no scrolling
+        scrollTimeout = setTimeout(() => {
+          if (tableWrapper.scrollLeft === 0) {
+            tableWrapper.classList.remove('scrolled');
+          }
+        }, 2000);
+      });
     }
 
     /**

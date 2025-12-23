@@ -2092,34 +2092,9 @@ html {
     transition: transform 0.1s ease;
   }
 
-  /* Sticky selection counter at bottom */
+  /* Hide counter in modal (we have FAB badge now) */
   body:has(#schedule-admin-body) .qa-counter {
-    position: sticky !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 100 !important;
-    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
-    color: white !important;
-    padding: 12px 16px !important;
-    margin: 0 -16px !important;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15) !important;
-    border-radius: 0 !important;
-    border: none !important;
-  }
-
-  body:has(#schedule-admin-body) .qa-label {
-    color: white !important;
-    font-size: 14px !important;
-  }
-
-  body:has(#schedule-admin-body) .qa-badge {
-    background: white !important;
-    color: #0284c7 !important;
-    font-size: 16px !important;
-    font-weight: 700 !important;
-    padding: 4px 12px !important;
-    min-width: 32px !important;
+    display: none !important;
   }
 
   /* Quick Assignment Panel - Convert to Bottom Sheet Modal */
@@ -2255,5 +2230,133 @@ html {
     gap: 4px !important;
     align-items: center !important;
     justify-content: center !important;
+  }
+
+  /* ===== PHASE 3: ADDITIONAL MOBILE ENHANCEMENTS ===== */
+
+  /* Scroll indicator shadow for table */
+  body:has(#schedule-admin-body) .table-wrapper {
+    position: relative !important;
+    box-shadow: inset 8px 0 8px -8px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  body:has(#schedule-admin-body) .table-wrapper::after {
+    content: '👉 Scroll →' !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.95) 20%, rgba(255, 255, 255, 0.95) 100%) !important;
+    padding: 8px 16px 8px 32px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #0284c7 !important;
+    pointer-events: none !important;
+    z-index: 5 !important;
+    opacity: 1 !important;
+    transition: opacity 0.3s ease !important;
+  }
+
+  body:has(#schedule-admin-body) .table-wrapper.scrolled::after {
+    opacity: 0 !important;
+  }
+
+  /* Improved table header visibility */
+  body:has(#schedule-admin-body) .schedule-table thead {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  body:has(#schedule-admin-body) .schedule-table .th-time {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 11 !important;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Better tap targets for modal header */
+  body:has(#schedule-admin-body) .qa-header {
+    padding-top: 12px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  body:has(#schedule-admin-body) .qa-header:active {
+    opacity: 0.8 !important;
+  }
+
+  /* Quick Assignment title with close hint */
+  body:has(#schedule-admin-body) .qa-title::after {
+    content: '(tap để đóng)' !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    color: #999 !important;
+    margin-left: 8px !important;
+  }
+
+  /* Improve employee select dropdown on mobile */
+  body:has(#schedule-admin-body) #qa-employee-select {
+    appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230284c7' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    padding-right: 40px !important;
+  }
+
+  /* Status bar improvements */
+  body:has(#schedule-admin-body) .schedule-admin-status-bar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    background: white !important;
+    margin: -16px -16px 16px -16px !important;
+    padding: 12px 16px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Filter controls sticky on mobile */
+  body:has(#schedule-admin-body) .filter-controls {
+    position: sticky !important;
+    top: 60px !important;
+    z-index: 45 !important;
+    background: white !important;
+    margin: -16px -16px 16px -16px !important;
+    padding: 12px 16px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Better spacing for section header */
+  body:has(#schedule-admin-body) .section-header {
+    margin-bottom: 16px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 2px solid #f0f0f0 !important;
+  }
+
+  /* Hide mode descriptions on very small screens */
+  body:has(#schedule-admin-body) .mode-descriptions {
+    display: none !important;
+  }
+
+  /* Info box more compact */
+  body:has(#schedule-admin-body) .info-box {
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Better visual separation for days */
+  body:has(#schedule-admin-body) .schedule-table td {
+    border-right: 2px solid #f0f0f0 !important;
+  }
+
+  body:has(#schedule-admin-body) .schedule-table td:last-child {
+    border-right: 1px solid var(--border-color) !important;
+  }
+
+  /* Sunday column highlight */
+  body:has(#schedule-admin-body) .schedule-table tr td:last-child {
+    background: rgba(255, 243, 224, 0.3) !important;
   }
 }
