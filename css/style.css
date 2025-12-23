@@ -1783,7 +1783,7 @@ html {
   margin-top: 4px;
 }
 
-/* Mobile optimization */
+/* ===== MOBILE OPTIMIZATION ===== */
 @media (max-width: 768px) {
   .availability-cell {
     min-height: 50px;
@@ -1796,5 +1796,264 @@ html {
 
   .other-availability {
     font-size: 9px;
+  }
+
+  /* ===== Enhanced Mobile Styles for Schedule Pages ===== */
+
+  /* Page header */
+  .page-header h1 {
+    font-size: 24px !important;
+  }
+
+  .header-subtitle {
+    font-size: 13px !important;
+  }
+
+  /* Section header */
+  .section-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .section-title-group h2 {
+    font-size: 18px !important;
+  }
+
+  /* View Mode Toggle (Tabs) */
+  .view-mode-toggle {
+    width: 100% !important;
+    display: flex !important;
+    gap: 6px !important;
+  }
+
+  .view-toggle-btn {
+    flex: 1 !important;
+    font-size: 13px !important;
+    padding: 10px 8px !important;
+    min-height: 44px !important; /* iOS recommended touch target */
+  }
+
+  .view-toggle-btn .btn-icon {
+    font-size: 16px !important;
+  }
+
+  /* Filter controls - stack vertically */
+  .filter-controls {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .form-group {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .form-input,
+  .form-select,
+  .btn {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+
+  /* Table wrapper - horizontal scroll */
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 0 -16px !important; /* Extend to edges */
+    padding: 0 16px !important;
+  }
+
+  .schedule-table {
+    min-width: 600px !important; /* Force horizontal scroll for better readability */
+  }
+
+  .schedule-table th,
+  .schedule-table td {
+    font-size: 11px !important;
+    padding: 6px 4px !important;
+  }
+
+  .schedule-table .th-time {
+    position: sticky !important;
+    left: 0 !important;
+    background: white !important;
+    z-index: 2 !important;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1) !important;
+  }
+
+  /* Badges/Pills - larger touch targets */
+  .quick-view-badge,
+  .slot-name-pill {
+    font-size: 10px !important;
+    padding: 4px 8px !important;
+    min-height: 28px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Quick Assignment Panel */
+  .quick-assignment-panel {
+    padding: 12px !important;
+  }
+
+  .qa-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .qa-title {
+    font-size: 14px !important;
+  }
+
+  .qa-controls {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .qa-select,
+  .qa-counter {
+    width: 100% !important;
+  }
+
+  .qa-counter {
+    justify-content: center !important;
+    padding: 8px !important;
+    background: #f5f5f5 !important;
+    border-radius: 6px !important;
+  }
+
+  #qa-assign-btn,
+  #qa-clear-selection-btn {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  /* Status bar */
+  .schedule-admin-status-bar {
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+
+  .status-info {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .status-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .status-actions button {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  /* Info box */
+  .info-box {
+    font-size: 13px !important;
+    padding: 12px !important;
+  }
+
+  .info-box p {
+    font-size: 13px !important;
+  }
+
+  /* Mode descriptions */
+  .mode-descriptions {
+    font-size: 12px !important;
+  }
+
+  .mode-description {
+    padding: 6px 0 !important;
+  }
+
+  /* Schedule actions */
+  .schedule-actions {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .schedule-actions button {
+    width: 100% !important;
+    min-height: 48px !important;
+    font-size: 15px !important;
+  }
+
+  /* Alert messages */
+  .alert-message {
+    font-size: 13px !important;
+    padding: 10px !important;
+  }
+
+  /* Status badges */
+  .status-badge {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+
+  /* Empty state */
+  .empty-state {
+    padding: 30px 20px !important;
+  }
+
+  .empty-icon {
+    font-size: 36px !important;
+  }
+
+  /* Day names in table header */
+  .day-name {
+    font-size: 10px !important;
+  }
+
+  .day-date {
+    font-size: 9px !important;
+  }
+}
+
+/* Extra small devices (phones < 576px) */
+@media (max-width: 576px) {
+  .page-header h1 {
+    font-size: 20px !important;
+  }
+
+  .header-subtitle {
+    font-size: 12px !important;
+  }
+
+  .section-title-group h2 {
+    font-size: 16px !important;
+  }
+
+  .view-toggle-btn {
+    font-size: 12px !important;
+    padding: 8px 6px !important;
+  }
+
+  .schedule-table {
+    min-width: 500px !important;
+  }
+
+  .schedule-table th,
+  .schedule-table td {
+    font-size: 10px !important;
+    padding: 4px 2px !important;
+  }
+
+  .quick-view-badge,
+  .slot-name-pill {
+    font-size: 9px !important;
+    padding: 3px 6px !important;
+    min-height: 24px !important;
+  }
+
+  .info-box,
+  .mode-description {
+    font-size: 11px !important;
   }
 }
