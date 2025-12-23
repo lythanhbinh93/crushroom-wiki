@@ -131,6 +131,15 @@ window.SchedulePage = {
         toggleRegisterBtn.style.boxShadow = 'none';
         toggleRegisterBtn.style.color = '#666';
       }
+
+      // Auto-load team schedule with default CS team
+      if (viewWeekInput && viewTeamSelect) {
+        const week = viewWeekInput.value;
+        const selectedTeam = viewTeamSelect.value || 'cs'; // Default to CS
+        if (week) {
+          loadTeamScheduleView(week, selectedTeam);
+        }
+      }
     }
 
     // 6. Event Listeners
