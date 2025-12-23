@@ -353,7 +353,7 @@ window.ScheduleAdminPage = {
       }
     }
 
-    // Overview Mode (Lịch rãnh): Show only available employees
+    // Overview Mode (Lịch rãnh): Show available employees with assignment status
     function renderGridOverview() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
@@ -362,14 +362,15 @@ window.ScheduleAdminPage = {
         const statsEl = td.querySelector('.slot-stats');
         const namesEl = td.querySelector('.slot-names');
 
-        const availList = availabilityMap[slotId] || [];
+        const availList    = availabilityMap[slotId] || [];
+        const assignedList = scheduleMap[slotId] || [];
 
         // Hide count for cleaner view
         statsEl.style.display = 'none';
 
         namesEl.innerHTML = '';
 
-        // Build list of available employees only
+        // Build list of available employees
         const peopleByEmail = {};
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
@@ -398,9 +399,12 @@ window.ScheduleAdminPage = {
         badgesContainer.style.alignItems = 'center';
         badgesContainer.classList.add('quick-view-badges');
 
-        // Render sorted available employees
+        // Render sorted available employees with assignment status
         sortedPeople.forEach(u => {
           const emailKey = (u.email || '').toLowerCase();
+          const isAssigned = assignedList.some(
+            a => (a.email || '').toLowerCase() === emailKey
+          );
 
           const badge = document.createElement('span');
           badge.classList.add('quick-view-badge');
@@ -412,15 +416,25 @@ window.ScheduleAdminPage = {
           badge.style.whiteSpace = 'nowrap';
           badge.style.textAlign = 'center';
           badge.style.lineHeight = '1.4';
-          badge.title = `${u.name || u.email} - Đã đăng ký rảnh`;
 
           const colors = getColorForEmail(emailKey);
 
-          // Available: outlined style
-          badge.style.background = 'transparent';
-          badge.style.color = colors.bg;
-          badge.style.border = `1.5px solid ${colors.bg}`;
-          badge.style.opacity = '0.85';
+          if (isAssigned) {
+            // Assigned: filled style
+            badge.style.background = colors.bg;
+            badge.style.color = colors.text;
+            badge.style.border = 'none';
+            badge.style.opacity = '1';
+            badge.style.fontWeight = '700';
+            badge.title = `${u.name || u.email} - Đã phân ca`;
+          } else {
+            // Available but not assigned: outlined style
+            badge.style.background = 'transparent';
+            badge.style.color = colors.bg;
+            badge.style.border = `1.5px solid ${colors.bg}`;
+            badge.style.opacity = '0.85';
+            badge.title = `${u.name || u.email} - Rảnh, click để phân ca`;
+          }
 
           badge.dataset.slotId = slotId;
           badge.dataset.email  = u.email;
