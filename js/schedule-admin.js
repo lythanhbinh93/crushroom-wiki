@@ -22,13 +22,6 @@ window.ScheduleAdminPage = {
     const weekStatusTextEl  = document.getElementById('week-status-text');
     const lockWeekBtn       = document.getElementById('lock-week-btn');
 
-    // Section lịch đã chốt (tóm tắt)
-    const finalStatusEl     = document.getElementById('final-schedule-admin-status');
-    const finalWrapperEl    = document.getElementById('final-schedule-admin-wrapper');
-    const finalBodyEl       = document.getElementById('final-schedule-admin-body');
-    const finalEmptyEl      = document.getElementById('final-schedule-admin-empty');
-    const finalHeadRowEl    = document.getElementById('final-schedule-admin-head-row');
-
     // Các ô hiển thị ngày ở header Bảng ca theo giờ
     const mainHeaderDateEls = [
       document.getElementById('schedule-main-date-0'),
@@ -56,7 +49,6 @@ window.ScheduleAdminPage = {
     let scheduleMap = {};     // slotId -> [{email,name,team}]
     let currentSlotId = null; // slot đang chỉnh trong editor
     let currentMeta = null;   // trạng thái tuần (draft/final)
-    let lastScheduleRaw = null; // dữ liệu thô từ API getSchedule (dùng cho section tóm tắt)
 
     // ==== QUICK ASSIGNMENT STATE ===========================================
     let selectedCells = new Set(); // Set of slotIds
@@ -231,7 +223,6 @@ window.ScheduleAdminPage = {
 
         availabilityMap = buildAvailabilityMap(dataAvail);
         scheduleMap     = buildScheduleMap(dataSched);
-        lastScheduleRaw = dataSched; // lưu lại cho section tóm tắt
 
         // chỉ cập nhật currentMeta khi API trả về thành công
         if (dataMeta && dataMeta.success && dataMeta.meta) {
@@ -251,7 +242,6 @@ window.ScheduleAdminPage = {
 
         renderGridStats();
         updateWeekStatusUI();
-        renderFinalSchedule(lastScheduleRaw);
         updateQuickAssignmentPanel(); // Populate employee list
 
         showAdminMessage('Đã tải dữ liệu đăng ký & lịch hiện tại.', false);
@@ -363,7 +353,7 @@ window.ScheduleAdminPage = {
       }
     }
 
-    // Overview Mode: Compact view with sorted employees
+    // Overview Mode (Lịch rãnh): Show available employees with assignment status
     function renderGridOverview() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
@@ -380,7 +370,7 @@ window.ScheduleAdminPage = {
 
         namesEl.innerHTML = '';
 
-        // Build combined list for compact badges
+        // Build list of available employees
         const peopleByEmail = {};
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
@@ -389,21 +379,7 @@ window.ScheduleAdminPage = {
             peopleByEmail[key] = {
               email: u.email,
               name: u.name || u.email,
-              team: u.team || '',
-              isAvailable: true
-            };
-          }
-        });
-
-        assignedList.forEach(u => {
-          const key = (u.email || '').toLowerCase();
-          if (!key) return;
-          if (!peopleByEmail[key]) {
-            peopleByEmail[key] = {
-              email: u.email,
-              name: u.name || u.email,
-              team: u.team || '',
-              isAvailable: false
+              team: u.team || ''
             };
           }
         });
@@ -423,7 +399,7 @@ window.ScheduleAdminPage = {
         badgesContainer.style.alignItems = 'center';
         badgesContainer.classList.add('quick-view-badges');
 
-        // Render sorted employees
+        // Render sorted available employees with assignment status
         sortedPeople.forEach(u => {
           const emailKey = (u.email || '').toLowerCase();
           const isAssigned = assignedList.some(
@@ -440,22 +416,24 @@ window.ScheduleAdminPage = {
           badge.style.whiteSpace = 'nowrap';
           badge.style.textAlign = 'center';
           badge.style.lineHeight = '1.4';
-          badge.title = `${u.name || u.email} ${isAssigned ? '✓ Đã phân ca' : '○ Rảnh'}`;
 
           const colors = getColorForEmail(emailKey);
 
           if (isAssigned) {
-            // Assigned: vivid color background
+            // Assigned: filled style
             badge.style.background = colors.bg;
             badge.style.color = colors.text;
             badge.style.border = 'none';
+            badge.style.opacity = '1';
             badge.style.fontWeight = '700';
+            badge.title = `${u.name || u.email} - Đã phân ca`;
           } else {
-            // Available but not assigned: light background
+            // Available but not assigned: outlined style
             badge.style.background = 'transparent';
             badge.style.color = colors.bg;
             badge.style.border = `1.5px solid ${colors.bg}`;
-            badge.style.opacity = '0.7';
+            badge.style.opacity = '0.85';
+            badge.title = `${u.name || u.email} - Rảnh, click để phân ca`;
           }
 
           badge.dataset.slotId = slotId;
@@ -474,7 +452,7 @@ window.ScheduleAdminPage = {
       });
     }
 
-    // Detail Mode: Full names with badges (original view)
+    // Detail Mode (Lịch chốt): Show only assigned employees
     function renderGridDetail() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
@@ -483,35 +461,15 @@ window.ScheduleAdminPage = {
         const statsEl = td.querySelector('.slot-stats');
         const namesEl = td.querySelector('.slot-names');
 
-        const availList    = availabilityMap[slotId] || [];
         const assignedList = scheduleMap[slotId] || [];
-
-        const availCount    = new Set(availList.map(u => (u.email || '').toLowerCase())).size;
-        const assignedCount = new Set(assignedList.map(u => (u.email || '').toLowerCase())).size;
 
         // Hide count for cleaner view
         statsEl.style.display = 'none';
 
         namesEl.innerHTML = '';
 
-        // Build combined list of all people (from both availability and assigned)
+        // Build list of assigned employees only
         const peopleByEmail = {};
-
-        // Add people from availability list
-        availList.forEach(u => {
-          const key = (u.email || '').toLowerCase();
-          if (!key) return;
-          if (!peopleByEmail[key]) {
-            peopleByEmail[key] = {
-              email: u.email,
-              name: u.name || u.email,
-              team: u.team || '',
-              isAvailable: true
-            };
-          }
-        });
-
-        // Add people from assigned list (even if not available)
         assignedList.forEach(u => {
           const key = (u.email || '').toLowerCase();
           if (!key) return;
@@ -519,59 +477,64 @@ window.ScheduleAdminPage = {
             peopleByEmail[key] = {
               email: u.email,
               name: u.name || u.email,
-              team: u.team || '',
-              isAvailable: false
+              team: u.team || ''
             };
           }
         });
 
-        // Render all people
-        Object.values(peopleByEmail).forEach(u => {
-          const emailKey   = (u.email || '').toLowerCase();
-          const isAssigned = assignedList.some(
-            a => (a.email || '').toLowerCase() === emailKey
-          );
+        // Sort employees alphabetically
+        const sortedPeople = Object.values(peopleByEmail).sort((a, b) => {
+          const nameA = (a.name || a.email || '').toLowerCase();
+          const nameB = (b.name || b.email || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
 
-          const span = document.createElement('span');
-          span.classList.add('slot-name-pill');
+        // Render compact badges with flex layout (same style as overview mode)
+        const badgesContainer = document.createElement('div');
+        badgesContainer.style.display = 'flex';
+        badgesContainer.style.flexWrap = 'wrap';
+        badgesContainer.style.gap = '3px';
+        badgesContainer.style.alignItems = 'center';
+        badgesContainer.classList.add('quick-view-badges');
 
-          // Basic styling (responsive handled by CSS)
-          span.style.display      = 'inline-block';
-          span.style.padding      = '3px 8px';
-          span.style.borderRadius = '999px';
-          span.style.marginRight  = '3px';
-          span.style.marginBottom = '3px';
-          span.style.cursor       = 'pointer';
+        // Render assigned employees with consistent badge style
+        sortedPeople.forEach(u => {
+          const emailKey = (u.email || '').toLowerCase();
+
+          const badge = document.createElement('span');
+          badge.classList.add('quick-view-badge');
+          badge.style.padding = '3px 8px';
+          badge.style.borderRadius = '4px';
+          badge.style.fontSize = '11px';
+          badge.style.fontWeight = '600';
+          badge.style.cursor = 'pointer';
+          badge.style.whiteSpace = 'nowrap';
+          badge.style.textAlign = 'center';
+          badge.style.lineHeight = '1.4';
+          badge.title = `${u.name || u.email} - Đã được phân ca`;
 
           const colors = getColorForEmail(emailKey);
 
-          if (isAssigned) {
-            // Assigned: vivid color background with contrast text
-            span.style.background = colors.bg;
-            span.style.color = colors.text;
-            span.style.border = 'none';
-            span.style.opacity = '1';
-            span.style.fontWeight = '600';
-          } else {
-            // Available but not assigned: transparent with colored border
-            span.style.background = 'transparent';
-            span.style.color = colors.bg;
-            span.style.border = `1.5px solid ${colors.bg}`;
-            span.style.opacity = '0.6';
-            span.style.fontWeight = '500';
-          }
+          // Assigned: vivid color background with contrast text
+          badge.style.background = colors.bg;
+          badge.style.color = colors.text;
+          badge.style.border = 'none';
+          badge.style.opacity = '1';
+          badge.style.fontWeight = '700';
 
-          span.dataset.slotId = slotId;
-          span.dataset.email  = u.email;
-          span.dataset.name   = u.name || '';
-          span.dataset.team   = u.team || '';
+          badge.dataset.slotId = slotId;
+          badge.dataset.email  = u.email;
+          badge.dataset.name   = u.name || '';
+          badge.dataset.team   = u.team || '';
 
-          span.textContent = u.name || u.email;
+          badge.textContent = getShortName(u.name || u.email);
 
-          span.addEventListener('click', onNameClick);
+          badge.addEventListener('click', onNameClick);
 
-          namesEl.appendChild(span);
+          badgesContainer.appendChild(badge);
         });
+
+        namesEl.appendChild(badgesContainer);
       });
     }
 
@@ -954,9 +917,6 @@ window.ScheduleAdminPage = {
           } else {
             showAdminMessage('Đã mở lại lịch để chỉnh sửa.', false);
           }
-
-          // chỉ render lại section tóm tắt, dùng dữ liệu lịch đang có
-          renderFinalSchedule(lastScheduleRaw);
         }
       } catch (err) {
         console.error('onToggleLockClick error', err);
@@ -968,177 +928,8 @@ window.ScheduleAdminPage = {
     }
 
     // ======================================================================
-    // RENDER LỊCH ĐÃ CHỐT (TÓM TẮT) - DẠNG BẢNG GIỜ x NGÀY
+    // UTILS
     // ======================================================================
-
-    function renderFinalSchedule(dataSched) {
-      if (!finalStatusEl || !finalWrapperEl || !finalBodyEl || !finalEmptyEl || !finalHeadRowEl) return;
-
-      const isFinal  = currentMeta && currentMeta.status === 'final';
-      const schedule = (dataSched && dataSched.schedule) || [];
-
-      // Chưa chốt -> ẩn bảng, hiện message
-      if (!isFinal) {
-        finalWrapperEl.style.display = 'none';
-        finalEmptyEl.style.display   = 'block';
-        finalStatusEl.textContent =
-          'Tuần này chưa chốt lịch chính thức. Nhân viên chỉ xem được lịch tạm thời (nếu có).';
-        finalHeadRowEl.innerHTML = '';
-        finalBodyEl.innerHTML    = '';
-        return;
-      }
-
-      // Đã chốt nhưng chưa có dòng lịch
-      if (!schedule.length) {
-        finalWrapperEl.style.display = 'none';
-        finalEmptyEl.style.display   = 'block';
-        finalStatusEl.textContent =
-          'Tuần này đã chốt lịch nhưng chưa có dòng lịch nào trong sheet Schedule.';
-        finalHeadRowEl.innerHTML = '';
-        finalBodyEl.innerHTML    = '';
-        return;
-      }
-
-      finalWrapperEl.style.display = 'block';
-      finalEmptyEl.style.display   = 'none';
-      finalStatusEl.textContent    = 'Đây là lịch làm chính thức (đã chốt) cho tuần này.';
-
-      // ---- 1. Chuẩn bị map: date -> slotIndex -> set(personKey) ----
-      const slotIndexByKey = {};
-      timeSlots.forEach((slot, idx) => {
-        slotIndexByKey[slot.key] = idx;
-      });
-
-      const dateSlotPersons   = {}; // dateISO -> Array(timeSlots.length) of Set(personKey)
-      const personMetaByDate  = {}; // dateISO -> { personKey: {name, team, note} }
-
-      schedule.forEach(item => {
-        const dateISO  = (item.date || '').substring(0, 10);
-        const shiftKey = item.shift || '';
-        const idx      = slotIndexByKey[shiftKey];
-        if (idx == null) return; // shift ko nằm trong timeSlots -> bỏ
-
-        if (!dateSlotPersons[dateISO]) {
-          dateSlotPersons[dateISO]  = Array(timeSlots.length).fill(null).map(() => new Set());
-          personMetaByDate[dateISO] = {};
-        }
-
-        const email   = (item.email || '').toString().trim().toLowerCase();
-        const name    = item.name || item.email || '';
-        const team    = (item.team || '').toUpperCase();
-        const note    = item.note || '';
-        const pKey    = email || name; // fallback nếu ko có email
-
-        dateSlotPersons[dateISO][idx].add(pKey);
-
-        if (!personMetaByDate[dateISO][pKey]) {
-          personMetaByDate[dateISO][pKey] = { email, name, team, note };
-        }
-      });
-
-      // ---- 2. Tính label theo slot cho từng ngày ----
-      const labelsByDateSlot = {};
-      dates.forEach(dateISO => {
-        labelsByDateSlot[dateISO] = Array(timeSlots.length).fill(null).map(() => []);
-
-        const slotsArr   = dateSlotPersons[dateISO];
-        if (!slotsArr) return;
-
-        const personMeta = personMetaByDate[dateISO] || {};
-        const persons    = Object.keys(personMeta);
-
-        persons.forEach(pKey => {
-          for (let i = 0; i < timeSlots.length; i++) {
-            const hasHere = slotsArr[i] && slotsArr[i].has(pKey);
-            if (!hasHere) continue;
-
-            const meta = personMeta[pKey];
-            // Store both email and name for consistent coloring
-            labelsByDateSlot[dateISO][i].push({
-              email: meta.email || pKey,
-              name: meta.name
-            });
-          }
-        });
-      });
-
-      // ---- 3. Header: Giờ / Ngày + 7 ngày trong tuần ----
-      finalHeadRowEl.innerHTML = '';
-      const thTime = document.createElement('th');
-      thTime.textContent = 'Giờ / Ngày';
-      finalHeadRowEl.appendChild(thTime);
-
-      dates.forEach(dateISO => {
-        const th = document.createElement('th');
-        th.textContent = formatDateWithDow(dateISO);
-        finalHeadRowEl.appendChild(th);
-      });
-
-      // ---- 4. Body: mỗi hàng = 1 slot giờ, mỗi cột = 1 ngày ----
-      finalBodyEl.innerHTML = '';
-
-      timeSlots.forEach((slot, slotIndex) => {
-        const tr = document.createElement('tr');
-
-        const thSlot = document.createElement('th');
-        thSlot.textContent = formatShiftLabel(slot.key); // "09:00 - 10:00"
-        tr.appendChild(thSlot);
-
-        dates.forEach(dateISO => {
-          const td = document.createElement('td');
-          const labels = (labelsByDateSlot[dateISO] && labelsByDateSlot[dateISO][slotIndex]) || [];
-
-          if (labels.length) {
-            labels.forEach(person => {
-              const span = document.createElement('span');
-              span.textContent = person.name;
-              span.style.display = 'inline-block';
-              span.style.fontSize = '11px';
-              span.style.padding = '3px 8px';
-              span.style.borderRadius = '4px';
-              span.style.marginRight = '4px';
-              span.style.marginBottom = '2px';
-              span.style.fontWeight = '600';
-
-              // Use email for color lookup to match shift assignment table
-              const colors = getColorForEmail(person.email);
-              span.style.background = colors.bg;
-              span.style.color = colors.text;
-
-              td.appendChild(span);
-            });
-          }
-
-          tr.appendChild(td);
-        });
-
-        finalBodyEl.appendChild(tr);
-      });
-    }
-
-function formatShiftLabel(shiftKey) {
-  if (!/^\d{2}-\d{2}$/.test(shiftKey)) return shiftKey;
-  const [h1] = shiftKey.split('-');
-  // chỉ giờ bắt đầu, ví dụ "08:00"
-  return `${h1}:00`;
-}
-
-
-    function formatDateWithDow(dateISO) {
-      if (!dateISO) return '';
-      const d = new Date(dateISO + 'T00:00:00');
-      if (isNaN(d.getTime())) return dateISO;
-
-      const dow = d.getDay(); // 0=CN
-      const dowMap = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
-      const labelDow = dowMap[dow] || '';
-
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yyyy = d.getFullYear();
-
-      return `${dd}/${mm}/${yyyy} (${labelDow})`;
-    }
 
     function formatDateShort(dateISO) {
       if (!dateISO) return '';

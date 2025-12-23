@@ -96,48 +96,27 @@
         </div>
       </header>
 
-      <!-- 1. Lịch làm đã chốt tuần này -->
+      <!-- Bảng ca theo giờ -->
       <section class="content-section schedule-card">
         <div class="section-header">
           <div class="section-title-group">
-            <span class="section-number">1</span>
-            <h2>Lịch làm đã chốt tuần này</h2>
+            <h2>📊 Quản lý ca làm việc</h2>
           </div>
-        </div>
-        <p class="section-description">
-          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là lịch chính thức
-          đã được công bố cho team
-        </p>
-        <div id="final-schedule-admin-status" class="status-badge-container">
-          <!-- JS hiển thị: trạng thái lịch chốt -->
-        </div>
-        <div id="final-schedule-admin-wrapper" class="table-wrapper" style="display:none;">
-          <table class="data-table schedule-table">
-            <thead>
-              <tr id="final-schedule-admin-head-row">
-                <!-- JS render header -->
-              </tr>
-            </thead>
-            <tbody id="final-schedule-admin-body">
-              <!-- JS render body -->
-            </tbody>
-          </table>
-        </div>
-        <div id="final-schedule-admin-empty" class="empty-state" style="display:none;">
-          <span class="empty-icon">📭</span>
-          <p>Tuần này chưa có lịch chính thức nào được xếp</p>
-        </div>
-      </section>
 
-      <!-- 2. Chọn tuần & team -->
-      <section class="content-section schedule-card">
-        <div class="section-header">
-          <div class="section-title-group">
-            <span class="section-number">2</span>
-            <h2>Chọn tuần &amp; team</h2>
+          <!-- View Mode Toggle -->
+          <div class="view-mode-toggle">
+            <button id="toggle-overview-mode" class="view-toggle-btn active">
+              <span class="btn-icon">📅</span>
+              Lịch rãnh
+            </button>
+            <button id="toggle-detail-mode" class="view-toggle-btn">
+              <span class="btn-icon">✅</span>
+              Lịch chốt
+            </button>
           </div>
         </div>
 
+        <!-- Filter controls -->
         <div class="filter-controls">
           <div class="form-group">
             <label for="week-start-admin" class="form-label">Tuần bắt đầu</label>
@@ -169,7 +148,7 @@
           <div class="status-actions">
             <button id="save-week-schedule-btn" class="btn btn-primary btn-sm">
               <span class="btn-icon">💾</span>
-              Lưu lịch tuần này
+              Lưu lịch
             </button>
 
             <button id="lock-week-btn" class="btn btn-secondary btn-sm">
@@ -180,44 +159,13 @@
 
         <div class="info-box">
           <span class="info-icon">💡</span>
-          <p>Hãy luôn <strong>Lưu lịch tuần này</strong> sau khi phân ca, sau đó dùng
-          <strong>"Chốt lịch tuần này"</strong> để khóa và công bố cho nhân viên</p>
-        </div>
-      </section>
-
-      <!-- 3. Bảng ca theo giờ -->
-      <section class="content-section schedule-card">
-        <div class="section-header">
-          <div class="section-title-group">
-            <span class="section-number">3</span>
-            <h2>Bảng ca theo giờ</h2>
-          </div>
-
-          <!-- View Mode Toggle -->
-          <div class="view-mode-toggle">
-            <button id="toggle-overview-mode" class="view-toggle-btn active">
-              <span class="btn-icon">📊</span>
-              Overview
-            </button>
-            <button id="toggle-detail-mode" class="view-toggle-btn">
-              <span class="btn-icon">📋</span>
-              Detail
-            </button>
-          </div>
+          <p>Nhớ <strong>Lưu lịch</strong> sau khi phân ca → <strong>Chốt lịch</strong> để công bố cho team</p>
         </div>
 
         <div class="mode-descriptions">
           <div class="mode-description">
             <span class="mode-bullet">•</span>
-            <strong>Overview</strong>: Tên ngắn gọn, size nhỏ, màu tương phản cao
-          </div>
-          <div class="mode-description">
-            <span class="mode-bullet">•</span>
-            <strong>Detail</strong>: Tên đầy đủ của từng nhân viên
-          </div>
-          <div class="mode-description">
-            <span class="mode-bullet">•</span>
-            <strong>Click vào badge</strong> để bật/tắt phân ca, hoặc dùng Quick Assignment bên dưới
+            <strong>Click vào tên</strong> để phân ca, hoặc chọn nhiều ô rồi dùng Quick Assignment
           </div>
         </div>
 
@@ -225,7 +173,10 @@
         <div class="quick-assignment-panel">
           <div class="qa-header">
             <span class="qa-icon">⚡</span>
-            <strong class="qa-title">Quick Assignment</strong>
+            <strong class="qa-title">Phân ca nhanh</strong>
+            <span style="font-size: 12px; color: #666; font-weight: normal; margin-left: 8px;">
+              (Click vào các ô trong bảng để chọn)
+            </span>
           </div>
 
           <div class="qa-controls">
@@ -236,16 +187,17 @@
             <div class="qa-counter">
               <strong class="qa-label">Đã chọn:</strong>
               <span id="qa-count-value" class="qa-badge">0</span>
+              <span style="font-size: 11px; color: #999; margin-left: 4px;">ca</span>
             </div>
 
             <button id="qa-assign-btn" class="btn btn-primary btn-sm" disabled>
               <span class="btn-icon">✅</span>
-              Assign
+              Phân ca
             </button>
 
             <button id="qa-clear-selection-btn" class="btn btn-secondary btn-sm">
-              <span class="btn-icon">🔄</span>
-              Clear
+              <span class="btn-icon">✖</span>
+              Bỏ chọn
             </button>
           </div>
         </div>
