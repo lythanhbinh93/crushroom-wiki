@@ -96,44 +96,11 @@
         </div>
       </header>
 
-      <!-- 1. Lịch làm đã chốt tuần này -->
+      <!-- 1. Chọn tuần & team -->
       <section class="content-section schedule-card">
         <div class="section-header">
           <div class="section-title-group">
             <span class="section-number">1</span>
-            <h2>Lịch làm đã chốt tuần này</h2>
-          </div>
-        </div>
-        <p class="section-description">
-          Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là lịch chính thức
-          đã được công bố cho team
-        </p>
-        <div id="final-schedule-admin-status" class="status-badge-container">
-          <!-- JS hiển thị: trạng thái lịch chốt -->
-        </div>
-        <div id="final-schedule-admin-wrapper" class="table-wrapper" style="display:none;">
-          <table class="data-table schedule-table">
-            <thead>
-              <tr id="final-schedule-admin-head-row">
-                <!-- JS render header -->
-              </tr>
-            </thead>
-            <tbody id="final-schedule-admin-body">
-              <!-- JS render body -->
-            </tbody>
-          </table>
-        </div>
-        <div id="final-schedule-admin-empty" class="empty-state" style="display:none;">
-          <span class="empty-icon">📭</span>
-          <p>Tuần này chưa có lịch chính thức nào được xếp</p>
-        </div>
-      </section>
-
-      <!-- 2. Chọn tuần & team -->
-      <section class="content-section schedule-card">
-        <div class="section-header">
-          <div class="section-title-group">
-            <span class="section-number">2</span>
             <h2>Chọn tuần &amp; team</h2>
           </div>
         </div>
@@ -185,23 +152,23 @@
         </div>
       </section>
 
-      <!-- 3. Bảng ca theo giờ -->
+      <!-- 2. Bảng ca theo giờ -->
       <section class="content-section schedule-card">
         <div class="section-header">
           <div class="section-title-group">
-            <span class="section-number">3</span>
+            <span class="section-number">2</span>
             <h2>Bảng ca theo giờ</h2>
           </div>
 
           <!-- View Mode Toggle -->
           <div class="view-mode-toggle">
             <button id="toggle-overview-mode" class="view-toggle-btn active">
-              <span class="btn-icon">📊</span>
-              Overview
+              <span class="btn-icon">📅</span>
+              Lịch rãnh
             </button>
             <button id="toggle-detail-mode" class="view-toggle-btn">
-              <span class="btn-icon">📋</span>
-              Detail
+              <span class="btn-icon">✅</span>
+              Lịch chốt
             </button>
           </div>
         </div>
@@ -209,11 +176,11 @@
         <div class="mode-descriptions">
           <div class="mode-description">
             <span class="mode-bullet">•</span>
-            <strong>Overview</strong>: Tên ngắn gọn, size nhỏ, màu tương phản cao
+            <strong>Lịch rãnh</strong>: Hiển thị nhân viên đăng ký rảnh (tên ngắn gọn, màu tương phản cao)
           </div>
           <div class="mode-description">
             <span class="mode-bullet">•</span>
-            <strong>Detail</strong>: Tên đầy đủ của từng nhân viên
+            <strong>Lịch chốt</strong>: Hiển thị nhân viên đã được phân ca (tên đầy đủ)
           </div>
           <div class="mode-description">
             <span class="mode-bullet">•</span>
