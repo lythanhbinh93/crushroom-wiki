@@ -96,15 +96,27 @@
         </div>
       </header>
 
-      <!-- 1. Chọn tuần & team -->
+      <!-- Bảng ca theo giờ -->
       <section class="content-section schedule-card">
         <div class="section-header">
           <div class="section-title-group">
-            <span class="section-number">1</span>
-            <h2>Chọn tuần &amp; team</h2>
+            <h2>📊 Quản lý ca làm việc</h2>
+          </div>
+
+          <!-- View Mode Toggle -->
+          <div class="view-mode-toggle">
+            <button id="toggle-overview-mode" class="view-toggle-btn active">
+              <span class="btn-icon">📅</span>
+              Lịch rãnh
+            </button>
+            <button id="toggle-detail-mode" class="view-toggle-btn">
+              <span class="btn-icon">✅</span>
+              Lịch chốt
+            </button>
           </div>
         </div>
 
+        <!-- Filter controls -->
         <div class="filter-controls">
           <div class="form-group">
             <label for="week-start-admin" class="form-label">Tuần bắt đầu</label>
@@ -136,7 +148,7 @@
           <div class="status-actions">
             <button id="save-week-schedule-btn" class="btn btn-primary btn-sm">
               <span class="btn-icon">💾</span>
-              Lưu lịch tuần này
+              Lưu lịch
             </button>
 
             <button id="lock-week-btn" class="btn btn-secondary btn-sm">
@@ -148,28 +160,6 @@
         <div class="info-box">
           <span class="info-icon">💡</span>
           <p>Nhớ <strong>Lưu lịch</strong> sau khi phân ca → <strong>Chốt lịch</strong> để công bố cho team</p>
-        </div>
-      </section>
-
-      <!-- 2. Bảng ca theo giờ -->
-      <section class="content-section schedule-card">
-        <div class="section-header">
-          <div class="section-title-group">
-            <span class="section-number">2</span>
-            <h2>Bảng ca theo giờ</h2>
-          </div>
-
-          <!-- View Mode Toggle -->
-          <div class="view-mode-toggle">
-            <button id="toggle-overview-mode" class="view-toggle-btn active">
-              <span class="btn-icon">📅</span>
-              Lịch rãnh
-            </button>
-            <button id="toggle-detail-mode" class="view-toggle-btn">
-              <span class="btn-icon">✅</span>
-              Lịch chốt
-            </button>
-          </div>
         </div>
 
         <div class="mode-descriptions">
