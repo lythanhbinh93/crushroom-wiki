@@ -5,6 +5,18 @@ window.SchedulePage = {
   init() {
     console.log('SchedulePage: init started');
 
+    // Tab switching elements
+    const toggleRegisterBtn = document.getElementById('toggle-register-mode');
+    const toggleViewBtn = document.getElementById('toggle-view-mode');
+    const registerModeContent = document.getElementById('register-mode-content');
+    const viewModeContent = document.getElementById('view-mode-content');
+
+    // View mode elements
+    const viewWeekInput = document.getElementById('view-week-start-input');
+    const viewTeamSelect = document.getElementById('view-team-select');
+    const loadTeamScheduleBtn = document.getElementById('load-team-schedule-btn');
+    const viewScheduleMessage = document.getElementById('view-schedule-message');
+
     // 1. Get Elements
     const weekInput = document.getElementById('week-start-input');
     const loadBtn = document.getElementById('load-week-btn');
@@ -84,11 +96,76 @@ window.SchedulePage = {
 
     // Default Week
     weekInput.value = getThisMondayISO();
+    if (viewWeekInput) viewWeekInput.value = getThisMondayISO();
+
+    // Tab switching logic
+    function switchToRegisterMode() {
+      if (registerModeContent) registerModeContent.style.display = 'block';
+      if (viewModeContent) viewModeContent.style.display = 'none';
+      if (toggleRegisterBtn) {
+        toggleRegisterBtn.classList.add('active');
+        toggleRegisterBtn.style.background = '#ffffff';
+        toggleRegisterBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+        toggleRegisterBtn.style.color = '';
+      }
+      if (toggleViewBtn) {
+        toggleViewBtn.classList.remove('active');
+        toggleViewBtn.style.background = 'transparent';
+        toggleViewBtn.style.boxShadow = 'none';
+        toggleViewBtn.style.color = '#666';
+      }
+    }
+
+    function switchToViewMode() {
+      if (registerModeContent) registerModeContent.style.display = 'none';
+      if (viewModeContent) viewModeContent.style.display = 'block';
+      if (toggleViewBtn) {
+        toggleViewBtn.classList.add('active');
+        toggleViewBtn.style.background = '#ffffff';
+        toggleViewBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+        toggleViewBtn.style.color = '';
+      }
+      if (toggleRegisterBtn) {
+        toggleRegisterBtn.classList.remove('active');
+        toggleRegisterBtn.style.background = 'transparent';
+        toggleRegisterBtn.style.boxShadow = 'none';
+        toggleRegisterBtn.style.color = '#666';
+      }
+
+      // Auto-load team schedule with default CS team
+      if (viewWeekInput && viewTeamSelect) {
+        const week = viewWeekInput.value;
+        const selectedTeam = viewTeamSelect.value || 'cs'; // Default to CS
+        if (week) {
+          loadTeamScheduleView(week, selectedTeam);
+        }
+      }
+    }
 
     // 6. Event Listeners
     loadBtn.addEventListener('click', () => loadWeek());
     if (saveBtn) saveBtn.addEventListener('click', () => saveAvailability());
     weekInput.addEventListener('change', () => loadWeek());
+
+    // Tab switching event listeners
+    if (toggleRegisterBtn) toggleRegisterBtn.addEventListener('click', switchToRegisterMode);
+    if (toggleViewBtn) toggleViewBtn.addEventListener('click', switchToViewMode);
+
+    // View mode event listeners
+    if (loadTeamScheduleBtn) {
+      loadTeamScheduleBtn.addEventListener('click', () => {
+        const week = viewWeekInput.value;
+        const selectedTeam = viewTeamSelect.value;
+        if (!week) {
+          if (viewScheduleMessage) {
+            viewScheduleMessage.textContent = 'Vui lòng chọn tuần';
+            viewScheduleMessage.style.color = '#d32f2f';
+          }
+          return;
+        }
+        loadTeamScheduleView(week, selectedTeam);
+      });
+    }
 
     if (filterAllBtn && filterCsBtn && filterMoBtn) {
       const setFilter = (type, btn) => {
@@ -427,6 +504,31 @@ window.SchedulePage = {
       });
       if(curr) res.push(curr);
       return res;
+    }
+
+    // =====================================================
+    // LOAD TEAM SCHEDULE VIEW (for view mode tab)
+    // =====================================================
+
+    async function loadTeamScheduleView(weekStart, teamFilter = 'all') {
+      if (viewScheduleMessage) {
+        viewScheduleMessage.textContent = 'Đang tải lịch...';
+        viewScheduleMessage.style.color = '#666';
+      }
+
+      try {
+        await renderCompanySchedule(weekStart, teamFilter);
+        if (viewScheduleMessage) {
+          viewScheduleMessage.textContent = 'Đã tải lịch làm của công ty';
+          viewScheduleMessage.style.color = '#388e3c';
+        }
+      } catch (err) {
+        console.error('loadTeamScheduleView error:', err);
+        if (viewScheduleMessage) {
+          viewScheduleMessage.textContent = 'Lỗi khi tải lịch. Vui lòng thử lại.';
+          viewScheduleMessage.style.color = '#d32f2f';
+        }
+      }
     }
 
     // =====================================================

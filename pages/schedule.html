@@ -87,108 +87,33 @@
             <header class="page-header">
                 <div class="page-header-content">
                     <h1>📅 Đăng ký lịch làm</h1>
-                    <p class="header-subtitle">Hướng dẫn đăng ký ca làm việc hàng tuần và xem lịch chốt của team</p>
+                    <p class="header-subtitle">Chọn tuần và tick những ca bạn có thể làm. Leader sẽ phân ca dựa trên đăng ký này.</p>
                 </div>
             </header>
 
-            <!-- ==== LỊCH LÀM ĐÃ CHỐT TUẦN NÀY (ƯU TIÊN HIỂN THỊ ĐẦU) ==== -->
-            <section class="content-section schedule-card">
-                <div class="section-header">
-                    <div class="section-title-group">
-                        <span class="section-number">1</span>
-                        <h2>Lịch làm đã chốt tuần này</h2>
-                    </div>
-                </div>
-                <p class="section-description">
-                    Khi trạng thái tuần là <strong>ĐÃ CHỐT</strong>, đây là lịch làm chính thức của bạn trong tuần đó.
-                </p>
-
-                <div id="final-schedule-status" class="status-badge-container"></div>
-
-                <div id="final-schedule-wrapper" class="table-wrapper" style="display:none;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Ngày</th>
-                                <th>Ca làm của bạn</th>
-                            </tr>
-                        </thead>
-                        <tbody id="final-schedule-body">
-                            <!-- JS render -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div id="final-schedule-summary" class="info-box" style="display:none;">
-                    <span class="info-icon">ℹ️</span>
-                    <p id="final-schedule-summary-text"></p>
-                </div>
-            </section>
-
-            <!-- ==== LỊCH LÀM CỦA CÔNG TY TUẦN NÀY (PART-TIME) ==== -->
-            <section class="content-section schedule-card">
-                <div class="section-header">
-                    <div class="section-title-group">
-                        <span class="section-number" style="background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);">2</span>
-                        <h2>Lịch làm của công ty tuần này (Part-time)</h2>
-                    </div>
-
-                    <!-- Team Filter Toggle -->
-                    <div class="view-mode-toggle">
-                        <button id="filter-all-btn" class="view-toggle-btn active">
-                            <span class="btn-icon">🏢</span>
-                            Tất cả
-                        </button>
-                        <button id="filter-cs-btn" class="view-toggle-btn">
-                            <span class="btn-icon">💬</span>
-                            CS
-                        </button>
-                        <button id="filter-mo-btn" class="view-toggle-btn">
-                            <span class="btn-icon">📢</span>
-                            MO
-                        </button>
-                    </div>
-                </div>
-                <p class="section-description">
-                    Xem lịch làm đã chốt của tất cả nhân viên part-time (cả CS và MO) để dễ dàng phối hợp và liên hệ đổi ca.
-                </p>
-
-                <div id="team-schedule-status" class="status-badge-container">
-                    <!-- JS hiển thị: trạng thái lịch chốt -->
-                </div>
-
-                <div id="team-schedule-wrapper" class="table-wrapper" style="display:none;">
-                    <table class="data-table schedule-table">
-                        <thead>
-                            <tr id="team-schedule-head-row">
-                                <!-- JS render header -->
-                            </tr>
-                        </thead>
-                        <tbody id="team-schedule-body">
-                            <!-- JS render body -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div id="team-schedule-empty" class="empty-state" style="display:none;">
-                    <span class="empty-icon">📭</span>
-                    <p>Tuần này chưa có lịch chính thức nào được xếp</p>
-                </div>
-            </section>
-
-            <!-- ==== QUY TRÌNH ĐĂNG KÝ & ĐĂNG KÝ LỊCH RẢNH ==== -->
+            <!-- Đăng ký lịch rảnh -->
             <section id="availability-section" class="content-section schedule-card">
                 <div class="section-header">
                     <div class="section-title-group">
-                        <span class="section-number">3</span>
-                        <h2>Đăng ký lịch rảnh</h2>
+                        <h2>📊 Đăng ký ca làm việc</h2>
+                    </div>
+
+                    <!-- View Mode Toggle -->
+                    <div class="view-mode-toggle">
+                        <button id="toggle-register-mode" class="view-toggle-btn active">
+                            <span class="btn-icon">📝</span>
+                            Đăng ký lịch rãnh
+                        </button>
+                        <button id="toggle-view-mode" class="view-toggle-btn">
+                            <span class="btn-icon">👥</span>
+                            Xem lịch chốt
+                        </button>
                     </div>
                 </div>
-                <p class="section-description" id="team-label">
-                    Chọn tuần và tick những ca bạn có thể làm. Leader sẽ phân ca dựa trên đăng ký này.
-                </p>
 
-                <div class="filter-controls">
+                <!-- Register Mode Content -->
+                <div id="register-mode-content">
+                    <div class="filter-controls">
                     <div class="form-group">
                         <label for="week-start-input" class="form-label">Tuần bắt đầu</label>
                         <input type="date" id="week-start-input" class="form-input" />
@@ -230,112 +155,57 @@
                     </button>
                 </div>
 
-                <div class="info-box" style="margin-top:16px;">
-                    <span class="info-icon">💡</span>
-                    <p>Nếu hệ thống gặp lỗi, tạm thời có thể báo lịch qua quản lý hoặc Google Form như trước.</p>
-                </div>
-            </section>
-
-            <!-- ==== HƯỚNG DẪN & QUY ĐỊNH ==== -->
-            <section class="content-section schedule-card">
-                <div class="section-header">
-                    <div class="section-title-group">
-                        <span class="section-number">4</span>
-                        <h2>Hướng dẫn & Quy định</h2>
+                    <div class="info-box" style="margin-top:16px;">
+                        <span class="info-icon">💡</span>
+                        <p>Nhớ <strong>Lưu lịch rảnh</strong> sau khi chọn ca → Leader sẽ phân ca dựa trên đăng ký</p>
                     </div>
                 </div>
 
-                <h3>📅 Thời gian đăng ký</h3>
-                <p>Đăng ký lịch làm cho tuần kế tiếp được thực hiện vào:</p>
-                <ul>
-                    <li><strong>Thứ 5 hàng tuần:</strong> Mở form đăng ký</li>
-                    <li><strong>Thứ 6 - 12:00:</strong> Deadline đăng ký</li>
-                    <li><strong>Thứ 6 - 18:00:</strong> Công bố lịch chính thức</li>
-                </ul>
+                <!-- View Mode Content -->
+                <div id="view-mode-content" style="display:none;">
+                    <div class="filter-controls">
+                        <div class="form-group">
+                            <label for="view-week-start-input" class="form-label">Tuần bắt đầu</label>
+                            <input type="date" id="view-week-start-input" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="view-team-select" class="form-label">Team</label>
+                            <select id="view-team-select" class="form-select">
+                                <option value="cs" selected>Customer Service (CS)</option>
+                                <option value="mo">Marketing (MO)</option>
+                                <option value="all">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button id="load-team-schedule-btn" class="btn btn-primary">
+                                <span class="btn-icon">📥</span>
+                                Tải lịch
+                            </button>
+                        </div>
+                    </div>
 
-                <h3>⏰ Các ca làm việc</h3>
-                <div class="table-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Ca</th>
-                                <th>Thời gian</th>
-                                <th>Ghi chú</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Ca sáng</td>
-                                <td>08:00 - 12:00</td>
-                                <td>4 tiếng</td>
-                            </tr>
-                            <tr>
-                                <td>Ca chiều</td>
-                                <td>13:00 - 17:00</td>
-                                <td>4 tiếng</td>
-                            </tr>
-                            <tr>
-                                <td>Ca tối</td>
-                                <td>17:00 - 21:00</td>
-                                <td>4 tiếng</td>
-                            </tr>
-                            <tr>
-                                <td>Ca full</td>
-                                <td>08:00 - 17:00</td>
-                                <td>8 tiếng (nghỉ trưa 1h)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    <div id="view-schedule-message" class="alert-message"></div>
 
-                <h3>✅ Yêu cầu tối thiểu</h3>
-                <ul>
-                    <li>Fulltime: Tối thiểu <strong>40 giờ/tuần</strong></li>
-                    <li>Part-time: Tối thiểu <strong>20 giờ/tuần</strong></li>
-                    <li>Không đăng ký quá <strong>10 tiếng/ngày</strong></li>
-                </ul>
-            </section>
+                    <div id="team-schedule-status" class="status-badge-container"></div>
 
-            <section class="content-section schedule-card">
-                <div class="section-header">
-                    <div class="section-title-group">
-                        <span class="section-number">5</span>
-                        <h2>Quy định đổi ca / Nghỉ phép</h2>
+                    <div id="team-schedule-wrapper" class="table-wrapper" style="display:none;">
+                        <table class="data-table schedule-table">
+                            <thead>
+                                <tr id="team-schedule-head-row">
+                                    <!-- JS render header -->
+                                </tr>
+                            </thead>
+                            <tbody id="team-schedule-body">
+                                <!-- JS render body -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="team-schedule-empty" class="empty-state" style="display:none;">
+                        <span class="empty-icon">📭</span>
+                        <p>Chưa có lịch chính thức nào được chốt</p>
                     </div>
                 </div>
-
-                <h3>🔄 Đổi ca</h3>
-                <ul>
-                    <li>Tự tìm người thay ca và thông báo cho quản lý</li>
-                    <li>Báo trước tối thiểu <strong>24 giờ</strong></li>
-                    <li>Xác nhận đổi ca qua group Zalo team</li>
-                </ul>
-
-                <h3>🏖️ Nghỉ phép</h3>
-                <ul>
-                    <li>Nghỉ có kế hoạch: Báo trước <strong>3 ngày</strong></li>
-                    <li>Nghỉ đột xuất (ốm): Báo ngay khi biết, có giấy xác nhận nếu nghỉ > 1 ngày</li>
-                    <li>Không báo + Không lý do = <strong>Nghỉ không phép</strong></li>
-                </ul>
-
-                <div class="info-box">
-                    <span class="info-icon">⚠️</span>
-                    <p><strong>Lưu ý:</strong> Đổi ca và nghỉ phép đột xuất ảnh hưởng đến toàn team. Hãy sắp xếp hợp lý và thông báo sớm nhất có thể.</p>
-                </div>
-            </section>
-
-            <section class="content-section schedule-card">
-                <div class="section-header">
-                    <div class="section-title-group">
-                        <span class="section-number">6</span>
-                        <h2>Liên hệ hỗ trợ</h2>
-                    </div>
-                </div>
-                <p>Nếu có vấn đề về lịch làm, liên hệ:</p>
-                <ul>
-                    <li>📱 Zalo: [Số điện thoại quản lý]</li>
-                    <li>💬 Nhắn trực tiếp trong group Team</li>
-                </ul>
             </section>
 
         </main>
