@@ -2122,16 +2122,100 @@ html {
     min-width: 32px !important;
   }
 
-  /* Quick Assignment Panel - Better mobile layout */
+  /* Quick Assignment Panel - Convert to Bottom Sheet Modal */
   body:has(#schedule-admin-body) .quick-assignment-panel {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 90 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    z-index: 1000 !important;
     background: white !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-    margin: -16px -16px 16px -16px !important;
-    padding: 16px !important;
-    border-radius: 0 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25) !important;
+    margin: 0 !important;
+    padding: 20px 16px 32px 16px !important;
+    border-radius: 16px 16px 0 0 !important;
+    transform: translateY(100%) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+  }
+
+  body:has(#schedule-admin-body) .quick-assignment-panel.qa-modal-open {
+    transform: translateY(0) !important;
+  }
+
+  /* Bottom Sheet Modal Handle */
+  body:has(#schedule-admin-body) .qa-header::before {
+    content: '' !important;
+    display: block !important;
+    width: 40px !important;
+    height: 4px !important;
+    background: #d0d0d0 !important;
+    border-radius: 2px !important;
+    margin: -8px auto 12px !important;
+  }
+
+  /* Modal Backdrop */
+  body:has(#schedule-admin-body) .qa-modal-backdrop {
+    display: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 999 !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+  }
+
+  body:has(#schedule-admin-body) .qa-modal-backdrop.qa-modal-open {
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  /* Floating Action Button (FAB) */
+  body:has(#schedule-admin-body) .qa-fab {
+    position: fixed !important;
+    bottom: 90px !important;
+    right: 20px !important;
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4), 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 28px !important;
+    cursor: pointer !important;
+    z-index: 998 !important;
+    transition: all 0.2s ease !important;
+  }
+
+  body:has(#schedule-admin-body) .qa-fab:active {
+    transform: scale(0.95) !important;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3) !important;
+  }
+
+  body:has(#schedule-admin-body) .qa-fab .qa-fab-badge {
+    position: absolute !important;
+    top: -4px !important;
+    right: -4px !important;
+    background: #ef4444 !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
   }
 
   /* Quick Assignment controls - stack vertically with larger buttons */
