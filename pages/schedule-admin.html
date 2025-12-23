@@ -147,8 +147,7 @@
 
         <div class="info-box">
           <span class="info-icon">💡</span>
-          <p>Hãy luôn <strong>Lưu lịch tuần này</strong> sau khi phân ca, sau đó dùng
-          <strong>"Chốt lịch tuần này"</strong> để khóa và công bố cho nhân viên</p>
+          <p>Nhớ <strong>Lưu lịch</strong> sau khi phân ca → <strong>Chốt lịch</strong> để công bố cho team</p>
         </div>
       </section>
 
@@ -176,15 +175,7 @@
         <div class="mode-descriptions">
           <div class="mode-description">
             <span class="mode-bullet">•</span>
-            <strong>Lịch rãnh</strong>: Hiển thị nhân viên đăng ký rảnh (tên ngắn gọn, màu tương phản cao)
-          </div>
-          <div class="mode-description">
-            <span class="mode-bullet">•</span>
-            <strong>Lịch chốt</strong>: Hiển thị nhân viên đã được phân ca (tên đầy đủ)
-          </div>
-          <div class="mode-description">
-            <span class="mode-bullet">•</span>
-            <strong>Click vào badge</strong> để bật/tắt phân ca, hoặc dùng Quick Assignment bên dưới
+            <strong>Click vào tên</strong> để phân ca, hoặc chọn nhiều ô rồi dùng Quick Assignment
           </div>
         </div>
 
@@ -192,7 +183,10 @@
         <div class="quick-assignment-panel">
           <div class="qa-header">
             <span class="qa-icon">⚡</span>
-            <strong class="qa-title">Quick Assignment</strong>
+            <strong class="qa-title">Phân ca nhanh</strong>
+            <span style="font-size: 12px; color: #666; font-weight: normal; margin-left: 8px;">
+              (Click vào các ô trong bảng để chọn)
+            </span>
           </div>
 
           <div class="qa-controls">
@@ -203,16 +197,17 @@
             <div class="qa-counter">
               <strong class="qa-label">Đã chọn:</strong>
               <span id="qa-count-value" class="qa-badge">0</span>
+              <span style="font-size: 11px; color: #999; margin-left: 4px;">ca</span>
             </div>
 
             <button id="qa-assign-btn" class="btn btn-primary btn-sm" disabled>
               <span class="btn-icon">✅</span>
-              Assign
+              Phân ca
             </button>
 
             <button id="qa-clear-selection-btn" class="btn btn-secondary btn-sm">
-              <span class="btn-icon">🔄</span>
-              Clear
+              <span class="btn-icon">✖</span>
+              Bỏ chọn
             </button>
           </div>
         </div>

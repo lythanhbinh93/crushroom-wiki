@@ -364,12 +364,8 @@ window.ScheduleAdminPage = {
 
         const availList = availabilityMap[slotId] || [];
 
-        // Show count of available employees
-        statsEl.style.display = 'block';
-        statsEl.textContent = `${availList.length} người rãnh`;
-        statsEl.style.fontSize = '11px';
-        statsEl.style.color = '#666';
-        statsEl.style.marginBottom = '4px';
+        // Hide count for cleaner view
+        statsEl.style.display = 'none';
 
         namesEl.innerHTML = '';
 
@@ -453,12 +449,8 @@ window.ScheduleAdminPage = {
 
         const assignedList = scheduleMap[slotId] || [];
 
-        // Show count of assigned employees
-        statsEl.style.display = 'block';
-        statsEl.textContent = `${assignedList.length} người đã phân ca`;
-        statsEl.style.fontSize = '11px';
-        statsEl.style.color = '#666';
-        statsEl.style.marginBottom = '4px';
+        // Hide count for cleaner view
+        statsEl.style.display = 'none';
 
         namesEl.innerHTML = '';
 
