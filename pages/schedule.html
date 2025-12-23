@@ -97,9 +97,23 @@
                     <div class="section-title-group">
                         <h2>📊 Đăng ký ca làm việc</h2>
                     </div>
+
+                    <!-- View Mode Toggle -->
+                    <div class="view-mode-toggle">
+                        <button id="toggle-register-mode" class="view-toggle-btn active">
+                            <span class="btn-icon">📝</span>
+                            Đăng ký lịch rãnh
+                        </button>
+                        <button id="toggle-view-mode" class="view-toggle-btn">
+                            <span class="btn-icon">👥</span>
+                            Xem lịch chốt
+                        </button>
+                    </div>
                 </div>
 
-                <div class="filter-controls">
+                <!-- Register Mode Content -->
+                <div id="register-mode-content">
+                    <div class="filter-controls">
                     <div class="form-group">
                         <label for="week-start-input" class="form-label">Tuần bắt đầu</label>
                         <input type="date" id="week-start-input" class="form-input" />
@@ -141,9 +155,56 @@
                     </button>
                 </div>
 
-                <div class="info-box" style="margin-top:16px;">
-                    <span class="info-icon">💡</span>
-                    <p>Nhớ <strong>Lưu lịch rảnh</strong> sau khi chọn ca → Leader sẽ phân ca dựa trên đăng ký</p>
+                    <div class="info-box" style="margin-top:16px;">
+                        <span class="info-icon">💡</span>
+                        <p>Nhớ <strong>Lưu lịch rảnh</strong> sau khi chọn ca → Leader sẽ phân ca dựa trên đăng ký</p>
+                    </div>
+                </div>
+
+                <!-- View Mode Content -->
+                <div id="view-mode-content" style="display:none;">
+                    <div class="filter-controls">
+                        <div class="form-group">
+                            <label for="view-week-start-input" class="form-label">Tuần bắt đầu</label>
+                            <input type="date" id="view-week-start-input" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label for="view-team-select" class="form-label">Team</label>
+                            <select id="view-team-select" class="form-select">
+                                <option value="all">Tất cả</option>
+                                <option value="cs">Customer Service (CS)</option>
+                                <option value="mo">Marketing (MO)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button id="load-team-schedule-btn" class="btn btn-primary">
+                                <span class="btn-icon">📥</span>
+                                Tải lịch
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="view-schedule-message" class="alert-message"></div>
+
+                    <div id="team-schedule-status" class="status-badge-container"></div>
+
+                    <div id="team-schedule-wrapper" class="table-wrapper" style="display:none;">
+                        <table class="data-table schedule-table">
+                            <thead>
+                                <tr id="team-schedule-head-row">
+                                    <!-- JS render header -->
+                                </tr>
+                            </thead>
+                            <tbody id="team-schedule-body">
+                                <!-- JS render body -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="team-schedule-empty" class="empty-state" style="display:none;">
+                        <span class="empty-icon">📭</span>
+                        <p>Chưa có lịch chính thức nào được chốt</p>
+                    </div>
                 </div>
             </section>
 
