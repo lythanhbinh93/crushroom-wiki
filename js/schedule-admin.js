@@ -118,6 +118,12 @@ window.ScheduleAdminPage = {
     const qaClearBtn = document.getElementById('qa-clear-selection-btn');
     const qaCountValue = document.getElementById('qa-count-value');
 
+    // Mobile Modal elements
+    const qaPanel = document.querySelector('.quick-assignment-panel');
+    const qaFab = document.getElementById('qa-fab');
+    const qaFabBadge = document.getElementById('qa-fab-badge');
+    const qaModalBackdrop = document.getElementById('qa-modal-backdrop');
+
     // View Mode Toggle elements
     const toggleOverviewBtn = document.getElementById('toggle-overview-mode');
     const toggleDetailBtn = document.getElementById('toggle-detail-mode');
@@ -149,6 +155,17 @@ window.ScheduleAdminPage = {
     if (toggleDetailBtn) {
       toggleDetailBtn.addEventListener('click', () => switchViewMode('detail'));
     }
+
+    // Mobile Modal events
+    if (qaFab) {
+      qaFab.addEventListener('click', openQAModal);
+    }
+    if (qaModalBackdrop) {
+      qaModalBackdrop.addEventListener('click', closeQAModal);
+    }
+
+    // Initialize mobile FAB visibility
+    initMobileFAB();
 
     // Lần đầu load
     loadData();
@@ -1120,6 +1137,8 @@ window.ScheduleAdminPage = {
       if (qaCountValue) {
         qaCountValue.textContent = selectedCells.size;
       }
+      // Also update FAB badge on mobile
+      updateFABBadge();
     }
 
     /**
@@ -1191,6 +1210,9 @@ window.ScheduleAdminPage = {
       updateQACountDisplay();
       updateQAAssignButtonState();
 
+      // Close modal on mobile after successful assignment
+      closeQAModal();
+
       showAdminMessage(
         `Đã phân ca ${employee.name} vào ${assignedCount} slot. Nhớ bấm "Lưu lịch tuần này".`,
         false
@@ -1215,6 +1237,109 @@ window.ScheduleAdminPage = {
       cells.forEach(td => {
         td.classList.remove('qa-selected');
       });
+    }
+
+    // ======================================================================
+    // MOBILE MODAL CONTROLS
+    // ======================================================================
+
+    /**
+     * Initialize mobile FAB visibility based on screen size
+     */
+    function initMobileFAB() {
+      const updateFABVisibility = () => {
+        const isMobile = window.innerWidth <= 768;
+        if (qaFab) {
+          qaFab.style.display = isMobile ? 'flex' : 'none';
+        }
+      };
+
+      updateFABVisibility();
+      window.addEventListener('resize', updateFABVisibility);
+
+      // Setup scroll detection for table
+      setupScrollIndicator();
+
+      // Make QA header clickable to close modal
+      const qaHeader = document.querySelector('.qa-header');
+      if (qaHeader) {
+        qaHeader.addEventListener('click', (evt) => {
+          // Only close if clicking on header itself, not children
+          if (evt.target.classList.contains('qa-header') ||
+              evt.target.classList.contains('qa-icon') ||
+              evt.target.classList.contains('qa-title')) {
+            closeQAModal();
+          }
+        });
+      }
+    }
+
+    /**
+     * Setup scroll indicator for table
+     */
+    function setupScrollIndicator() {
+      const tableWrapper = document.querySelector('.table-wrapper');
+      if (!tableWrapper) return;
+
+      let scrollTimeout;
+      tableWrapper.addEventListener('scroll', () => {
+        // Add scrolled class to hide indicator
+        tableWrapper.classList.add('scrolled');
+
+        // Clear previous timeout
+        clearTimeout(scrollTimeout);
+
+        // Reset after 2 seconds of no scrolling
+        scrollTimeout = setTimeout(() => {
+          if (tableWrapper.scrollLeft === 0) {
+            tableWrapper.classList.remove('scrolled');
+          }
+        }, 2000);
+      });
+    }
+
+    /**
+     * Open Quick Assignment modal (mobile)
+     */
+    function openQAModal() {
+      if (qaPanel) {
+        qaPanel.classList.add('qa-modal-open');
+      }
+      if (qaModalBackdrop) {
+        qaModalBackdrop.classList.add('qa-modal-open');
+      }
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Close Quick Assignment modal (mobile)
+     */
+    function closeQAModal() {
+      if (qaPanel) {
+        qaPanel.classList.remove('qa-modal-open');
+      }
+      if (qaModalBackdrop) {
+        qaModalBackdrop.classList.remove('qa-modal-open');
+      }
+      // Restore body scroll
+      document.body.style.overflow = '';
+    }
+
+    /**
+     * Update FAB badge count
+     * Called whenever selectedCells changes
+     */
+    function updateFABBadge() {
+      if (!qaFabBadge) return;
+
+      const count = selectedCells.size;
+      if (count > 0) {
+        qaFabBadge.textContent = count;
+        qaFabBadge.style.display = 'flex';
+      } else {
+        qaFabBadge.style.display = 'none';
+      }
     }
   }
 };
