@@ -1016,10 +1016,25 @@ window.ScheduleAdminPage = {
      * Update Quick Assignment Panel với employee list
      */
     function updateQuickAssignmentPanel() {
-      // Extract all unique employees from availabilityMap
+      // Extract all unique employees from BOTH availabilityMap AND scheduleMap
       const employeeSet = new Map(); // email -> {email, name, team}
 
+      // Get employees from availabilityMap (who registered availability)
       Object.values(availabilityMap).forEach(userList => {
+        userList.forEach(u => {
+          const email = (u.email || '').toLowerCase();
+          if (email && !employeeSet.has(email)) {
+            employeeSet.set(email, {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || ''
+            });
+          }
+        });
+      });
+
+      // Also get employees from scheduleMap (who have been assigned)
+      Object.values(scheduleMap).forEach(userList => {
         userList.forEach(u => {
           const email = (u.email || '').toLowerCase();
           if (email && !employeeSet.has(email)) {
