@@ -2362,6 +2362,11 @@ html {
 
   /* ===== MOBILE MENU (HAMBURGER) ===== */
 
+  /* Add padding to main content to avoid overlap with hamburger button */
+  .main-content {
+    padding-top: 80px !important;
+  }
+
   /* Hamburger button */
   .mobile-menu-btn {
     display: flex !important;
