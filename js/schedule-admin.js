@@ -55,7 +55,7 @@ window.ScheduleAdminPage = {
     let allEmployees = [];         // [{email, name, team}]
 
     // ==== VIEW MODE STATE ==================================================
-    let viewMode = 'overview'; // 'overview' or 'detail'
+    let viewMode = 'detail'; // 'overview' or 'detail' - default to 'detail' (Lịch chốt)
 
     // Màu tương phản cao cho từng nhân viên (vivid colors)
     const COLOR_PALETTE = [
