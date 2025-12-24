@@ -68,16 +68,73 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Mobile menu toggle
-    const menuToggle = document.querySelector('.menu-toggle');
-    const sidebar = document.querySelector('.sidebar');
-    
-    if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('open');
-        });
-    }
+    // ===== Mobile Menu Toggle (Hamburger) =====
+    initMobileMenu();
 });
+
+/**
+ * Initialize mobile menu with hamburger button
+ */
+function initMobileMenu() {
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const menuBackdrop = document.getElementById('mobile-menu-backdrop');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (!menuBtn || !menuBackdrop || !sidebar) return;
+
+    // Show/hide hamburger button based on screen size
+    function updateMenuBtnVisibility() {
+        const isMobile = window.innerWidth <= 768;
+        menuBtn.style.display = isMobile ? 'flex' : 'none';
+
+        // Reset sidebar state on desktop
+        if (!isMobile) {
+            closeMobileMenu();
+        }
+    }
+
+    // Open mobile menu
+    function openMobileMenu() {
+        sidebar.classList.add('mobile-menu-open');
+        menuBackdrop.classList.add('active');
+        menuBtn.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close mobile menu
+    function closeMobileMenu() {
+        sidebar.classList.remove('mobile-menu-open');
+        menuBackdrop.classList.remove('active');
+        menuBtn.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Toggle menu
+    function toggleMobileMenu() {
+        if (sidebar.classList.contains('mobile-menu-open')) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+    }
+
+    // Event listeners
+    menuBtn.addEventListener('click', toggleMobileMenu);
+    menuBackdrop.addEventListener('click', closeMobileMenu);
+
+    // Close menu when clicking nav items
+    const navItems = sidebar.querySelectorAll('.nav-item, .nav-subitem');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Delay to allow navigation to happen
+            setTimeout(closeMobileMenu, 200);
+        });
+    });
+
+    // Initial check and resize listener
+    updateMenuBtnVisibility();
+    window.addEventListener('resize', updateMenuBtnVisibility);
+}
 
 // ===== Quiz Functions =====
 function selectOption(questionId, optionIndex) {
