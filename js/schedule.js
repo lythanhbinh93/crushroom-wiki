@@ -337,6 +337,18 @@ window.SchedulePage = {
       for (let i = 0; i < 7; i++) {
         dates.push(toISODate(addDays(d0, i)));
       }
+      updateAvailabilityHeaderDates();
+    }
+
+    function updateAvailabilityHeaderDates() {
+      // Update date displays in availability table header
+      dates.forEach((dateISO, idx) => {
+        const dateEl = document.getElementById(`availability-date-${idx}`);
+        if (dateEl) {
+          const d = new Date(dateISO + 'T00:00:00');
+          dateEl.textContent = formatVNDate(d);
+        }
+      });
     }
 
     function buildTimeSlots(teamArg) {
