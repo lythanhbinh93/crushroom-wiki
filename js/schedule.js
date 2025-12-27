@@ -98,6 +98,48 @@ window.SchedulePage = {
     weekInput.value = getThisMondayISO();
     if (viewWeekInput) viewWeekInput.value = getThisMondayISO();
 
+    // Initialize Flatpickr with Monday as first day
+    function initFlatpickrForInput(inputElement) {
+      if (typeof flatpickr !== 'undefined') {
+        flatpickr(inputElement, {
+          locale: {
+            firstDayOfWeek: 1 // Monday
+          },
+          dateFormat: "Y-m-d",
+          defaultDate: getThisMondayISO(),
+          onChange: function(selectedDates, dateStr) {
+            // Auto-correct to Monday
+            const monday = getMondayOfWeek(dateStr);
+            if (dateStr !== monday) {
+              this.setDate(monday, true);
+              const weekRange = formatWeekRange(monday);
+              showMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+            }
+          }
+        });
+      } else {
+        // Fallback to native date picker with auto-correct
+        inputElement.addEventListener('change', function() {
+          const originalValue = this.value;
+          if (!originalValue) return;
+
+          const monday = getMondayOfWeek(originalValue);
+
+          if (originalValue !== monday) {
+            this.value = monday;
+            const weekRange = formatWeekRange(monday);
+            showMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+          }
+        });
+      }
+    }
+
+    // Initialize Flatpickr for both inputs
+    initFlatpickrForInput(weekInput);
+    if (viewWeekInput) {
+      initFlatpickrForInput(viewWeekInput);
+    }
+
     // Tab switching logic
     function switchToRegisterMode() {
       if (registerModeContent) registerModeContent.style.display = 'block';
@@ -688,6 +730,23 @@ window.SchedulePage = {
       const d = new Date();
       const day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6:1);
       return toISODate(new Date(d.setDate(diff)));
+    }
+
+    // Get Monday of the week from any date
+    function getMondayOfWeek(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(date.setDate(diff));
+      return toISODate(monday);
+    }
+
+    // Format week range for display (e.g., "Tuần 22/12 - 28/12")
+    function formatWeekRange(mondayString) {
+      const monday = new Date(mondayString);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      return `Tuần ${formatVNDate(monday)} - ${formatVNDate(sunday)}`;
     }
     
     // Color Palette Utils

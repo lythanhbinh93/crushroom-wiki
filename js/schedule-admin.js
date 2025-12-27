@@ -55,7 +55,7 @@ window.ScheduleAdminPage = {
     let allEmployees = [];         // [{email, name, team}]
 
     // ==== VIEW MODE STATE ==================================================
-    let viewMode = 'overview'; // 'overview' or 'detail'
+    let viewMode = 'detail'; // 'overview' or 'detail' - default to 'detail' (Lịch chốt)
 
     // Màu tương phản cao cho từng nhân viên (vivid colors)
     const COLOR_PALETTE = [
@@ -111,6 +111,40 @@ window.ScheduleAdminPage = {
 
     // Tuần mặc định: thứ 2 tuần này
     weekInput.value = getThisMondayISO();
+
+    // Initialize Flatpickr with Monday as first day
+    if (typeof flatpickr !== 'undefined') {
+      flatpickr(weekInput, {
+        locale: {
+          firstDayOfWeek: 1 // Monday
+        },
+        dateFormat: "Y-m-d",
+        defaultDate: getThisMondayISO(),
+        onChange: function(selectedDates, dateStr) {
+          // Auto-correct to Monday
+          const monday = getMondayOfWeek(dateStr);
+          if (dateStr !== monday) {
+            this.setDate(monday, true); // true = trigger onChange again
+            const weekRange = formatWeekRange(monday);
+            showAdminMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+          }
+        }
+      });
+    } else {
+      // Fallback to native date picker with auto-correct
+      weekInput.addEventListener('change', function() {
+        const originalValue = this.value;
+        if (!originalValue) return;
+
+        const monday = getMondayOfWeek(originalValue);
+
+        if (originalValue !== monday) {
+          this.value = monday;
+          const weekRange = formatWeekRange(monday);
+          showAdminMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+        }
+      });
+    }
 
     // Quick Assignment Panel elements
     const qaEmployeeSelect = document.getElementById('qa-employee-select');
@@ -1008,6 +1042,23 @@ window.ScheduleAdminPage = {
       return toISODate(thisMonday);
     }
 
+    // Get Monday of the week from any date
+    function getMondayOfWeek(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDay();
+      const daysFromMonday = (day + 6) % 7;
+      const monday = addDays(date, -daysFromMonday);
+      return toISODate(monday);
+    }
+
+    // Format week range for display (e.g., "Tuần 22/12 - 28/12")
+    function formatWeekRange(mondayString) {
+      const monday = new Date(mondayString);
+      const sunday = addDays(monday, 6);
+      const formatDate = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
+      return `Tuần ${formatDate(monday)} - ${formatDate(sunday)}`;
+    }
+
     // ======================================================================
     // QUICK ASSIGNMENT PANEL FUNCTIONS
     // ======================================================================
@@ -1016,10 +1067,25 @@ window.ScheduleAdminPage = {
      * Update Quick Assignment Panel với employee list
      */
     function updateQuickAssignmentPanel() {
-      // Extract all unique employees from availabilityMap
+      // Extract all unique employees from BOTH availabilityMap AND scheduleMap
       const employeeSet = new Map(); // email -> {email, name, team}
 
+      // Get employees from availabilityMap (who registered availability)
       Object.values(availabilityMap).forEach(userList => {
+        userList.forEach(u => {
+          const email = (u.email || '').toLowerCase();
+          if (email && !employeeSet.has(email)) {
+            employeeSet.set(email, {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || ''
+            });
+          }
+        });
+      });
+
+      // Also get employees from scheduleMap (who have been assigned)
+      Object.values(scheduleMap).forEach(userList => {
         userList.forEach(u => {
           const email = (u.email || '').toLowerCase();
           if (email && !employeeSet.has(email)) {
