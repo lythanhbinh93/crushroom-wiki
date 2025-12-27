@@ -2449,4 +2449,158 @@ html {
     display: block;
     opacity: 1;
   }
+
+  /* ===== PHASE 1: SCHEDULE PAGE MOBILE OPTIMIZATION ===== */
+
+  /* Add padding to main content for hamburger menu */
+  body:has(#availability-body) .main-content {
+    padding-top: 80px !important;
+  }
+
+  /* View Mode Toggle (Tabs) - Touch-friendly */
+  body:has(#availability-body) .view-mode-toggle {
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn {
+    flex: 1 !important;
+    font-size: 14px !important;
+    padding: 12px 8px !important;
+    min-height: 48px !important; /* iOS touch target */
+    font-weight: 600 !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn .btn-icon {
+    font-size: 18px !important;
+  }
+
+  /* Filter controls - Stack vertically */
+  body:has(#availability-body) .filter-controls {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  body:has(#availability-body) .form-group {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Form inputs - Touch-friendly size */
+  body:has(#availability-body) .form-input,
+  body:has(#availability-body) .form-select,
+  body:has(#availability-body) .btn {
+    width: 100% !important;
+    min-height: 48px !important;
+    font-size: 15px !important;
+  }
+
+  /* Sticky section header with tabs */
+  body:has(#availability-body) .section-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    background: white !important;
+    margin: -32px -40px 20px -40px !important;
+    padding: 16px 40px 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Table wrapper - Better horizontal scroll */
+  body:has(#availability-body) .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 0 -40px !important;
+    padding: 0 40px !important;
+  }
+
+  /* Schedule table - Minimum width for readability */
+  body:has(#availability-body) .schedule-table {
+    min-width: 700px !important;
+  }
+
+  /* Table cells - Better spacing */
+  body:has(#availability-body) .schedule-table th,
+  body:has(#availability-body) .schedule-table td {
+    padding: 10px 8px !important;
+    font-size: 13px !important;
+  }
+
+  /* First column sticky */
+  body:has(#availability-body) .schedule-table th:first-child,
+  body:has(#availability-body) .schedule-table td:first-child {
+    position: sticky !important;
+    left: 0 !important;
+    background: white !important;
+    z-index: 10 !important;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Availability cells - Larger touch targets */
+  body:has(#availability-body) .availability-cell {
+    min-height: 50px !important;
+    padding: 12px 8px !important;
+  }
+
+  body:has(#availability-body) .availability-cell.clickable-cell {
+    cursor: pointer !important;
+  }
+
+  /* Other availability text - Readable on mobile */
+  body:has(#availability-body) .other-availability {
+    font-size: 11px !important;
+    padding: 4px 6px !important;
+  }
+
+  /* Action buttons - Full width and touch-friendly */
+  body:has(#availability-body) .schedule-actions {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  body:has(#availability-body) .schedule-actions button {
+    width: 100% !important;
+    min-height: 52px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Alert messages - Better visibility */
+  body:has(#availability-body) .alert-message {
+    font-size: 14px !important;
+    padding: 12px 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Team filter buttons - Touch-friendly */
+  body:has(#availability-body) .filter-buttons {
+    display: flex !important;
+    gap: 8px !important;
+  }
+
+  body:has(#availability-body) .filter-buttons .btn {
+    flex: 1 !important;
+    min-height: 44px !important;
+    font-size: 13px !important;
+    padding: 10px 8px !important;
+  }
+
+  /* Status badge - Better visibility */
+  body:has(#availability-body) .status-badge {
+    font-size: 13px !important;
+    padding: 8px 14px !important;
+  }
+
+  /* Card padding - More compact on mobile */
+  body:has(#availability-body) .schedule-card {
+    padding: 16px !important;
+  }
+
+  /* Section spacing */
+  body:has(#availability-body) .content-section {
+    margin-bottom: 24px !important;
+  }
 }
+
