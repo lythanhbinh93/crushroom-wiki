@@ -2602,5 +2602,274 @@ html {
   body:has(#availability-body) .content-section {
     margin-bottom: 24px !important;
   }
+
+  /* ===== PHASE 2: ADVANCED UX & VISUAL POLISH ===== */
+
+  /* Scroll Indicator - Show horizontal scrolling is available */
+  body:has(#availability-body) .table-wrapper {
+    position: relative !important;
+  }
+
+  body:has(#availability-body) .table-wrapper::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 40px !important;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.9) 0%, transparent 100%) !important;
+    pointer-events: none !important;
+    z-index: 5 !important;
+    opacity: 1 !important;
+    transition: opacity 0.3s ease !important;
+  }
+
+  /* Touch Feedback - Active states for interactive elements */
+  body:has(#availability-body) .view-toggle-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn:active {
+    transform: scale(0.96) !important;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn.active {
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3) !important;
+  }
+
+  /* Availability cell touch feedback */
+  body:has(#availability-body) .availability-cell.clickable-cell {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+  }
+
+  body:has(#availability-body) .availability-cell.clickable-cell:active {
+    transform: scale(0.95) !important;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Enhanced checked state with animation */
+  body:has(#availability-body) .availability-cell.clickable-cell[style*="background-color: rgb(76, 175, 80)"],
+  body:has(#availability-body) .availability-cell.clickable-cell[style*="backgroundColor"][style*="4CAF50"] {
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3) !important;
+    animation: cellCheckPulse 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  @keyframes cellCheckPulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Button touch feedback */
+  body:has(#availability-body) .btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  body:has(#availability-body) .btn:active {
+    transform: scale(0.97) !important;
+  }
+
+  body:has(#availability-body) .btn-primary:active {
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  /* Enhanced Visual Hierarchy */
+
+  /* Section header - More prominent */
+  body:has(#availability-body) .section-header {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  }
+
+  /* Cards - Better depth */
+  body:has(#availability-body) .schedule-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-radius: 12px !important;
+  }
+
+  /* Table - Better contrast */
+  body:has(#availability-body) .schedule-table {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+  }
+
+  /* Table header - More prominent */
+  body:has(#availability-body) .schedule-table thead {
+    background: linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 100%) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  body:has(#availability-body) .schedule-table th {
+    font-weight: 700 !important;
+    color: #343a40 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    font-size: 12px !important;
+  }
+
+  /* Sticky first column - Enhanced shadow */
+  body:has(#availability-body) .schedule-table th:first-child,
+  body:has(#availability-body) .schedule-table td:first-child {
+    box-shadow: 3px 0 8px rgba(0, 0, 0, 0.12) !important;
+    background: linear-gradient(to right, #ffffff 0%, #fafafa 100%) !important;
+  }
+
+  /* Row hover effect (for desktop) */
+  @media (hover: hover) {
+    body:has(#availability-body) .schedule-table tbody tr:hover {
+      background-color: rgba(0, 123, 255, 0.03) !important;
+      transition: background-color 0.15s ease !important;
+    }
+  }
+
+  /* Loading State Styles */
+  body:has(#availability-body) .btn:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    position: relative !important;
+  }
+
+  /* Alert messages - Enhanced visibility */
+  body:has(#availability-body) .alert-message {
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    border-left: 4px solid !important;
+  }
+
+  body:has(#availability-body) .alert-success {
+    border-left-color: #28a745 !important;
+    background: linear-gradient(to right, #d4edda 0%, #e8f5e9 100%) !important;
+  }
+
+  body:has(#availability-body) .alert-error {
+    border-left-color: #dc3545 !important;
+    background: linear-gradient(to right, #f8d7da 0%, #ffebee 100%) !important;
+  }
+
+  body:has(#availability-body) .alert-info {
+    border-left-color: #17a2b8 !important;
+    background: linear-gradient(to right, #d1ecf1 0%, #e1f5fe 100%) !important;
+  }
+
+  /* Smooth Scroll Behavior */
+  body:has(#availability-body) .table-wrapper {
+    scroll-behavior: smooth !important;
+  }
+
+  /* Better focus states for accessibility */
+  body:has(#availability-body) .view-toggle-btn:focus,
+  body:has(#availability-body) .btn:focus,
+  body:has(#availability-body) .form-input:focus,
+  body:has(#availability-body) .form-select:focus {
+    outline: 3px solid rgba(0, 123, 255, 0.4) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Availability cell focus state */
+  body:has(#availability-body) .availability-cell.clickable-cell:focus {
+    outline: 2px solid rgba(0, 123, 255, 0.5) !important;
+    outline-offset: 1px !important;
+    z-index: 2 !important;
+  }
+
+  /* Status badge - Enhanced with gradient */
+  body:has(#availability-body) .status-badge {
+    border-radius: 20px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    font-weight: 600 !important;
+  }
+
+  /* Other availability badges - Better contrast */
+  body:has(#availability-body) .other-availability {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
+    border: 1px solid rgba(33, 150, 243, 0.3) !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Week input - Enhanced styling */
+  body:has(#availability-body) .form-input[type="date"],
+  body:has(#availability-body) .form-input[type="week"] {
+    background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%) !important;
+    border: 2px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  body:has(#availability-body) .form-input[type="date"]:focus,
+  body:has(#availability-body) .form-input[type="week"]:focus {
+    border-color: #007bff !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(0, 123, 255, 0.1) !important;
+  }
+
+  /* Action buttons - Enhanced gradients */
+  body:has(#availability-body) .btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3) !important;
+    font-weight: 700 !important;
+  }
+
+  body:has(#availability-body) .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Ripple effect container */
+  body:has(#availability-body) .view-toggle-btn::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.5) !important;
+    transform: translate(-50%, -50%) !important;
+    transition: width 0.6s ease, height 0.6s ease !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn:active::before {
+    width: 300px !important;
+    height: 300px !important;
+  }
+
+  /* Empty state styling (when no data) */
+  body:has(#availability-body) .schedule-table tbody:empty::after {
+    content: 'Không có dữ liệu' !important;
+    display: block !important;
+    text-align: center !important;
+    padding: 40px !important;
+    color: #6c757d !important;
+    font-style: italic !important;
+  }
+
+  /* Improved spacing for better rhythm */
+  body:has(#availability-body) .view-mode-toggle {
+    margin-bottom: 20px !important;
+  }
+
+  body:has(#availability-body) .filter-controls {
+    margin-bottom: 20px !important;
+  }
+
+  body:has(#availability-body) .schedule-actions {
+    margin-top: 24px !important;
+  }
 }
 
