@@ -105,6 +105,17 @@ window.SchedulePage = {
     }
 
     weekInput.addEventListener('change', () => {
+      const selected = weekInput.value;
+      if (!selected) return;
+
+      // Validate: chỉ cho phép chọn ngày thứ 2
+      if (!isMonday(selected)) {
+        showMessage('⚠️ Vui lòng chỉ chọn ngày thứ 2 (đầu tuần). Hệ thống chỉ làm việc theo tuần bắt đầu từ thứ 2.', true);
+        // Reset về thứ 2 mặc định
+        weekInput.value = getNextMondayISO();
+        return;
+      }
+
       loadWeek();
     });
 
@@ -147,6 +158,13 @@ window.SchedulePage = {
       const weekStart = weekInput.value;
       if (!weekStart) {
         showMessage('Vui lòng chọn tuần.', true);
+        return;
+      }
+
+      // Validate: chỉ cho phép chọn ngày thứ 2
+      if (!isMonday(weekStart)) {
+        showMessage('⚠️ Vui lòng chỉ chọn ngày thứ 2 (đầu tuần). Hệ thống chỉ làm việc theo tuần bắt đầu từ thứ 2.', true);
+        weekInput.value = getNextMondayISO();
         return;
       }
 
@@ -676,6 +694,11 @@ window.SchedulePage = {
       const dd = String(d.getDate()).padStart(2, '0');
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       return `${dd}/${mm}`;
+    }
+
+    function isMonday(dateISO) {
+      const d = new Date(dateISO + 'T00:00:00');
+      return d.getDay() === 1; // 1 = Monday
     }
 
     // =====================================================

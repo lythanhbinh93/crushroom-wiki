@@ -133,6 +133,20 @@ window.ScheduleAdminPage = {
     // Events
     loadBtn.addEventListener('click', () => loadData());
     teamSelect.addEventListener('change', () => loadData());
+
+    // Validate Monday when date changes
+    weekInput.addEventListener('change', () => {
+      const selected = weekInput.value;
+      if (!selected) return;
+
+      if (!isMonday(selected)) {
+        setAdminMessage('⚠️ Vui lòng chỉ chọn ngày thứ 2 (đầu tuần). Hệ thống chỉ làm việc theo tuần bắt đầu từ thứ 2.', true);
+        weekInput.value = getNextMondayISO();
+        return;
+      }
+
+      loadData();
+    });
     slotSaveBtn && slotSaveBtn.addEventListener('click', saveCurrentSlot);
     saveWeekBtn && saveWeekBtn.addEventListener('click', saveWeekSchedule);
     if (lockWeekBtn) {
@@ -175,6 +189,13 @@ window.ScheduleAdminPage = {
 
       if (!weekStart) {
         showAdminMessage('Vui lòng chọn tuần bắt đầu.', true);
+        return;
+      }
+
+      // Validate: chỉ cho phép chọn ngày thứ 2
+      if (!isMonday(weekStart)) {
+        showAdminMessage('⚠️ Vui lòng chỉ chọn ngày thứ 2 (đầu tuần). Hệ thống chỉ làm việc theo tuần bắt đầu từ thứ 2.', true);
+        weekInput.value = getNextMondayISO();
         return;
       }
 
@@ -1197,6 +1218,11 @@ function formatShiftLabel(shiftKey) {
       const daysToNextMonday = ((8 - day) % 7) || 7;
       const nextMonday = addDays(now, daysToNextMonday);
       return toISODate(nextMonday);
+    }
+
+    function isMonday(dateISO) {
+      const d = new Date(dateISO + 'T00:00:00');
+      return d.getDay() === 1; // 1 = Monday
     }
 
     // ======================================================================
