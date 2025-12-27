@@ -3201,44 +3201,6 @@ html {
     }
   }
 
-  /* Dark Mode Support (if system preference) */
-  @media (prefers-color-scheme: dark) {
-    body:has(#availability-body) .schedule-card {
-      background: #1a1a1a !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
-    }
-
-    body:has(#availability-body) .section-header {
-      background: #2d2d2d !important;
-      border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-    }
-
-    body:has(#availability-body) .schedule-table {
-      background: #1a1a1a !important;
-      color: #e0e0e0 !important;
-    }
-
-    body:has(#availability-body) .schedule-table thead {
-      background: linear-gradient(to bottom, #2d2d2d 0%, #252525 100%) !important;
-    }
-
-    body:has(#availability-body) .schedule-table th:first-child,
-    body:has(#availability-body) .schedule-table td:first-child {
-      background: linear-gradient(to right, #1a1a1a 0%, #222 100%) !important;
-    }
-
-    body:has(#availability-body) .form-input,
-    body:has(#availability-body) .form-select {
-      background: #2d2d2d !important;
-      border-color: rgba(255, 255, 255, 0.2) !important;
-      color: #e0e0e0 !important;
-    }
-
-    body:has(#availability-body) .table-wrapper::after {
-      background: linear-gradient(to left, rgba(26, 26, 26, 0.9) 0%, transparent 100%) !important;
-    }
-  }
-
   /* High Contrast Mode Support */
   @media (prefers-contrast: high) {
     body:has(#availability-body) .view-toggle-btn.active {
