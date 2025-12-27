@@ -98,24 +98,46 @@ window.SchedulePage = {
     weekInput.value = getThisMondayISO();
     if (viewWeekInput) viewWeekInput.value = getThisMondayISO();
 
-    // Auto-correct week input to Monday
-    function autoCorrectToMonday(inputElement) {
-      const originalValue = inputElement.value;
-      if (!originalValue) return;
+    // Initialize Flatpickr with Monday as first day
+    function initFlatpickrForInput(inputElement) {
+      if (typeof flatpickr !== 'undefined') {
+        flatpickr(inputElement, {
+          locale: {
+            firstDayOfWeek: 1 // Monday
+          },
+          dateFormat: "Y-m-d",
+          defaultDate: getThisMondayISO(),
+          onChange: function(selectedDates, dateStr) {
+            // Auto-correct to Monday
+            const monday = getMondayOfWeek(dateStr);
+            if (dateStr !== monday) {
+              this.setDate(monday, true);
+              const weekRange = formatWeekRange(monday);
+              showMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+            }
+          }
+        });
+      } else {
+        // Fallback to native date picker with auto-correct
+        inputElement.addEventListener('change', function() {
+          const originalValue = this.value;
+          if (!originalValue) return;
 
-      const monday = getMondayOfWeek(originalValue);
+          const monday = getMondayOfWeek(originalValue);
 
-      if (originalValue !== monday) {
-        inputElement.value = monday;
-        const weekRange = formatWeekRange(monday);
-        showMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+          if (originalValue !== monday) {
+            this.value = monday;
+            const weekRange = formatWeekRange(monday);
+            showMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+          }
+        });
       }
     }
 
-    // Add event listeners for auto-correction
-    weekInput.addEventListener('change', () => autoCorrectToMonday(weekInput));
+    // Initialize Flatpickr for both inputs
+    initFlatpickrForInput(weekInput);
     if (viewWeekInput) {
-      viewWeekInput.addEventListener('change', () => autoCorrectToMonday(viewWeekInput));
+      initFlatpickrForInput(viewWeekInput);
     }
 
     // Tab switching logic
