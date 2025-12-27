@@ -713,7 +713,13 @@ window.SchedulePage = {
     }
     function clearMessage() { showMessage('', false); }
     function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
-    function toISODate(d) { return d.toISOString().split('T')[0]; }
+    function toISODate(d) {
+      // Format date in local timezone, not UTC
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
     function pad2(n) { return String(n).padStart(2, '0'); }
     function getWeekdayLabel(d) { return ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'][d.getDay()]; }
     function formatVNDate(d) { return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`; }
