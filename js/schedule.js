@@ -98,6 +98,26 @@ window.SchedulePage = {
     weekInput.value = getThisMondayISO();
     if (viewWeekInput) viewWeekInput.value = getThisMondayISO();
 
+    // Auto-correct week input to Monday
+    function autoCorrectToMonday(inputElement) {
+      const originalValue = inputElement.value;
+      if (!originalValue) return;
+
+      const monday = getMondayOfWeek(originalValue);
+
+      if (originalValue !== monday) {
+        inputElement.value = monday;
+        const weekRange = formatWeekRange(monday);
+        showMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+      }
+    }
+
+    // Add event listeners for auto-correction
+    weekInput.addEventListener('change', () => autoCorrectToMonday(weekInput));
+    if (viewWeekInput) {
+      viewWeekInput.addEventListener('change', () => autoCorrectToMonday(viewWeekInput));
+    }
+
     // Tab switching logic
     function switchToRegisterMode() {
       if (registerModeContent) registerModeContent.style.display = 'block';
@@ -688,6 +708,23 @@ window.SchedulePage = {
       const d = new Date();
       const day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6:1);
       return toISODate(new Date(d.setDate(diff)));
+    }
+
+    // Get Monday of the week from any date
+    function getMondayOfWeek(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(date.setDate(diff));
+      return toISODate(monday);
+    }
+
+    // Format week range for display (e.g., "Tuần 22/12 - 28/12")
+    function formatWeekRange(mondayString) {
+      const monday = new Date(mondayString);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      return `Tuần ${formatVNDate(monday)} - ${formatVNDate(sunday)}`;
     }
     
     // Color Palette Utils

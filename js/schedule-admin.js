@@ -112,6 +112,20 @@ window.ScheduleAdminPage = {
     // Tuần mặc định: thứ 2 tuần này
     weekInput.value = getThisMondayISO();
 
+    // Auto-correct week input to Monday
+    weekInput.addEventListener('change', function() {
+      const originalValue = this.value;
+      if (!originalValue) return;
+
+      const monday = getMondayOfWeek(originalValue);
+
+      if (originalValue !== monday) {
+        this.value = monday;
+        const weekRange = formatWeekRange(monday);
+        showAdminMessage(`Đã điều chỉnh về Thứ 2. ${weekRange}`, false);
+      }
+    });
+
     // Quick Assignment Panel elements
     const qaEmployeeSelect = document.getElementById('qa-employee-select');
     const qaAssignBtn = document.getElementById('qa-assign-btn');
@@ -1006,6 +1020,23 @@ window.ScheduleAdminPage = {
       const daysFromMonday = (day + 6) % 7;
       const thisMonday = addDays(now, -daysFromMonday);
       return toISODate(thisMonday);
+    }
+
+    // Get Monday of the week from any date
+    function getMondayOfWeek(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDay();
+      const daysFromMonday = (day + 6) % 7;
+      const monday = addDays(date, -daysFromMonday);
+      return toISODate(monday);
+    }
+
+    // Format week range for display (e.g., "Tuần 22/12 - 28/12")
+    function formatWeekRange(mondayString) {
+      const monday = new Date(mondayString);
+      const sunday = addDays(monday, 6);
+      const formatDate = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
+      return `Tuần ${formatDate(monday)} - ${formatDate(sunday)}`;
     }
 
     // ======================================================================
