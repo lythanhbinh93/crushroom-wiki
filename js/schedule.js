@@ -651,11 +651,12 @@ window.SchedulePage = {
         for(let i=0; i<7; i++) datesArr.push(toISODate(addDays(d0, i)));
 
         teamHeadRowEl.innerHTML = '<th>Giờ</th>';
-        datesArr.forEach(dISO => {
+        const dayLabels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
+        datesArr.forEach((dISO, idx) => {
           const d = new Date(dISO + 'T00:00:00');
           const th = document.createElement('th');
-          th.innerHTML = `<div>${getWeekdayLabel(d)}</div><small>${formatVNDate(d)}</small>`;
-          if(d.getDay()===0) th.classList.add('th-sunday'); // CSS for Sunday
+          th.innerHTML = `<div>${dayLabels[idx]}</div><small>${formatVNDate(d)}</small>`;
+          if(idx === 6) th.classList.add('th-sunday'); // CSS for Sunday (last day)
           teamHeadRowEl.appendChild(th);
         });
 
@@ -712,7 +713,13 @@ window.SchedulePage = {
     }
     function clearMessage() { showMessage('', false); }
     function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
-    function toISODate(d) { return d.toISOString().split('T')[0]; }
+    function toISODate(d) {
+      // Format date in local timezone, not UTC
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
     function pad2(n) { return String(n).padStart(2, '0'); }
     function getWeekdayLabel(d) { return ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'][d.getDay()]; }
     function formatVNDate(d) { return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`; }

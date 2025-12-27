@@ -2449,4 +2449,883 @@ html {
     display: block;
     opacity: 1;
   }
+
+  /* ===== PHASE 1: SCHEDULE PAGE MOBILE OPTIMIZATION ===== */
+
+  /* Add padding to main content for hamburger menu */
+  body:has(#availability-body) .main-content {
+    padding-top: 80px !important;
+  }
+
+  /* View Mode Toggle (Tabs) - Touch-friendly */
+  body:has(#availability-body) .view-mode-toggle {
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn {
+    flex: 1 !important;
+    font-size: 14px !important;
+    padding: 12px 8px !important;
+    min-height: 48px !important; /* iOS touch target */
+    font-weight: 600 !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn .btn-icon {
+    font-size: 18px !important;
+  }
+
+  /* Filter controls - Stack vertically */
+  body:has(#availability-body) .filter-controls {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  body:has(#availability-body) .form-group {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Form inputs - Touch-friendly size */
+  body:has(#availability-body) .form-input,
+  body:has(#availability-body) .form-select,
+  body:has(#availability-body) .btn {
+    width: 100% !important;
+    min-height: 48px !important;
+    font-size: 15px !important;
+  }
+
+  /* Sticky section header with tabs */
+  body:has(#availability-body) .section-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    background: white !important;
+    margin: -32px -40px 20px -40px !important;
+    padding: 16px 40px 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Table wrapper - Better horizontal scroll */
+  body:has(#availability-body) .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 0 -40px !important;
+    padding: 0 40px !important;
+  }
+
+  /* Schedule table - Minimum width for readability */
+  body:has(#availability-body) .schedule-table {
+    min-width: 700px !important;
+  }
+
+  /* Table cells - Better spacing */
+  body:has(#availability-body) .schedule-table th,
+  body:has(#availability-body) .schedule-table td {
+    padding: 10px 8px !important;
+    font-size: 13px !important;
+  }
+
+  /* First column sticky */
+  body:has(#availability-body) .schedule-table th:first-child,
+  body:has(#availability-body) .schedule-table td:first-child {
+    position: sticky !important;
+    left: 0 !important;
+    background: white !important;
+    z-index: 10 !important;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Availability cells - Larger touch targets */
+  body:has(#availability-body) .availability-cell {
+    min-height: 50px !important;
+    padding: 12px 8px !important;
+  }
+
+  body:has(#availability-body) .availability-cell.clickable-cell {
+    cursor: pointer !important;
+  }
+
+  /* Other availability text - Readable on mobile */
+  body:has(#availability-body) .other-availability {
+    font-size: 11px !important;
+    padding: 4px 6px !important;
+  }
+
+  /* Action buttons - Full width and touch-friendly */
+  body:has(#availability-body) .schedule-actions {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  body:has(#availability-body) .schedule-actions button {
+    width: 100% !important;
+    min-height: 52px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Alert messages - Better visibility */
+  body:has(#availability-body) .alert-message {
+    font-size: 14px !important;
+    padding: 12px 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Team filter buttons - Touch-friendly */
+  body:has(#availability-body) .filter-buttons {
+    display: flex !important;
+    gap: 8px !important;
+  }
+
+  body:has(#availability-body) .filter-buttons .btn {
+    flex: 1 !important;
+    min-height: 44px !important;
+    font-size: 13px !important;
+    padding: 10px 8px !important;
+  }
+
+  /* Status badge - Better visibility */
+  body:has(#availability-body) .status-badge {
+    font-size: 13px !important;
+    padding: 8px 14px !important;
+  }
+
+  /* Card padding - More compact on mobile */
+  body:has(#availability-body) .schedule-card {
+    padding: 16px !important;
+  }
+
+  /* Section spacing */
+  body:has(#availability-body) .content-section {
+    margin-bottom: 24px !important;
+  }
+
+  /* ===== PHASE 2: ADVANCED UX & VISUAL POLISH ===== */
+
+  /* Scroll Indicator - Show horizontal scrolling is available */
+  body:has(#availability-body) .table-wrapper {
+    position: relative !important;
+  }
+
+  body:has(#availability-body) .table-wrapper::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 40px !important;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.9) 0%, transparent 100%) !important;
+    pointer-events: none !important;
+    z-index: 5 !important;
+    opacity: 1 !important;
+    transition: opacity 0.3s ease !important;
+  }
+
+  /* Touch Feedback - Active states for interactive elements */
+  body:has(#availability-body) .view-toggle-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn:active {
+    transform: scale(0.96) !important;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn.active {
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3) !important;
+  }
+
+  /* Availability cell touch feedback */
+  body:has(#availability-body) .availability-cell.clickable-cell {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+  }
+
+  body:has(#availability-body) .availability-cell.clickable-cell:active {
+    transform: scale(0.95) !important;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Enhanced checked state with animation */
+  body:has(#availability-body) .availability-cell.clickable-cell[style*="background-color: rgb(76, 175, 80)"],
+  body:has(#availability-body) .availability-cell.clickable-cell[style*="backgroundColor"][style*="4CAF50"] {
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3) !important;
+    animation: cellCheckPulse 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  @keyframes cellCheckPulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Button touch feedback */
+  body:has(#availability-body) .btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  body:has(#availability-body) .btn:active {
+    transform: scale(0.97) !important;
+  }
+
+  body:has(#availability-body) .btn-primary:active {
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  /* Enhanced Visual Hierarchy */
+
+  /* Section header - More prominent */
+  body:has(#availability-body) .section-header {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  }
+
+  /* Cards - Better depth */
+  body:has(#availability-body) .schedule-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-radius: 12px !important;
+  }
+
+  /* Table - Better contrast */
+  body:has(#availability-body) .schedule-table {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+  }
+
+  /* Table header - More prominent */
+  body:has(#availability-body) .schedule-table thead {
+    background: linear-gradient(to bottom, #f8f9fa 0%, #f1f3f5 100%) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  body:has(#availability-body) .schedule-table th {
+    font-weight: 700 !important;
+    color: #343a40 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    font-size: 12px !important;
+  }
+
+  /* Sticky first column - Enhanced shadow */
+  body:has(#availability-body) .schedule-table th:first-child,
+  body:has(#availability-body) .schedule-table td:first-child {
+    box-shadow: 3px 0 8px rgba(0, 0, 0, 0.12) !important;
+    background: linear-gradient(to right, #ffffff 0%, #fafafa 100%) !important;
+  }
+
+  /* Row hover effect (for desktop) */
+  @media (hover: hover) {
+    body:has(#availability-body) .schedule-table tbody tr:hover {
+      background-color: rgba(0, 123, 255, 0.03) !important;
+      transition: background-color 0.15s ease !important;
+    }
+  }
+
+  /* Loading State Styles */
+  body:has(#availability-body) .btn:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    position: relative !important;
+  }
+
+  /* Alert messages - Enhanced visibility */
+  body:has(#availability-body) .alert-message {
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    border-left: 4px solid !important;
+  }
+
+  body:has(#availability-body) .alert-success {
+    border-left-color: #28a745 !important;
+    background: linear-gradient(to right, #d4edda 0%, #e8f5e9 100%) !important;
+  }
+
+  body:has(#availability-body) .alert-error {
+    border-left-color: #dc3545 !important;
+    background: linear-gradient(to right, #f8d7da 0%, #ffebee 100%) !important;
+  }
+
+  body:has(#availability-body) .alert-info {
+    border-left-color: #17a2b8 !important;
+    background: linear-gradient(to right, #d1ecf1 0%, #e1f5fe 100%) !important;
+  }
+
+  /* Smooth Scroll Behavior */
+  body:has(#availability-body) .table-wrapper {
+    scroll-behavior: smooth !important;
+  }
+
+  /* Better focus states for accessibility */
+  body:has(#availability-body) .view-toggle-btn:focus,
+  body:has(#availability-body) .btn:focus,
+  body:has(#availability-body) .form-input:focus,
+  body:has(#availability-body) .form-select:focus {
+    outline: 3px solid rgba(0, 123, 255, 0.4) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Availability cell focus state */
+  body:has(#availability-body) .availability-cell.clickable-cell:focus {
+    outline: 2px solid rgba(0, 123, 255, 0.5) !important;
+    outline-offset: 1px !important;
+    z-index: 2 !important;
+  }
+
+  /* Status badge - Enhanced with gradient */
+  body:has(#availability-body) .status-badge {
+    border-radius: 20px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    font-weight: 600 !important;
+  }
+
+  /* Other availability badges - Better contrast */
+  body:has(#availability-body) .other-availability {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
+    border: 1px solid rgba(33, 150, 243, 0.3) !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Week input - Enhanced styling */
+  body:has(#availability-body) .form-input[type="date"],
+  body:has(#availability-body) .form-input[type="week"] {
+    background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%) !important;
+    border: 2px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  body:has(#availability-body) .form-input[type="date"]:focus,
+  body:has(#availability-body) .form-input[type="week"]:focus {
+    border-color: #007bff !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(0, 123, 255, 0.1) !important;
+  }
+
+  /* Action buttons - Enhanced gradients */
+  body:has(#availability-body) .btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3) !important;
+    font-weight: 700 !important;
+  }
+
+  body:has(#availability-body) .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Ripple effect container */
+  body:has(#availability-body) .view-toggle-btn::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.5) !important;
+    transform: translate(-50%, -50%) !important;
+    transition: width 0.6s ease, height 0.6s ease !important;
+  }
+
+  body:has(#availability-body) .view-toggle-btn:active::before {
+    width: 300px !important;
+    height: 300px !important;
+  }
+
+  /* Empty state styling (when no data) */
+  body:has(#availability-body) .schedule-table tbody:empty::after {
+    content: 'Không có dữ liệu' !important;
+    display: block !important;
+    text-align: center !important;
+    padding: 40px !important;
+    color: #6c757d !important;
+    font-style: italic !important;
+  }
+
+  /* Improved spacing for better rhythm */
+  body:has(#availability-body) .view-mode-toggle {
+    margin-bottom: 20px !important;
+  }
+
+  body:has(#availability-body) .filter-controls {
+    margin-bottom: 20px !important;
+  }
+
+  body:has(#availability-body) .schedule-actions {
+    margin-top: 24px !important;
+  }
+
+  /* ===== PHASE 3: MICRO-ANIMATIONS, PERFORMANCE & EDGE CASES ===== */
+
+  /* Page Load Animation - Stagger fade-in */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  body:has(#availability-body) .section-header {
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0s both !important;
+  }
+
+  body:has(#availability-body) .filter-controls {
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both !important;
+  }
+
+  body:has(#availability-body) .schedule-table {
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both !important;
+  }
+
+  body:has(#availability-body) .schedule-actions {
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both !important;
+  }
+
+  /* Loading State - Skeleton Screen */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  body:has(#availability-body) .schedule-table.loading tbody::before {
+    content: '' !important;
+    display: block !important;
+    height: 300px !important;
+    background: linear-gradient(
+      to right,
+      #f6f7f8 0%,
+      #edeef1 20%,
+      #f6f7f8 40%,
+      #f6f7f8 100%
+    ) !important;
+    background-size: 1000px 100% !important;
+    animation: shimmer 2s linear infinite !important;
+    border-radius: 8px !important;
+  }
+
+  /* Button Loading State */
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  body:has(#availability-body) .btn.loading {
+    position: relative !important;
+    color: transparent !important;
+    pointer-events: none !important;
+  }
+
+  body:has(#availability-body) .btn.loading::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    margin: -10px 0 0 -10px !important;
+    border: 3px solid rgba(255, 255, 255, 0.3) !important;
+    border-top-color: #fff !important;
+    border-radius: 50% !important;
+    animation: spin 0.6s linear infinite !important;
+  }
+
+  /* Performance Optimizations */
+  body:has(#availability-body) .view-toggle-btn,
+  body:has(#availability-body) .btn,
+  body:has(#availability-body) .availability-cell.clickable-cell {
+    will-change: transform !important;
+    contain: layout style !important;
+  }
+
+  body:has(#availability-body) .table-wrapper::after {
+    will-change: opacity !important;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    body:has(#availability-body) * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Edge Case: Very Small Screens (320px - 380px) */
+  @media (max-width: 380px) {
+    /* Even more compact spacing */
+    body:has(#availability-body) .main-content {
+      padding: 12px !important;
+    }
+
+    body:has(#availability-body) .section-header {
+      margin: -12px -12px 12px -12px !important;
+      padding: 12px !important;
+    }
+
+    /* Smaller fonts for tiny screens */
+    body:has(#availability-body) .view-toggle-btn {
+      font-size: 12px !important;
+      padding: 10px 6px !important;
+    }
+
+    body:has(#availability-body) .view-toggle-btn .btn-icon {
+      font-size: 16px !important;
+    }
+
+    /* Smaller form inputs */
+    body:has(#availability-body) .form-input,
+    body:has(#availability-body) .form-select {
+      font-size: 14px !important;
+      padding: 10px !important;
+    }
+
+    /* Compact table cells */
+    body:has(#availability-body) .schedule-table th,
+    body:has(#availability-body) .schedule-table td {
+      padding: 8px 4px !important;
+      font-size: 11px !important;
+    }
+
+    body:has(#availability-body) .availability-cell {
+      min-height: 44px !important;
+      padding: 10px 6px !important;
+    }
+
+    /* Smaller badges */
+    body:has(#availability-body) .other-availability {
+      font-size: 10px !important;
+      padding: 3px 5px !important;
+    }
+
+    /* Compact action buttons */
+    body:has(#availability-body) .schedule-actions button {
+      min-height: 48px !important;
+      font-size: 14px !important;
+    }
+
+    /* Reduce shadows for performance */
+    body:has(#availability-body) .section-header,
+    body:has(#availability-body) .schedule-card {
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Narrower scroll indicator */
+    body:has(#availability-body) .table-wrapper::after {
+      width: 24px !important;
+    }
+  }
+
+  /* Edge Case: Landscape Mode on Mobile */
+  @media (max-width: 768px) and (orientation: landscape) {
+    /* Reduce vertical padding in landscape */
+    body:has(#availability-body) .main-content {
+      padding-top: 60px !important;
+    }
+
+    body:has(#availability-body) .section-header {
+      padding: 10px 40px 8px !important;
+    }
+
+    /* Smaller vertical spacing */
+    body:has(#availability-body) .view-mode-toggle {
+      margin-bottom: 12px !important;
+    }
+
+    body:has(#availability-body) .filter-controls {
+      margin-bottom: 12px !important;
+      gap: 8px !important;
+    }
+
+    /* Compact cells for more content visibility */
+    body:has(#availability-body) .availability-cell {
+      min-height: 40px !important;
+      padding: 8px 6px !important;
+    }
+
+    body:has(#availability-body) .schedule-actions {
+      margin-top: 16px !important;
+    }
+
+    /* Smaller buttons */
+    body:has(#availability-body) .view-toggle-btn,
+    body:has(#availability-body) .schedule-actions button {
+      min-height: 40px !important;
+      padding: 8px 12px !important;
+    }
+  }
+
+  /* Enhanced Error States */
+  body:has(#availability-body) .availability-cell.error {
+    background: linear-gradient(135deg, #fff5f5 0%, #fee 100%) !important;
+    border: 2px solid #dc3545 !important;
+    animation: errorShake 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  @keyframes errorShake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-8px);
+    }
+    75% {
+      transform: translateX(8px);
+    }
+  }
+
+  /* Success State for Cells */
+  body:has(#availability-body) .availability-cell.success {
+    animation: successPulse 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  @keyframes successPulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+  }
+
+  /* Enhanced Empty State */
+  body:has(#availability-body) .schedule-table tbody:empty {
+    position: relative !important;
+    min-height: 200px !important;
+    display: block !important;
+  }
+
+  body:has(#availability-body) .schedule-table tbody:empty::after {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 14px !important;
+    padding: 0 !important;
+  }
+
+  body:has(#availability-body) .schedule-table tbody:empty::before {
+    content: '📅' !important;
+    position: absolute !important;
+    top: calc(50% - 50px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    font-size: 48px !important;
+    opacity: 0.3 !important;
+  }
+
+  /* Smooth Page Transitions */
+  body:has(#availability-body) .content-section {
+    transition: opacity 0.3s ease !important;
+  }
+
+  /* Optimized Repaint Performance */
+  body:has(#availability-body) .schedule-table {
+    transform: translateZ(0) !important; /* Force GPU acceleration */
+    backface-visibility: hidden !important;
+  }
+
+  /* Better Text Rendering */
+  body:has(#availability-body) {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+  }
+
+  /* Prevent Text Selection During Interactions */
+  body:has(#availability-body) .view-toggle-btn,
+  body:has(#availability-body) .availability-cell.clickable-cell {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* iOS Safari Specific Fixes */
+  @supports (-webkit-touch-callout: none) {
+    /* Fix for iOS Safari sticky positioning */
+    body:has(#availability-body) .section-header {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+    }
+
+    body:has(#availability-body) .schedule-table th:first-child,
+    body:has(#availability-body) .schedule-table td:first-child {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+    }
+
+    /* Better scrolling on iOS */
+    body:has(#availability-body) .table-wrapper {
+      -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Fix iOS input zoom */
+    body:has(#availability-body) .form-input,
+    body:has(#availability-body) .form-select {
+      font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+  }
+
+  /* High Contrast Mode Support */
+  @media (prefers-contrast: high) {
+    body:has(#availability-body) .view-toggle-btn.active {
+      border: 3px solid #007bff !important;
+    }
+
+    body:has(#availability-body) .availability-cell.clickable-cell[style*="background-color: rgb(76, 175, 80)"] {
+      border: 2px solid #2e7d32 !important;
+    }
+
+    body:has(#availability-body) .btn-primary {
+      border: 2px solid #0056b3 !important;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    body:has(#availability-body) .main-content {
+      padding-top: 0 !important;
+    }
+
+    body:has(#availability-body) .section-header {
+      position: static !important;
+      box-shadow: none !important;
+    }
+
+    body:has(#availability-body) .schedule-actions,
+    body:has(#availability-body) .filter-controls {
+      display: none !important;
+    }
+
+    body:has(#availability-body) .schedule-table {
+      box-shadow: none !important;
+      border: 1px solid #000 !important;
+    }
+
+    body:has(#availability-body) .table-wrapper::after {
+      display: none !important;
+    }
+  }
+
+  /* Accessibility: Focus Visible (Modern Browsers) */
+  body:has(#availability-body) .view-toggle-btn:focus-visible,
+  body:has(#availability-body) .btn:focus-visible,
+  body:has(#availability-body) .form-input:focus-visible,
+  body:has(#availability-body) .availability-cell.clickable-cell:focus-visible {
+    outline: 3px solid #007bff !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Remove outline for mouse users (only keep for keyboard) */
+  body:has(#availability-body) .view-toggle-btn:focus:not(:focus-visible),
+  body:has(#availability-body) .btn:focus:not(:focus-visible),
+  body:has(#availability-body) .availability-cell.clickable-cell:focus:not(:focus-visible) {
+    outline: none !important;
+  }
+
+  /* Tooltip Support (for future enhancement) */
+  body:has(#availability-body) [data-tooltip] {
+    position: relative !important;
+  }
+
+  body:has(#availability-body) [data-tooltip]::after {
+    content: attr(data-tooltip) !important;
+    position: absolute !important;
+    bottom: calc(100% + 8px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) scale(0) !important;
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: white !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    pointer-events: none !important;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 1000 !important;
+  }
+
+  body:has(#availability-body) [data-tooltip]:hover::after {
+    transform: translateX(-50%) scale(1) !important;
+  }
+
+  /* Network Error State */
+  body:has(#availability-body) .network-error {
+    position: fixed !important;
+    bottom: 24px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: #dc3545 !important;
+    color: white !important;
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.4) !important;
+    font-weight: 600 !important;
+    z-index: 2000 !important;
+    animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  @keyframes slideInUp {
+    from {
+      transform: translateX(-50%) translateY(100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Offline Indicator */
+  body:has(#availability-body).offline::before {
+    content: 'Không có kết nối mạng' !important;
+    position: fixed !important;
+    top: 80px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: #ff9800 !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    z-index: 1001 !important;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4) !important;
+  }
 }
+
