@@ -383,13 +383,6 @@ window.SchedulePage = {
             td.style.backgroundColor = '#f5f5f5';
           }
 
-          // Check Icon
-          const checkIcon = document.createElement('div');
-          checkIcon.className = 'check-icon';
-          checkIcon.innerHTML = '✓';
-          checkIcon.style.cssText = 'font-size: 28px; font-weight: bold; color: #fff; display: none;';
-          td.appendChild(checkIcon);
-
           // Others Availability
           const others = allAvailabilityMap[slotId] || [];
           if (others.length > 0) {
@@ -410,13 +403,10 @@ window.SchedulePage = {
 
     function updateCellVisualState(cell, slotId) {
       const isChecked = !!checkedMap[slotId];
-      const checkIcon = cell.querySelector('.check-icon');
       if (isChecked) {
         cell.style.backgroundColor = '#4CAF50';
-        if (checkIcon) checkIcon.style.display = 'block';
       } else {
         cell.style.backgroundColor = canEditAvailability ? '' : '#f5f5f5';
-        if (checkIcon) checkIcon.style.display = 'none';
       }
     }
 
