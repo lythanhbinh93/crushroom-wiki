@@ -1133,7 +1133,9 @@ window.ScheduleAdminPage = {
       Object.values(availabilityMap).forEach(userList => {
         userList.forEach(u => {
           const email = (u.email || '').toLowerCase();
-          if (email && !employeeSet.has(email)) {
+          const userTeam = (u.team || '').toLowerCase();
+          // Only add if team matches currentTeam
+          if (email && !employeeSet.has(email) && userTeam === currentTeam) {
             employeeSet.set(email, {
               email: u.email,
               name: u.name || u.email,
@@ -1147,7 +1149,9 @@ window.ScheduleAdminPage = {
       Object.values(scheduleMap).forEach(userList => {
         userList.forEach(u => {
           const email = (u.email || '').toLowerCase();
-          if (email && !employeeSet.has(email)) {
+          const userTeam = (u.team || '').toLowerCase();
+          // Only add if team matches currentTeam
+          if (email && !employeeSet.has(email) && userTeam === currentTeam) {
             employeeSet.set(email, {
               email: u.email,
               name: u.name || u.email,
