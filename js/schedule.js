@@ -438,21 +438,95 @@ window.SchedulePage = {
       if (!canEditAvailability) return showMessage('Tuần này đã chốt, không thể chỉnh sửa.', true);
 
       const weekStart = weekInput.value;
-      const availability = Object.keys(checkedMap).map(id => {
-        const [date, shift] = id.split('|');
-        return { date, shift };
+
+      // Validate weekStart matches dates array (防止数据不一致)
+      if (dates.length > 0 && dates[0] !== weekStart) {
+        console.warn('⚠️ WeekStart mismatch!', { weekStart, firstDate: dates[0] });
+        showMessage('Lỗi: Dữ liệu không đồng bộ. Vui lòng tải lại trang.', true);
+        return;
+      }
+
+      const availability = Object.keys(checkedMap)
+        .filter(id => checkedMap[id]) // Only save checked items
+        .map(id => {
+          const [date, shift] = id.split('|');
+          return { date, shift };
+        });
+
+      // Log for debugging
+      console.log('💾 Saving availability:', {
+        weekStart,
+        checkedCount: availability.length,
+        firstAvail: availability[0],
+        lastAvail: availability[availability.length - 1]
       });
 
       try {
         showMessage('Đang lưu...', false);
         const res = await fetch(Auth.API_URL, {
           method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'saveAvailability', email: currentUser.email, name: currentUser.name, weekStart, availability })
+          body: JSON.stringify({
+            action: 'saveAvailability',
+            email: currentUser.email,
+            name: currentUser.name,
+            weekStart,
+            availability
+          })
         });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
         const data = await res.json();
-        showMessage(data.success ? 'Đã lưu đăng ký ca rảnh.' : 'Lỗi lưu: ' + data.message, !data.success);
+
+        if (data.success) {
+          console.log('✅ Save successful');
+          showMessage('✅ LƯU THÀNH CÔNG! Đã lưu đăng ký ca rảnh của bạn.', false);
+
+          // Scroll to message to make it visible
+          if (msgEl) {
+            msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Make message more prominent
+            msgEl.style.fontSize = '16px';
+            msgEl.style.fontWeight = '700';
+            msgEl.style.padding = '16px 20px';
+            msgEl.style.borderLeft = '4px solid #28a745';
+
+            // Auto-clear after 5 seconds
+            setTimeout(() => {
+              msgEl.style.fontSize = '';
+              msgEl.style.fontWeight = '';
+              msgEl.style.padding = '';
+              msgEl.style.borderLeft = '';
+            }, 5000);
+          }
+        } else {
+          console.error('❌ Save failed:', data);
+          showMessage('❌ LƯU THẤT BẠI: ' + (data.message || 'Lỗi không xác định. Vui lòng thử lại.'), true);
+
+          // Scroll to error message
+          if (msgEl) {
+            msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            msgEl.style.fontSize = '16px';
+            msgEl.style.fontWeight = '700';
+            msgEl.style.padding = '16px 20px';
+            msgEl.style.borderLeft = '4px solid #dc3545';
+          }
+        }
       } catch (err) {
-        showMessage('Lỗi kết nối khi lưu.', true);
+        console.error('❌ Save error:', err);
+        showMessage('❌ LỖI KẾT NỐI: ' + err.message + '. Vui lòng kiểm tra mạng và thử lại.', true);
+
+        // Scroll to error message
+        if (msgEl) {
+          msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          msgEl.style.fontSize = '16px';
+          msgEl.style.fontWeight = '700';
+          msgEl.style.padding = '16px 20px';
+          msgEl.style.borderLeft = '4px solid #dc3545';
+        }
       }
     }
 
