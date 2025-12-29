@@ -49,15 +49,15 @@ window.ScheduleAdminPage = {
         { email: 'thanh@crushroom.vn', name: 'Thành', team: 'cs' },
         { email: 'hieu@crushroom.vn', name: 'Hiếu', team: 'cs' },
         { email: 'thuong@crushroom.vn', name: 'Thường', team: 'cs' },
-        { email: 'khang@crushroom.vn', name: 'Khang', team: 'cs' },
         { email: 'thu@crushroom.vn', name: 'Thư', team: 'cs' },
-        { email: 'an@crushroom.vn', name: 'An', team: 'cs' },
         { email: 'toan@crushroom.vn', name: 'Toàn', team: 'cs' },
         { email: 'tran@crushroom.vn', name: 'Trần', team: 'cs' }
       ],
       mo: [
-        { email: 'marketing1@crushroom.vn', name: 'Marketing 1', team: 'mo' },
-        { email: 'marketing2@crushroom.vn', name: 'Marketing 2', team: 'mo' }
+        { email: 'admin@crushroom.vn', name: 'Admin', team: 'mo' },
+        { email: 'an@crushroom.vn', name: 'An', team: 'mo' },
+        { email: 'khang@crushroom.vn', name: 'Khang', team: 'mo' },
+        { email: 'phuc@crushroom.vn', name: 'Phúc', team: 'mo' }
       ]
     };
 
