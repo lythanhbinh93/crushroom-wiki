@@ -427,6 +427,9 @@ window.ScheduleAdminPage = {
     function renderGridOverview() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
+      // Get current team filter
+      const currentTeam = teamSelect ? teamSelect.value : 'cs';
+
       cells.forEach(td => {
         const slotId  = td.dataset.slotId;
         const statsEl = td.querySelector('.slot-stats');
@@ -471,8 +474,14 @@ window.ScheduleAdminPage = {
           }
         });
 
+        // Filter by current team - only show employees matching selected team
+        const filteredPeople = Object.values(peopleByEmail).filter(u => {
+          const userTeam = (u.team || '').toLowerCase();
+          return userTeam === currentTeam;
+        });
+
         // Sort employees alphabetically for consistent ordering
-        const sortedPeople = Object.values(peopleByEmail).sort((a, b) => {
+        const sortedPeople = filteredPeople.sort((a, b) => {
           const nameA = (a.name || a.email || '').toLowerCase();
           const nameB = (b.name || b.email || '').toLowerCase();
           return nameA.localeCompare(nameB);
@@ -550,6 +559,9 @@ window.ScheduleAdminPage = {
     function renderGridDetail() {
       const cells = tbody.querySelectorAll('td.schedule-cell');
 
+      // Get current team filter
+      const currentTeam = teamSelect ? teamSelect.value : 'cs';
+
       cells.forEach(td => {
         const slotId  = td.dataset.slotId;
         const statsEl = td.querySelector('.slot-stats');
@@ -576,8 +588,14 @@ window.ScheduleAdminPage = {
           }
         });
 
+        // Filter by current team - only show employees matching selected team
+        const filteredPeople = Object.values(peopleByEmail).filter(u => {
+          const userTeam = (u.team || '').toLowerCase();
+          return userTeam === currentTeam;
+        });
+
         // Sort employees alphabetically
-        const sortedPeople = Object.values(peopleByEmail).sort((a, b) => {
+        const sortedPeople = filteredPeople.sort((a, b) => {
           const nameA = (a.name || a.email || '').toLowerCase();
           const nameB = (b.name || b.email || '').toLowerCase();
           return nameA.localeCompare(nameB);
