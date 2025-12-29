@@ -482,14 +482,51 @@ window.SchedulePage = {
 
         if (data.success) {
           console.log('✅ Save successful');
-          showMessage('Đã lưu đăng ký ca rảnh.', false);
+          showMessage('✅ LƯU THÀNH CÔNG! Đã lưu đăng ký ca rảnh của bạn.', false);
+
+          // Scroll to message to make it visible
+          if (msgEl) {
+            msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Make message more prominent
+            msgEl.style.fontSize = '16px';
+            msgEl.style.fontWeight = '700';
+            msgEl.style.padding = '16px 20px';
+            msgEl.style.borderLeft = '4px solid #28a745';
+
+            // Auto-clear after 5 seconds
+            setTimeout(() => {
+              msgEl.style.fontSize = '';
+              msgEl.style.fontWeight = '';
+              msgEl.style.padding = '';
+              msgEl.style.borderLeft = '';
+            }, 5000);
+          }
         } else {
           console.error('❌ Save failed:', data);
-          showMessage('Lỗi lưu: ' + (data.message || 'Unknown error'), true);
+          showMessage('❌ LƯU THẤT BẠI: ' + (data.message || 'Lỗi không xác định. Vui lòng thử lại.'), true);
+
+          // Scroll to error message
+          if (msgEl) {
+            msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            msgEl.style.fontSize = '16px';
+            msgEl.style.fontWeight = '700';
+            msgEl.style.padding = '16px 20px';
+            msgEl.style.borderLeft = '4px solid #dc3545';
+          }
         }
       } catch (err) {
         console.error('❌ Save error:', err);
-        showMessage('Lỗi kết nối khi lưu: ' + err.message, true);
+        showMessage('❌ LỖI KẾT NỐI: ' + err.message + '. Vui lòng kiểm tra mạng và thử lại.', true);
+
+        // Scroll to error message
+        if (msgEl) {
+          msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          msgEl.style.fontSize = '16px';
+          msgEl.style.fontWeight = '700';
+          msgEl.style.padding = '16px 20px';
+          msgEl.style.borderLeft = '4px solid #dc3545';
+        }
       }
     }
 

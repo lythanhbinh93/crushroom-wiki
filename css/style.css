@@ -1353,22 +1353,29 @@ html {
   border-radius: 6px;
   margin-top: 8px;
   display: none;
+  transition: all 0.3s ease;
 }
 
 .alert-message.show {
   display: block;
 }
 
-.alert-message.success {
+/* Success styles */
+.alert-message.success,
+.alert-message.alert-success {
   background: #e8f5e9;
   color: #2e7d32;
   border: 1px solid #c8e6c9;
+  display: block;
 }
 
-.alert-message.error {
+/* Error styles */
+.alert-message.error,
+.alert-message.alert-error {
   background: #ffebee;
   color: #c62828;
   border: 1px solid #ffcdd2;
+  display: block;
 }
 
 /* Status Bar */
