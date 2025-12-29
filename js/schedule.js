@@ -438,21 +438,58 @@ window.SchedulePage = {
       if (!canEditAvailability) return showMessage('Tuần này đã chốt, không thể chỉnh sửa.', true);
 
       const weekStart = weekInput.value;
-      const availability = Object.keys(checkedMap).map(id => {
-        const [date, shift] = id.split('|');
-        return { date, shift };
+
+      // Validate weekStart matches dates array (防止数据不一致)
+      if (dates.length > 0 && dates[0] !== weekStart) {
+        console.warn('⚠️ WeekStart mismatch!', { weekStart, firstDate: dates[0] });
+        showMessage('Lỗi: Dữ liệu không đồng bộ. Vui lòng tải lại trang.', true);
+        return;
+      }
+
+      const availability = Object.keys(checkedMap)
+        .filter(id => checkedMap[id]) // Only save checked items
+        .map(id => {
+          const [date, shift] = id.split('|');
+          return { date, shift };
+        });
+
+      // Log for debugging
+      console.log('💾 Saving availability:', {
+        weekStart,
+        checkedCount: availability.length,
+        firstAvail: availability[0],
+        lastAvail: availability[availability.length - 1]
       });
 
       try {
         showMessage('Đang lưu...', false);
         const res = await fetch(Auth.API_URL, {
           method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'saveAvailability', email: currentUser.email, name: currentUser.name, weekStart, availability })
+          body: JSON.stringify({
+            action: 'saveAvailability',
+            email: currentUser.email,
+            name: currentUser.name,
+            weekStart,
+            availability
+          })
         });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
         const data = await res.json();
-        showMessage(data.success ? 'Đã lưu đăng ký ca rảnh.' : 'Lỗi lưu: ' + data.message, !data.success);
+
+        if (data.success) {
+          console.log('✅ Save successful');
+          showMessage('Đã lưu đăng ký ca rảnh.', false);
+        } else {
+          console.error('❌ Save failed:', data);
+          showMessage('Lỗi lưu: ' + (data.message || 'Unknown error'), true);
+        }
       } catch (err) {
-        showMessage('Lỗi kết nối khi lưu.', true);
+        console.error('❌ Save error:', err);
+        showMessage('Lỗi kết nối khi lưu: ' + err.message, true);
       }
     }
 
