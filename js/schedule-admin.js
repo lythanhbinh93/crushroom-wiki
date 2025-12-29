@@ -48,10 +48,9 @@ window.ScheduleAdminPage = {
       cs: [
         { email: 'thanh@crushroom.vn', name: 'Thành', team: 'cs' },
         { email: 'hieu@crushroom.vn', name: 'Hiếu', team: 'cs' },
-        { email: 'thuong@crushroom.vn', name: 'Thường', team: 'cs' },
         { email: 'thu@crushroom.vn', name: 'Thư', team: 'cs' },
         { email: 'toan@crushroom.vn', name: 'Toàn', team: 'cs' },
-        { email: 'tran@crushroom.vn', name: 'Trần', team: 'cs' }
+        { email: 'tran@crushroom.vn', name: 'Trân', team: 'cs' }
       ],
       mo: [
         { email: 'admin@crushroom.vn', name: 'Admin', team: 'mo' },
