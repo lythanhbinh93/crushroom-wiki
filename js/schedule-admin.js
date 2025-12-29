@@ -42,6 +42,25 @@ window.ScheduleAdminPage = {
       ? Auth.getCurrentUser()
       : null;
 
+    // ==== TEAM ROSTER - Danh sách toàn bộ nhân viên ========================
+    // CẬP NHẬT danh sách này khi có nhân viên mới/nghỉ việc
+    const TEAM_ROSTER = {
+      cs: [
+        { email: 'thanh@crushroom.vn', name: 'Thành', team: 'cs' },
+        { email: 'hieu@crushroom.vn', name: 'Hiếu', team: 'cs' },
+        { email: 'thuong@crushroom.vn', name: 'Thường', team: 'cs' },
+        { email: 'khang@crushroom.vn', name: 'Khang', team: 'cs' },
+        { email: 'thu@crushroom.vn', name: 'Thư', team: 'cs' },
+        { email: 'an@crushroom.vn', name: 'An', team: 'cs' },
+        { email: 'toan@crushroom.vn', name: 'Toàn', team: 'cs' },
+        { email: 'tran@crushroom.vn', name: 'Trần', team: 'cs' }
+      ],
+      mo: [
+        { email: 'marketing1@crushroom.vn', name: 'Marketing 1', team: 'mo' },
+        { email: 'marketing2@crushroom.vn', name: 'Marketing 2', team: 'mo' }
+      ]
+    };
+
     // ==== STATE ============================================================
     let dates = [];           // 7 ngày trong tuần
     let timeSlots = [];       // [{key, label}]
@@ -421,8 +440,10 @@ window.ScheduleAdminPage = {
 
         namesEl.innerHTML = '';
 
-        // Build list of available employees
+        // Build list of ALL employees (both available AND assigned)
         const peopleByEmail = {};
+
+        // Add employees who registered availability
         availList.forEach(u => {
           const key = (u.email || '').toLowerCase();
           if (!key) return;
@@ -430,7 +451,22 @@ window.ScheduleAdminPage = {
             peopleByEmail[key] = {
               email: u.email,
               name: u.name || u.email,
-              team: u.team || ''
+              team: u.team || '',
+              hasAvailability: true
+            };
+          }
+        });
+
+        // ALSO add employees who have been assigned (even if no availability)
+        assignedList.forEach(u => {
+          const key = (u.email || '').toLowerCase();
+          if (!key) return;
+          if (!peopleByEmail[key]) {
+            peopleByEmail[key] = {
+              email: u.email,
+              name: u.name || u.email,
+              team: u.team || '',
+              hasAvailability: false
             };
           }
         });
@@ -477,7 +513,15 @@ window.ScheduleAdminPage = {
             badge.style.border = 'none';
             badge.style.opacity = '1';
             badge.style.fontWeight = '700';
-            badge.title = `${u.name || u.email} - Đã phân ca`;
+
+            // Show warning if assigned without availability
+            if (!u.hasAvailability) {
+              badge.title = `⚠️ ${u.name || u.email} - Đã phân ca (KHÔNG ĐĂNG KÝ RẢNH)`;
+              badge.textContent = '⚠️ ' + getShortName(u.name || u.email);
+            } else {
+              badge.title = `${u.name || u.email} - Đã phân ca`;
+              badge.textContent = getShortName(u.name || u.email);
+            }
           } else {
             // Available but not assigned: outlined style
             badge.style.background = 'transparent';
@@ -485,14 +529,13 @@ window.ScheduleAdminPage = {
             badge.style.border = `1.5px solid ${colors.bg}`;
             badge.style.opacity = '0.85';
             badge.title = `${u.name || u.email} - Rảnh, click để phân ca`;
+            badge.textContent = getShortName(u.name || u.email);
           }
 
           badge.dataset.slotId = slotId;
           badge.dataset.email  = u.email;
           badge.dataset.name   = u.name || '';
           badge.dataset.team   = u.team || '';
-
-          badge.textContent = getShortName(u.name || u.email);
 
           badge.addEventListener('click', onNameClick);
 
@@ -1067,10 +1110,26 @@ window.ScheduleAdminPage = {
      * Update Quick Assignment Panel với employee list
      */
     function updateQuickAssignmentPanel() {
-      // Extract all unique employees from BOTH availabilityMap AND scheduleMap
+      // Get current team from teamSelect
+      const currentTeam = teamSelect ? teamSelect.value : 'cs';
+
+      // Start with TEAM_ROSTER for current team (all employees)
       const employeeSet = new Map(); // email -> {email, name, team}
 
-      // Get employees from availabilityMap (who registered availability)
+      // Add all employees from TEAM_ROSTER
+      const rosterForTeam = TEAM_ROSTER[currentTeam] || [];
+      rosterForTeam.forEach(emp => {
+        const email = (emp.email || '').toLowerCase();
+        if (email) {
+          employeeSet.set(email, {
+            email: emp.email,
+            name: emp.name || emp.email,
+            team: emp.team || currentTeam
+          });
+        }
+      });
+
+      // Also add any employees from availabilityMap (in case they're not in roster)
       Object.values(availabilityMap).forEach(userList => {
         userList.forEach(u => {
           const email = (u.email || '').toLowerCase();
@@ -1084,7 +1143,7 @@ window.ScheduleAdminPage = {
         });
       });
 
-      // Also get employees from scheduleMap (who have been assigned)
+      // Also add employees from scheduleMap (who have been assigned)
       Object.values(scheduleMap).forEach(userList => {
         userList.forEach(u => {
           const email = (u.email || '').toLowerCase();
