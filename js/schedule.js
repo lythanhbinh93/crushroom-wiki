@@ -174,10 +174,10 @@ window.SchedulePage = {
         toggleRegisterBtn.style.color = '#666';
       }
 
-      // Auto-load team schedule with default CS team
+      // Auto-load team schedule with user's team
       if (viewWeekInput && viewTeamSelect) {
         const week = viewWeekInput.value;
-        const selectedTeam = viewTeamSelect.value || 'cs'; // Default to CS
+        const selectedTeam = viewTeamSelect.value || team; // Use user's team
         if (week) {
           loadTeamScheduleView(week, selectedTeam);
         }
@@ -219,6 +219,44 @@ window.SchedulePage = {
       filterAllBtn.addEventListener('click', () => setFilter('all', filterAllBtn));
       filterCsBtn.addEventListener('click', () => setFilter('cs', filterCsBtn));
       filterMoBtn.addEventListener('click', () => setFilter('mo', filterMoBtn));
+
+      // Set default filter to user's team
+      currentTeamFilter = team;
+      if (team === 'cs' && filterCsBtn) {
+        filterCsBtn.classList.add('active');
+      } else if (team === 'mo' && filterMoBtn) {
+        filterMoBtn.classList.add('active');
+      }
+    }
+
+    // =====================================================
+    // INITIALIZATION - Set defaults based on day of week and user team
+    // =====================================================
+
+    // Helper: Get default mode based on current day of week
+    function getDefaultMode() {
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+      // Saturday (6) or Sunday (0) -> show 'register' mode (Đăng ký lịch rãnh)
+      // Monday-Friday (1-5) -> show 'view' mode (Xem lịch chốt)
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return 'register';
+      }
+      return 'view';
+    }
+
+    // Set default team in view mode select based on user's team
+    if (viewTeamSelect) {
+      viewTeamSelect.value = team; // team is already determined at line 62
+    }
+
+    // Set default mode and switch to it
+    const defaultMode = getDefaultMode();
+    if (defaultMode === 'view') {
+      switchToViewMode();
+    } else {
+      switchToRegisterMode();
     }
 
     // Initial Load
