@@ -73,7 +73,42 @@ window.ScheduleAdminPage = {
     let allEmployees = [];         // [{email, name, team}]
 
     // ==== VIEW MODE STATE ==================================================
-    let viewMode = 'detail'; // 'overview' or 'detail' - default to 'detail' (Lịch chốt)
+    // Helper: Get default view mode based on current day of week
+    function getDefaultViewMode() {
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+      // Saturday (6) or Sunday (0) -> show 'overview' (Lịch rãnh)
+      // Monday-Friday (1-5) -> show 'detail' (Lịch chốt)
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return 'overview';
+      }
+      return 'detail';
+    }
+
+    // Helper: Get user's team from TEAM_ROSTER
+    function getUserTeam() {
+      if (!currentUser || !currentUser.email) {
+        return 'cs'; // default to CS if no user
+      }
+
+      const userEmail = currentUser.email.toLowerCase();
+
+      // Check CS team
+      if (TEAM_ROSTER.cs.some(emp => emp.email.toLowerCase() === userEmail)) {
+        return 'cs';
+      }
+
+      // Check MO team
+      if (TEAM_ROSTER.mo.some(emp => emp.email.toLowerCase() === userEmail)) {
+        return 'mo';
+      }
+
+      // Default to CS if not found
+      return 'cs';
+    }
+
+    let viewMode = getDefaultViewMode(); // Auto-detect based on current day
 
     // Màu tương phản cao cho từng nhân viên (vivid colors)
     const COLOR_PALETTE = [
@@ -218,6 +253,15 @@ window.ScheduleAdminPage = {
 
     // Initialize mobile FAB visibility
     initMobileFAB();
+
+    // Set default team filter based on current user's team
+    if (teamSelect) {
+      const userTeam = getUserTeam();
+      teamSelect.value = userTeam;
+    }
+
+    // Initialize view mode buttons based on default viewMode
+    switchViewMode(viewMode);
 
     // Lần đầu load
     loadData();
