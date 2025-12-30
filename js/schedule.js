@@ -238,12 +238,12 @@ window.SchedulePage = {
       const today = new Date();
       const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
 
-      // Saturday (6) or Sunday (0) -> show 'view' mode (Lịch chốt)
-      // Monday-Friday (1-5) -> show 'register' mode (Đăng ký lịch rãnh)
+      // Saturday (6) or Sunday (0) -> show 'register' mode (Đăng ký lịch rãnh)
+      // Monday-Friday (1-5) -> show 'view' mode (Xem lịch chốt)
       if (dayOfWeek === 0 || dayOfWeek === 6) {
-        return 'view';
+        return 'register';
       }
-      return 'register';
+      return 'view';
     }
 
     // Set default team in view mode select based on user's team
