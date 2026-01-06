@@ -317,15 +317,20 @@ window.SchedulePage = {
         const dataSched = await resSched.json();
         const dataAllAvail = await resAllAvail.json();
 
+        // DEBUG: Log team availability data
+        console.log('📊 Team Availability Response:', dataAllAvail);
+
         // Process All Team Availability
         allAvailabilityMap = {};
         if (dataAllAvail?.success && Array.isArray(dataAllAvail.availability)) {
+          console.log(`📋 Processing ${dataAllAvail.availability.length} availability records for team ${team}`);
+
           dataAllAvail.availability.forEach(item => {
             const date = String(item.date || '').substring(0, 10);
             const shift = normalizeShiftKey(item.shift); // FIX: Normalize key
             const email = String(item.email || '').toLowerCase();
             const name = String(item.name || email);
-            
+
             if (!date || !shift || email === currentUser.email.toLowerCase()) return;
 
             const slotId = `${date}|${shift}`;
@@ -334,6 +339,11 @@ window.SchedulePage = {
               allAvailabilityMap[slotId].push({ email, name });
             }
           });
+
+          console.log('✅ Final allAvailabilityMap:', allAvailabilityMap);
+          console.log(`👥 Total slots with other team members: ${Object.keys(allAvailabilityMap).length}`);
+        } else {
+          console.warn('⚠️ No team availability data received or invalid response');
         }
 
         // Determine Status
